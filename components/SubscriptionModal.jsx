@@ -16,7 +16,7 @@ const subscriptionPlans = {
 			},
 			{
 				title: "💻 Unlimited projects",
-				description: "Create unlimited kixr on the app",
+				description: "Create unlimited kixi on the app",
 			},
 			{
 				title: "🚀 New Templates",
@@ -140,7 +140,7 @@ const SubscriptionModal = () => {
 						transition={{ delay: 0.2 }}
 						className="text-4xl font-bold text-zinc-900"
 					>
-						Kixr PRO
+						kixi PRO
 					</motion.h2>
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}

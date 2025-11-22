@@ -30,30 +30,30 @@ export default class MyDocument extends Document {
 						rel="icon"
 						type="image/png"
 						sizes="32x32"
-						href="https://gettemplate.website/logo.png"
+						href="https://gettemplate.website/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="16x16"
-						href="https://gettemplate.website/logo.png"
+						href="https://gettemplate.website/kixi-logo"
 					/>
 					<link
 						rel="apple-touch-icon"
 						sizes="180x180"
-						href="https://gettemplate.website/logo.png"
+						href="https://gettemplate.website/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="192x192"
-						href="https://gettemplate.website/logo.png"
+						href="https://gettemplate.website/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="512x512"
-						href="https://gettemplate.website/logo.png"
+						href="https://gettemplate.website/kixi-logo"
 					/>
 
 					{/* Manifest */}
@@ -117,7 +117,7 @@ export default class MyDocument extends Document {
 						async
 						src="https://www.googletagmanager.com/gtag/js?id=UA-171687918-1"
 					/>
-					
+
 					<script
 						defer
 						src="https://cloud.umami.is/script.js"
@@ -160,34 +160,34 @@ MyDocument.getInitialProps = async (ctx) => {
 			title: "gettemplate - React & Next.js Templates",
 			description:
 				"gettemplate is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
-			bannerImage: "https://gettemplate.website/logo.png",
-			bannerImageUrl: "https://gettemplate.website/logo.png",
-			thumbnail: "https://gettemplate.website/logo.png",
+			bannerImage: "https://gettemplate.website/kixi-logo",
+			bannerImageUrl: "https://gettemplate.website/kixi-logo",
+			thumbnail: "https://gettemplate.website/kixi-logo",
 		};
 	} else if (ctx.pathname === "/templates") {
 		logData = {
 			title: "gettemplate Templates",
 			description:
 				"gettemplate is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
-			bannerImage: "https://gettemplate.website/logo.png",
-			bannerImageUrl: "https://gettemplate.website/logo.png",
-			thumbnail: "https://gettemplate.website/logo.png",
+			bannerImage: "https://gettemplate.website/kixi-logo",
+			bannerImageUrl: "https://gettemplate.website/kixi-logo",
+			thumbnail: "https://gettemplate.website/kixi-logo",
 		};
 	} else if (ctx.pathname.startsWith("/template/")) {
 		logData = {
 			title: "gettemplate - React & Next.js Template",
 			description: "Check out this nextjs template along with source code",
-			bannerImage: "https://gettemplate.website/logo.png",
-			bannerImageUrl: "https://gettemplate.website/logo.png",
-			thumbnail: "https://gettemplate.website/logo.png",
+			bannerImage: "https://gettemplate.website/kixi-logo",
+			bannerImageUrl: "https://gettemplate.website/kixi-logo",
+			thumbnail: "https://gettemplate.website/kixi-logo",
 		};
 	} else if (ctx.pathname === "/account") {
 		logData = {
 			title: "Account - gettemplate",
 			description: "Manage your gettemplate account and subscriptions",
-			bannerImage: "https://gettemplate.website/logo.png",
-			bannerImageUrl: "https://gettemplate.website/logo.png",
-			thumbnail: "https://gettemplate.website/logo.png",
+			bannerImage: "https://gettemplate.website/kixi-logo",
+			bannerImageUrl: "https://gettemplate.website/kixi-logo",
+			thumbnail: "https://gettemplate.website/kixi-logo",
 		};
 	}
 

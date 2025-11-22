@@ -30,7 +30,7 @@ export default function PublishedProject() {
 				}
 
 				const data = publishedDoc.data();
-				
+
 				if (!data.isPublic) {
 					setError("This project is not publicly available");
 					setIsLoading(false);
@@ -81,8 +81,8 @@ export default function PublishedProject() {
 	return (
 		<>
 			<Head>
-				<title>{projectName} - Kixr</title>
-				<meta name="description" content={`View ${projectName} on Kixr`} />
+				<title>{projectName} - kixi</title>
+				<meta name="description" content={`View ${projectName} on kixi`} />
 			</Head>
 			<div
 				dangerouslySetInnerHTML={{ __html: htmlContent }}
@@ -91,4 +91,3 @@ export default function PublishedProject() {
 		</>
 	);
 }
-

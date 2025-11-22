@@ -14,7 +14,7 @@ const WhyWeMadeSection = () => {
 			icon: <Target className="w-6 h-6 text-zinc-800" />,
 			title: "Our Solution",
 			description:
-				"kixr makes it easy to create stunning animated gradients in minutes. No design skills needed - just choose colors, add animation, and export in any format you need.",
+				"kixi makes it easy to create stunning animated gradients in minutes. No design skills needed - just choose colors, add animation, and export in any format you need.",
 			bgColor: "bg-blue-50",
 		},
 		{
@@ -41,7 +41,7 @@ const WhyWeMadeSection = () => {
 				</h2>
 				<p className="text-zinc-600 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
 					We understand the struggle of creating perfect animated gradients.
-					That's why we created kixr.
+					That's why we created kixi.
 				</p>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					{reasons.map((reason, index) => (

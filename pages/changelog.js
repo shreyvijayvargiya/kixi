@@ -149,7 +149,7 @@ const ChangelogPage = () => {
 				siteName: "gettemplate.website",
 				images: [
 					{
-						url: "https://gettemplate.website/logo.png",
+						url: "https://gettemplate.website/kixi-logo",
 						width: 1200,
 						height: 630,
 						alt: `gettemplate changelog`,
@@ -163,7 +163,7 @@ const ChangelogPage = () => {
 				title: `Changelog - gettemplate`,
 				description:
 					"Stay updated with the latest features, improvements, and new templates added to our collection",
-				images: ["https://gettemplate.website/logo.png"],
+				images: ["https://gettemplate.website/kixi-logo"],
 				creator: "@treyvijay",
 				site: "@treyvijay",
 			},
@@ -243,7 +243,7 @@ const ChangelogPage = () => {
 				<link
 					rel="icon"
 					type="image/png"
-					href="https://gettemplate.website/logo.png"
+					href="https://gettemplate.website/kixi-logo"
 				/>
 			</Head>
 			<div className="">

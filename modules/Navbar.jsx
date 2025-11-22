@@ -34,7 +34,7 @@ const Navbar = () => {
 						className="cursor-pointer hover:bg-zinc-100 rounded-xl p-1.5"
 						onClick={() => router.push("/")}
 					>
-						<img src="/logo.png" alt="gettemplate" className="w-8 h-8" />
+						<img src="/kixi-logo" alt="gettemplate" className="w-8 h-8" />
 					</div>
 					<a
 						href="/blogs"
@@ -100,7 +100,7 @@ const Navbar = () => {
 								className="cursor-pointer hover:bg-zinc-100 rounded-xl p-1.5"
 								onClick={() => router.push("/")}
 							>
-								<img src="/logo.png" alt="gettemplate" className="w-8 h-8" />
+								<img src="/kixi-logo" alt="gettemplate" className="w-8 h-8" />
 							</div>
 							<a
 								href="/blogs"

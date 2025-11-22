@@ -141,7 +141,7 @@ const FeaturesSectionModal = ({ isOpen, onClose }) => {
 						<div className="flex items-center justify-between max-w-2xl w-full mx-auto">
 							<span className="m-2 flex items-center gap-2 p-2 rounded-full bg-zinc-100 text-xs font-medium text-zinc-600 w-fit">
 								<Sparkles className="w-3 h-3" />
-								Kixr
+								kixi
 							</span>
 							<button
 								onClick={onClose}
@@ -156,7 +156,9 @@ const FeaturesSectionModal = ({ isOpen, onClose }) => {
 						>
 							{/* Header */}
 							<div className="flex items-center justify-center p-2">
-								<h2 className="text-lg font-semibold font-sans mt-2 text-center">Features</h2>
+								<h2 className="text-lg font-semibold font-sans mt-2 text-center">
+									Features
+								</h2>
 							</div>
 							{/* Carousel Container */}
 							<div className="flex-1 flex items-center justify-center p-8 relative overflow-hidden">

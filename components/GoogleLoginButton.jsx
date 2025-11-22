@@ -189,7 +189,6 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 									"radial-gradient(circle, #d1d5db 1.5px, transparent 1.5px)",
 								backgroundSize: "20px 20px",
 							}}
-							
 						/>
 						{/* Modal Content */}
 						<motion.div
@@ -220,7 +219,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 											transition={{ duration: 0.6, delay: 0.3 }}
 											className="text-3xl md:text-4xl lg:text-5xl font-bold text-zinc-900 mb-6"
 										>
-											Kixr
+											kixi
 										</motion.h2>
 										<motion.p
 											initial={{ opacity: 0, y: 20 }}

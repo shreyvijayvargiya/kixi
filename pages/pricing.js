@@ -10,7 +10,7 @@ import { setSubscriptionStatus } from "../redux/slices/authSlice";
 
 const SubscriptionMeta = () => (
 	<Head>
-		<title>Kixr - Pricing Page</title>
+		<title>kixi - Pricing Page</title>
 		<meta
 			name="description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
@@ -25,7 +25,7 @@ const SubscriptionMeta = () => (
 			property="og:url"
 			content="https://gettemplate.website/subscription"
 		/>
-		<meta property="og:image" content="https://gettemplate.website/logo.png" />
+		<meta property="og:image" content="https://gettemplate.website/kixi-logo" />
 		<meta property="og:image:width" content="32" />
 		<meta property="og:image:height" content="32" />
 		<meta property="og:image:type" content="image/svg+xml" />
@@ -37,7 +37,10 @@ const SubscriptionMeta = () => (
 			name="twitter:description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
 		/>
-		<meta name="twitter:image" content="https://gettemplate.website/logo.png" />
+		<meta
+			name="twitter:image"
+			content="https://gettemplate.website/kixi-logo"
+		/>
 	</Head>
 );
 
@@ -92,7 +95,7 @@ const BuyPro = () => {
 							className="cursor-pointer font-semibold text-lg hover:bg-zinc-100 rounded-xl p-1.5 bg-gradient-to-tr from-white to-pink-600 bg-clip-text text-transparent"
 							onClick={() => router.push("/")}
 						>
-							Kixr
+							kixi
 						</div>
 
 						<div className="items-center gap-1 lg:flex hidden ml-4">

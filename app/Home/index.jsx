@@ -61,9 +61,9 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const faqs = [
 	{
-		question: "What is kixr?",
+		question: "What is kixi?",
 		answer:
-			"kixr is a powerful animated gradient generator that helps you create stunning, animated gradients for your projects. Create beautiful gradients with customizable colors, animations, and export them in multiple formats including PNG, SVG, GIF, MP4, or React code.",
+			"kixi is a powerful animated gradient generator that helps you create stunning, animated gradients for your projects. Create beautiful gradients with customizable colors, animations, and export them in multiple formats including PNG, SVG, GIF, MP4, or React code.",
 	},
 	{
 		question: "How do I create a gradient?",
@@ -73,7 +73,7 @@ const faqs = [
 	{
 		question: "What export formats are available?",
 		answer:
-			"kixr supports multiple export formats: PNG (static images), SVG (vector graphics), GIF (animated), MP4 (video), and React code (for direct use in your projects). PRO users get access to all formats with higher quality options.",
+			"kixi supports multiple export formats: PNG (static images), SVG (vector graphics), GIF (animated), MP4 (video), and React code (for direct use in your projects). PRO users get access to all formats with higher quality options.",
 	},
 	{
 		question: "Can I use AI to generate gradients?",
@@ -88,7 +88,7 @@ const faqs = [
 	{
 		question: "Can I export React code?",
 		answer:
-			"Absolutely! kixr can generate production-ready React code for your gradients. Simply click the export button and select 'React Code' to get clean, copy-paste ready code that you can use directly in your React or Next.js projects.",
+			"Absolutely! kixi can generate production-ready React code for your gradients. Simply click the export button and select 'React Code' to get clean, copy-paste ready code that you can use directly in your React or Next.js projects.",
 	},
 	{
 		question: "What's included in the PRO plan?",
@@ -103,7 +103,7 @@ const faqs = [
 	{
 		question: "Do I own the gradients I create?",
 		answer:
-			"Yes! You have full ownership and commercial rights to all gradients you create with kixr. Use them in any project, commercial or personal, without any restrictions or attribution required.",
+			"Yes! You have full ownership and commercial rights to all gradients you create with kixi. Use them in any project, commercial or personal, without any restrictions or attribution required.",
 	},
 	{
 		question: "What kind of support do you provide?",
@@ -113,7 +113,7 @@ const faqs = [
 	{
 		question: "Can I use gradients for commercial projects?",
 		answer:
-			"Absolutely! All gradients created with kixr can be used for commercial projects, client work, personal websites, or any application. You have complete commercial rights to everything you create.",
+			"Absolutely! All gradients created with kixi can be used for commercial projects, client work, personal websites, or any application. You have complete commercial rights to everything you create.",
 	},
 	{
 		question: "How do I save my projects?",
@@ -535,7 +535,7 @@ const Templates = () => {
 						{/* Pricing Section */}
 						<PricingSection />
 
-						{/* Who is kixr for */}
+						{/* Who is kixi for */}
 						<section
 							id="how-it-works"
 							className={`my-16 w-full max-w-7xl mx-auto px-4 relative transition-all duration-300 ${
@@ -565,15 +565,15 @@ const Templates = () => {
 							)}
 							<span className="mb-6 border border-zinc-200 rounded-full bg-zinc-100 text-xs  px-4 py-2 flex items-center justify-center w-fit mx-auto">
 								<Heart className="w-3 h-3 mr-2" />
-								Who can use kixr?
+								Who can use kixi?
 							</span>
 							<div className="flex flex-wrap justify-center items-center flex-col relative">
 								<div className="mb-4">
 									<h3 className="font-semibold text-4xl mb-2 mx-auto text-center bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent">
-										kixr is for everyone
+										kixi is for everyone
 									</h3>
 									<p className=" text-zinc-600 max-w-md mx-auto text-center leading-relaxed">
-										kixr is built to help you create stunning animated gradients
+										kixi is built to help you create stunning animated gradients
 										quickly and easily. Save time, get inspired, and bring your
 										designs to life.
 									</p>

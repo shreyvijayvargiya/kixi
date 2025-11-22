@@ -51,7 +51,7 @@ export async function getStaticProps({ params }) {
 export default function BlogPage({ data, contentHtml, blogData, slug }) {
 	const title = blogData?.title || slug.replace(/-/g, " ");
 	const description = blogData?.description || "Read our latest blog post";
-	const bannerImage = blogData?.banner || "/logo.png";
+	const bannerImage = blogData?.banner || "/kixi-logo";
 	const tags = blogData?.tags || [];
 	const date = blogData?.date || data?.date;
 
@@ -109,7 +109,7 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 								name: "GetTemplate",
 								logo: {
 									"@type": "ImageObject",
-									url: "https://gettemplate.website/logo.png",
+									url: "https://gettemplate.website/kixi-logo",
 								},
 							},
 							datePublished: date,

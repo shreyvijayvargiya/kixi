@@ -24,7 +24,7 @@ const ConnectPage = () => {
 				siteName: "gettemplate.website",
 				images: [
 					{
-						url: "https://gettemplate.website/logo.png",
+						url: "https://gettemplate.website/kixi-logo",
 						width: 1200,
 						height: 630,
 						alt: `gettemplate premium templates`,
@@ -38,7 +38,7 @@ const ConnectPage = () => {
 				title: `Premium Templates - gettemplate`,
 				description:
 					"Discover our collection of professionally designed, production-ready premium templates",
-				images: ["https://gettemplate.website/logo.png"],
+				images: ["https://gettemplate.website/kixi-logo"],
 				creator: "@treyvijay",
 				site: "@treyvijay",
 			},
@@ -224,7 +224,7 @@ const ConnectPage = () => {
 				<link
 					rel="icon"
 					type="image/png"
-					href="https://gettemplate.website/logo.png"
+					href="https://gettemplate.website/kixi-logo"
 				/>
 			</Head>
 			<div>
@@ -336,7 +336,6 @@ const ConnectPage = () => {
 							</a>
 						</div>
 					</div>
-					
 				</div>
 				<footer className="mx-auto flex flex-col md:flex-row justify-between items-start md:items-center border-t border-zinc-200 border-dashed">
 					<div className="flex items-center justify-between w-full mx-auto max-w-7xl p-10 border-l border-r border-zinc-200 border-dashed">

@@ -1,4 +1,4 @@
-# kixr
+# kixi
 
 A powerful platform for creating stunning animated gradients and accessing premium React, Next.js, and Vite code templates. Build beautiful websites faster with production-ready components and templates.
 
@@ -52,7 +52,7 @@ A powerful platform for creating stunning animated gradients and accessing premi
 
 ```bash
 git clone https://github.com/shreyvijayvargiya/kixi.git
-cd kixr
+cd kixi
 ```
 
 2. Install dependencies:
@@ -109,7 +109,7 @@ pnpm dev
 ## 📁 Project Structure
 
 ```
-kixr/
+kixi/
 ├── app/                          # Application components
 │   ├── Apps/                     # Main app components
 │   │   ├── AnimatedGradientGenerator.jsx
@@ -211,4 +211,4 @@ This project is licensed under the MIT License.
 
 ---
 
-Made with ❤️ by the kixr team
+Made with ❤️ by the kixi team

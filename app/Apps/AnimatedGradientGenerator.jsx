@@ -6887,7 +6887,7 @@ const AnimatedGradientGenerator = () => {
 
 		setIsLoadingProjects(true);
 		try {
-			const projectsRef = collection(db, "users", user.uid, "kixr-projects");
+			const projectsRef = collection(db, "users", user.uid, "kixi-projects");
 			const q = query(projectsRef, orderBy("updatedAt", "desc"));
 			const querySnapshot = await getDocs(q);
 			const projectsList = [];
@@ -6930,7 +6930,7 @@ const AnimatedGradientGenerator = () => {
 					db,
 					"users",
 					user.uid,
-					"kixr-projects",
+					"kixi-projects",
 					projectIdFromUrl
 				);
 				const projectDoc = await getDoc(projectRef);
@@ -7009,7 +7009,7 @@ const AnimatedGradientGenerator = () => {
 					db,
 					"users",
 					user.uid,
-					"kixr-projects",
+					"kixi-projects",
 					currentProjectId
 				);
 				await updateDoc(projectRef, baseProjectData);
@@ -7019,7 +7019,7 @@ const AnimatedGradientGenerator = () => {
 					...baseProjectData,
 					createdAt: new Date().toISOString(),
 				};
-				const projectsRef = collection(db, "users", user.uid, "kixr-projects");
+				const projectsRef = collection(db, "users", user.uid, "kixi-projects");
 				const docRef = await addDoc(projectsRef, projectData);
 				savedProjectId = docRef.id;
 				setCurrentProjectId(docRef.id);
@@ -7114,7 +7114,7 @@ const AnimatedGradientGenerator = () => {
 				db,
 				"users",
 				user.uid,
-				"kixr-projects",
+				"kixi-projects",
 				currentProjectId
 			);
 			await updateDoc(projectRef, {
@@ -7152,7 +7152,7 @@ const AnimatedGradientGenerator = () => {
 		if (!isAuthenticated || !user?.uid) return;
 
 		try {
-			const projectRef = doc(db, "users", user.uid, "kixr-projects", projectId);
+			const projectRef = doc(db, "users", user.uid, "kixi-projects", projectId);
 			const projectDoc = await getDoc(projectRef);
 
 			if (projectDoc.exists()) {
@@ -7235,7 +7235,7 @@ const AnimatedGradientGenerator = () => {
 				updatedAt: new Date().toISOString(),
 			};
 
-			const projectsRef = collection(db, "users", user.uid, "kixr-projects");
+			const projectsRef = collection(db, "users", user.uid, "kixi-projects");
 			const docRef = await addDoc(projectsRef, projectData);
 			setCurrentProjectId(docRef.id);
 			await loadProjects();
@@ -7253,7 +7253,7 @@ const AnimatedGradientGenerator = () => {
 		if (!confirm("Are you sure you want to delete this project?")) return;
 
 		try {
-			await deleteDoc(doc(db, "users", user.uid, "kixr-projects", projectId));
+			await deleteDoc(doc(db, "users", user.uid, "kixi-projects", projectId));
 			if (currentProjectId === projectId) {
 				handleNewProject();
 			}
@@ -8340,12 +8340,12 @@ const AnimatedGradientGenerator = () => {
 				>
 					<div className="flex-1 overflow-y-auto p-2 flex flex-col justify-between items-start">
 						<div className="w-full">
-							<h1 className="cursor-pointer text-xl font-semibold border-b pb-2">
-								kixr
-							</h1>
+							<img src="./kixi-logo.png" alt="kixi" className="w-10 h-10" />
+							<hr />
+
 							{isAuthenticated && (
 								<div className="flex justify-between items-center ">
-									<h3 className="text-sm text-black">My Projects</h3>
+									<h3 className="text-sm text-black">My Kixi's</h3>
 									<div className="p-2">
 										<button
 											onClick={handleNewProject}
