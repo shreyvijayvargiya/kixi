@@ -1,0 +1,459 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 222.2 47.4% 11.2%;
+		--muted: 210 40% 96.1%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 47.4% 11.2%;
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 47.4% 11.2%;
+		--primary: 222.2 47.4% 11.2%;
+		--primary-foreground: 210 40% 98%;
+		--secondary: 210 40% 96.1%;
+		--secondary-foreground: 222.2 47.4% 11.2%;
+		--accent: 210 40% 96.1%;
+		--accent-foreground: 222.2 47.4% 11.2%;
+		--destructive: 0 100% 50%;
+		--destructive-foreground: 210 40% 98%;
+		--ring: 215 20.2% 65.1%;
+		--radius: 0.5rem;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply font-sans antialiased bg-background text-foreground;
+	}
+}
+
+/* Theme CSS Classes */
+.theme-dark {
+	--tw-bg-opacity: 1;
+	background-color: rgb(24 24 27 / var(--tw-bg-opacity));
+	color: rgb(244 244 245 / var(--tw-text-opacity));
+}
+
+.theme-dark * {
+	background-color: rgb(24 24 27 / var(--tw-bg-opacity)) !important;
+	color: rgb(244 244 245 / var(--tw-text-opacity)) !important;
+}
+
+.theme-dark .bg-white,
+.theme-dark .bg-gray-50,
+.theme-dark .bg-gray-100,
+.theme-dark .bg-zinc-50,
+.theme-dark .bg-zinc-100 {
+	background-color: rgb(39 39 42 / var(--tw-bg-opacity)) !important;
+}
+
+.theme-dark .text-zinc-900,
+.theme-dark .text-gray-900,
+.theme-dark .text-black {
+	color: rgb(244 244 245 / var(--tw-text-opacity)) !important;
+}
+
+.theme-dark .border-zinc-200,
+.theme-dark .border-gray-200 {
+	border-color: rgb(63 63 70 / var(--tw-border-opacity)) !important;
+}
+
+.theme-light {
+	--tw-bg-opacity: 1;
+	background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+	color: rgb(24 24 27 / var(--tw-text-opacity));
+}
+
+.theme-light * {
+	background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+	color: rgb(24 24 27 / var(--tw-text-opacity)) !important;
+}
+
+.theme-light .bg-zinc-900,
+.theme-light .bg-zinc-800,
+.theme-light .bg-gray-800 {
+	background-color: rgb(249 250 251 / var(--tw-bg-opacity)) !important;
+}
+
+.theme-light .text-zinc-100,
+.theme-light .text-white {
+	color: rgb(24 24 27 / var(--tw-text-opacity)) !important;
+}
+
+.theme-colorful {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	color: white;
+}
+
+.theme-colorful * {
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+	color: white !important;
+}
+
+.theme-minimal {
+	background-color: #fafafa;
+	color: #333;
+}
+
+.theme-minimal * {
+	background-color: #fafafa !important;
+	color: #333 !important;
+}
+
+.theme-modern {
+	background-color: #f8fafc;
+	color: #1e293b;
+}
+
+.theme-modern * {
+	background-color: #f8fafc !important;
+	color: #1e293b !important;
+}
+
+.theme-retro {
+	background-color: #fef3c7;
+	color: #92400e;
+}
+
+.theme-retro * {
+	background-color: #fef3c7 !important;
+	color: #92400e !important;
+}
+
+.theme-corporate {
+	background-color: #f1f5f9;
+	color: #334155;
+}
+
+.theme-corporate * {
+	background-color: #f1f5f9 !important;
+	color: #334155 !important;
+}
+
+.theme-playful {
+	background-color: #fefce8;
+	color: #a16207;
+}
+
+.theme-playful * {
+	background-color: #fefce8 !important;
+	color: #a16207 !important;
+}
+
+.hidescrollbar {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+	overflow: -moz-scrollbars-none; /* Firefox */
+	-webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
+}
+
+.hidescrollbar::-webkit-scrollbar {
+	display: none; /* Chrome, Safari and Opera */
+	width: 0 !important;
+	height: 0 !important;
+}
+
+/* For Firefox */
+.hidescrollbar * {
+	scrollbar-width: none;
+}
+
+/* For IE and Edge */
+.hidescrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+/* Responsive font sizes */
+@media (max-width: 640px) {
+	.text-xs {
+		font-size: 0.75rem;
+		line-height: 1rem;
+	}
+
+	.text-sm {
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+}
+
+@keyframes shake {
+	0% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-5px);
+	}
+	50% {
+		transform: translateX(5px);
+	}
+	75% {
+		transform: translateX(-5px);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}
+.shake-button:hover {
+	animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes borderAnimation {
+	0% {
+		border-color: rgba(0, 0, 0, 0);
+		transform: translate(0, 0);
+	}
+	25% {
+		border-color: rgba(0, 0, 0, 0.5);
+		transform: translate(5px, 5px);
+	}
+	50% {
+		border-color: rgba(0, 0, 0, 0);
+		transform: translate(0, 0);
+	}
+	75% {
+		border-color: rgba(0, 0, 0, 0.5);
+		transform: translate(-5px, -5px);
+	}
+	100% {
+		border-color: rgba(0, 0, 0, 0);
+		transform: translate(0, 0);
+	}
+}
+.animate-border {
+	animation: borderAnimation 3s infinite;
+	border-width: 10px;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+@keyframes slideOut {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes gradientAnimation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.animate-gradient {
+	animation: gradientAnimation 5s ease infinite;
+	background: linear-gradient(
+		270deg,
+		theme("colors.blue.50"),
+		theme("colors.purple.50"),
+		theme("colors.green.50"),
+		theme("colors.red.50")
+	);
+	background-size: 400% 400%;
+}
+
+@keyframes widthFadeIn {
+	from {
+		width: 0;
+		opacity: 0;
+		visibility: hidden;
+	}
+	to {
+		width: 100%;
+		opacity: 1;
+		visibility: visible;
+	}
+}
+
+.animate-width-fade-in {
+	animation: widthFadeIn 0.5s ease forwards;
+	animation-delay: 0.2s;
+}
+
+/* NProgress Styles */
+#nprogress {
+	pointer-events: none;
+}
+
+#nprogress .bar {
+	background: #000 !important;
+	position: fixed;
+	z-index: 1031;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 4px;
+	border-radius: 1000;
+}
+
+#nprogress .peg {
+	display: block;
+	position: absolute;
+	right: 0px;
+	width: 100px;
+	height: 100%;
+	box-shadow: 0 0 10px #000, 0 0 5px #000;
+	opacity: 1;
+	transform: rotate(3deg) translate(0px, -4px);
+}
+
+#nprogress .spinner {
+	display: block;
+	position: fixed;
+	z-index: 1031;
+	top: 15px;
+	right: 15px;
+}
+
+#nprogress .spinner-icon {
+	width: 18px;
+	height: 18px;
+	box-sizing: border-box;
+	border: solid 2px transparent;
+	border-top-color: #000;
+	border-left-color: #000;
+	border-radius: 50%;
+	animation: nprogress-spinner 400ms linear infinite;
+}
+
+@keyframes nprogress-spinner {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+/* Toast Styles */
+.Toastify__toast-container {
+	z-index: 9999 !important;
+}
+
+.Toastify__toast {
+	background: white !important;
+	color: #333 !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+	border-radius: 8px !important;
+	padding: 16px !important;
+}
+
+.Toastify__toast--success {
+	border-left: 4px solid #10b981 !important;
+}
+
+.Toastify__toast--error {
+	border-left: 4px solid #ef4444 !important;
+}
+
+.Toastify__toast--info {
+	border-left: 4px solid #3b82f6 !important;
+}
+
+.Toastify__toast--warning {
+	border-left: 4px solid #f59e0b !important;
+}
+
+.Toastify__close-button {
+	color: #666 !important;
+	opacity: 0.7 !important;
+}
+
+.Toastify__close-button:hover {
+	opacity: 1 !important;
+}
+
+.Toastify__progress-bar {
+	background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.Toastify__progress-bar--success {
+	background: #10b981 !important;
+}
+
+.Toastify__progress-bar--error {
+	background: #ef4444 !important;
+}
+
+.Toastify__progress-bar--info {
+	background: #3b82f6 !important;
+}
+
+.Toastify__progress-bar--warning {
+	background: #f59e0b !important;
+}
+
+@keyframes marquee {
+	0% {
+		transform: translateX(50%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
+@keyframes marquee-vertical {
+	0% {
+		transform: translateY(0%);
+	}
+	100% {
+		transform: translateY(-100%);
+	}
+}
+
+.animate-marquee {
+	animation: marquee 15s linear infinite;
+}
+
+.group-hover\:paused .animate-marquee {
+	animation-play-state: paused;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+}

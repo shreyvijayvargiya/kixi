@@ -1,0 +1,63 @@
+#editorjs {
+	border: none;
+}
+.ce-block__content {
+	max-width: 100% !important;
+	margin: 0;
+}
+
+.ce-header {
+	padding: 0.5em 0;
+	margin: 0;
+	line-height: 1.25;
+}
+
+/* Title - h1 */
+h1.ce-header {
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: #1a1a1a;
+}
+
+/* Day headers - h2 */
+h2.ce-header {
+	font-size: 2rem;
+	font-weight: 600;
+	color: #2d3748;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+/* Activity headers - h3 */
+h3.ce-header {
+	font-size: 1.5rem;
+	font-weight: 500;
+	color: #4a5568;
+}
+
+/* Dark mode styles */
+.dark h1.ce-header {
+	color: #f7fafc;
+}
+
+.dark h2.ce-header {
+	color: #e2e8f0;
+	border-bottom-color: #4a5568;
+}
+
+.dark h3.ce-header {
+	color: #cbd5e0;
+}
+
+/* Paragraph styles */
+div.ce-paragraph {
+	font-size: 1rem;
+}
+
+/* List styles */
+div.cdx-list {
+	padding-left: 2rem;
+}
+
+div.cdx-list__item {
+	padding: 0 0;
+}
