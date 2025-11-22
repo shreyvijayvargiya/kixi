@@ -5,6 +5,7 @@ A powerful platform for creating stunning animated gradients and accessing premi
 ## 🚀 Features
 
 ### Animated Gradient Generator
+
 - **Real-Time Preview**: See your gradient animations instantly as you customize them
 - **Customizable Colors**: Create gradients with unlimited color combinations
 - **Multiple Animation Types**: Choose from various animation styles and effects
@@ -13,6 +14,7 @@ A powerful platform for creating stunning animated gradients and accessing premi
 - **Production-Ready Code**: Get clean, copy-paste React code for your projects
 
 ### Template Marketplace
+
 - **Landing Pages**: Ready-to-use landing page templates
 - **Portfolio Templates**: Beautiful portfolio designs for developers and designers
 - **AI Templates**: AI-generated template designs
@@ -21,6 +23,7 @@ A powerful platform for creating stunning animated gradients and accessing premi
 - **React, Next.js & Vite**: Templates available in multiple frameworks
 
 ### Additional Features
+
 - **Google Authentication**: Secure login with Google
 - **Unlimited Projects**: Create and save unlimited gradient projects
 - **Template Search**: Find templates quickly with search functionality
@@ -172,6 +175,7 @@ kixr/
 ## 🔐 Authentication
 
 The app uses Google OAuth for authentication. Users can sign in with their Google account to:
+
 - Save projects
 - Access premium features
 - Manage subscriptions
