@@ -157,7 +157,7 @@ const FeaturesSectionModal = ({ isOpen, onClose }) => {
 							{/* Header */}
 							<div className="flex items-center justify-center p-2">
 								<h2 className="text-lg font-semibold font-sans mt-2 text-center">
-									Features
+									Introduction to Kixi
 								</h2>
 							</div>
 							{/* Carousel Container */}
