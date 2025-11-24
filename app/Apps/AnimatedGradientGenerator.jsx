@@ -7671,7 +7671,7 @@ const AnimatedGradientGenerator = () => {
 													}
 												}}
 											>
-												<div className="flex items-center justify-between gap-2 mb-1 p-1">
+												<div className="flex items-center justify-between gap-2 mb-1 p-1 relative z-10">
 													<div className="flex-1 min-w-0">
 														<h4 className="text-sm text-zinc-800 truncate">
 															{project.name || "Untitled Project"}
@@ -7680,9 +7680,10 @@ const AnimatedGradientGenerator = () => {
 													<button
 														onClick={(e) => {
 															e.stopPropagation();
+															e.preventDefault();
 															handleDeleteProject(project.id);
 														}}
-														className="p-1 hover:bg-red-100 rounded-xl transition-all"
+														className="p-1 hover:bg-red-100 rounded-xl transition-all relative z-20 flex-shrink-0"
 													>
 														<Trash2 className="w-4 h-4 text-red-400" />
 													</button>
