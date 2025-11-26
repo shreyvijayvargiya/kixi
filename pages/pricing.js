@@ -15,32 +15,26 @@ const SubscriptionMeta = () => (
 			name="description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
 		/>
-		<meta property="og:title" content="Upgrade to PRO - gettemplate" />
+		<meta property="og:title" content="Upgrade to PRO - kixi" />
 		<meta
 			property="og:description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
 		/>
 		<meta property="og:type" content="website" />
-		<meta
-			property="og:url"
-			content="https://gettemplate.website/subscription"
-		/>
-		<meta property="og:image" content="https://gettemplate.website/kixi-logo" />
+		<meta property="og:url" content="https://kixi.app/subscription" />
+		<meta property="og:image" content="https://kixi.app/kixi-logo" />
 		<meta property="og:image:width" content="32" />
 		<meta property="og:image:height" content="32" />
 		<meta property="og:image:type" content="image/svg+xml" />
 
 		{/* Twitter Card */}
 		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content="Upgrade to PRO - gettemplate" />
+		<meta name="twitter:title" content="Upgrade to PRO - kixi" />
 		<meta
 			name="twitter:description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
 		/>
-		<meta
-			name="twitter:image"
-			content="https://gettemplate.website/kixi-logo"
-		/>
+		<meta name="twitter:image" content="https://kixi.app/kixi-logo" />
 	</Head>
 );
 
@@ -137,7 +131,7 @@ const BuyPro = () => {
 				<div className="flex items-center justify-between w-full mx-auto max-w-4xl p-10 bg-white rounded-xl">
 					<div className="flex flex-col gap-4">
 						<div>
-							<p className="text-lg text-black font-medium">gettemplate</p>
+							<p className="text-lg text-black font-medium">kixi</p>
 							<p className="text-zinc-500 text-xs">
 								Discover real world websites code samples
 							</p>
@@ -156,7 +150,7 @@ const BuyPro = () => {
 								</a>
 							</div>
 							<p className="text-zinc-400 ">
-								© 2025 gettemplate. All rights reserved.
+								© 2025 kixi. All rights reserved.
 							</p>
 						</div>
 					</div>

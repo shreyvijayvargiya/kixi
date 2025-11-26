@@ -224,6 +224,6 @@ Dev Mode represents the future of web development - where learning, building, an
 
 ---
 
-_Ready to try Dev Mode? [Explore our templates](https://gettemplate.co/templates) and see the magic happen with just one click!_
+_Ready to try Dev Mode? [Explore our templates](https://kixi.co/templates) and see the magic happen with just one click!_
 
 _This blog post showcases the innovative Dev Mode feature that makes web development more accessible, efficient, and enjoyable for developers of all skill levels._

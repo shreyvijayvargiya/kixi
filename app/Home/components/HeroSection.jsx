@@ -43,13 +43,13 @@ const HeroSection = () => {
 			{/* Product Hunt Badge */}
 			<div className="mt-10 flex justify-center w-fit mx-auto">
 				<a
-					href="https://www.producthunt.com/products/gettemplate?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-gettemplate"
+					href="https://www.producthunt.com/products/kixi?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-kixi"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
 					<img
 						src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=982647&theme=dark&t=1760875867727"
-						alt="gettemplate - React&#0032;&#0038;&#0032;next&#0046;js&#0032;template&#0044;&#0032;Inspiration&#0032;for&#0032;Building&#0032;websites | Product Hunt"
+						alt="kixi - React&#0032;&#0038;&#0032;next&#0046;js&#0032;template&#0044;&#0032;Inspiration&#0032;for&#0032;Building&#0032;websites | Product Hunt"
 						style={{ width: "fit-content", height: "36px" }}
 						className="transition-opacity duration-200 text-xs hover:shadow-xl hover:shadow-zinc-200 hover:border-zinc-200 rounded-xl"
 					/>

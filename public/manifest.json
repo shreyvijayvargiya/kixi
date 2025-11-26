@@ -1,6 +1,6 @@
 {
-	"name": "gettemplate - React & Next.js Templates",
-	"short_name": "gettemplate",
+	"name": "kixi - React & Next.js Templates",
+	"short_name": "kixi",
 	"description": "Collection of React and Next.js templates for developers",
 	"start_url": "/",
 	"display": "standalone",

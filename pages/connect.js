@@ -12,22 +12,22 @@ import Navbar from "../modules/Navbar";
 const ConnectPage = () => {
 	const generateMetadata = () => {
 		return {
-			title: `Premium Templates - gettemplate`,
+			title: `Premium Templates - kixi`,
 			description:
 				"Discover our collection of professionally designed, production-ready premium templates",
 			keywords: `premium templates, react, next, tailwind, portfolio, landing page, web development`,
 			openGraph: {
-				title: `Premium Templates - gettemplate`,
+				title: `Premium Templates - kixi`,
 				description:
 					"Discover our collection of professionally designed, production-ready premium templates",
-				url: `https://gettemplate.website/premium-templates`,
-				siteName: "gettemplate.website",
+				url: `https://kixi.app/premium-templates`,
+				siteName: "kixi.app",
 				images: [
 					{
-						url: "https://gettemplate.website/kixi-logo",
+						url: "https://kixi.app/kixi-logo",
 						width: 1200,
 						height: 630,
-						alt: `gettemplate premium templates`,
+						alt: `kixi premium templates`,
 					},
 				],
 				locale: "en_US",
@@ -35,10 +35,10 @@ const ConnectPage = () => {
 			},
 			twitter: {
 				card: "summary_large_image",
-				title: `Premium Templates - gettemplate`,
+				title: `Premium Templates - kixi`,
 				description:
 					"Discover our collection of professionally designed, production-ready premium templates",
-				images: ["https://gettemplate.website/kixi-logo"],
+				images: ["https://kixi.app/kixi-logo"],
 				creator: "@treyvijay",
 				site: "@treyvijay",
 			},
@@ -221,11 +221,7 @@ const ConnectPage = () => {
 				<link rel="canonical" href={metadata.openGraph.url} />
 
 				{/* Favicon */}
-				<link
-					rel="icon"
-					type="image/png"
-					href="https://gettemplate.website/kixi-logo"
-				/>
+				<link rel="icon" type="image/png" href="https://kixi.app/kixi-logo" />
 			</Head>
 			<div>
 				<Navbar />
@@ -341,7 +337,7 @@ const ConnectPage = () => {
 					<div className="flex items-center justify-between w-full mx-auto max-w-7xl p-10 border-l border-r border-zinc-200 border-dashed">
 						<div className="flex flex-col gap-4">
 							<div>
-								<p className="text-lg text-black font-medium">gettemplate</p>
+								<p className="text-lg text-black font-medium">kixi</p>
 								<p className="text-zinc-500 text-xs">
 									Discover real world websites code samples
 								</p>
@@ -360,7 +356,7 @@ const ConnectPage = () => {
 									</a>
 								</div>
 								<p className="text-zinc-400 ">
-									© 2025 gettemplate. All rights reserved.
+									© 2025 kixi. All rights reserved.
 								</p>
 							</div>
 						</div>

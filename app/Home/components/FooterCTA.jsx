@@ -7,9 +7,9 @@ const FAQSection = () => {
 
 	const faqs = [
 		{
-			question: "What is gettemplate?",
+			question: "What is kixi?",
 			answer:
-				"gettemplate is a collection of React website templates designed for developers, designers, and entrepreneurs. We provide high-quality, modern templates for building landing pages, portfolio websites, and micro SaaS applications. All templates are FREE to use and built with the latest technologies and best practices.",
+				"kixi is a collection of React website templates designed for developers, designers, and entrepreneurs. We provide high-quality, modern templates for building landing pages, portfolio websites, and micro SaaS applications. All templates are FREE to use and built with the latest technologies and best practices.",
 		},
 		{
 			question: "What tech stack do you use?",
@@ -102,10 +102,9 @@ const FAQSection = () => {
 				</span>
 				<h2 className="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent">
 					Frequently Asked Questions
-						</h2>
+				</h2>
 				<p className=" text-zinc-600 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
-					Find answers to common questions about our templates and
-					services
+					Find answers to common questions about our templates and services
 				</p>
 
 				<div className="space-y-2 relative max-w-md mx-auto p-2 border border-zinc-200 rounded-xl">
@@ -117,9 +116,7 @@ const FAQSection = () => {
 							transition={{ duration: 0.3, delay: index * 0.1 }}
 						>
 							<button
-								onClick={() =>
-									setActiveFaq(activeFaq === index ? null : index)
-								}
+								onClick={() => setActiveFaq(activeFaq === index ? null : index)}
 								className="group w-full text-left text-sm py-1 bg-zinc-50/50 px-2 hover:bg-zinc-50 bg-white border border-zinc-200 rounded-xl transition-colors"
 							>
 								<div className="flex items-center justify-between ">
@@ -148,7 +145,7 @@ const FAQSection = () => {
 										</motion.div>
 									)}
 								</AnimatePresence>
-						</button>
+							</button>
 						</motion.div>
 					))}
 				</div>

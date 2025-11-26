@@ -6,16 +6,16 @@ const WhoCanUse = () => {
 		<section id="how-it-works" className="my-16 w-full max-w-7xl mx-auto px-4">
 			<span className="mb-6 border border-zinc-200 rounded-full bg-zinc-100 text-xs  px-4 py-2 flex items-center justify-center w-fit mx-auto">
 				<Heart className="w-3 h-3 mr-2" />
-				Who can use gettemplate?
+				Who can use kixi?
 			</span>
 			<div className="flex flex-wrap justify-center items-center flex-col relative">
 				<div className="mb-4">
 					<h3 className="font-semibold text-4xl mb-2 mx-auto text-center bg-gradient-to-r from-zinc-900 to-zinc-600 bg-clip-text text-transparent">
-						gettemplate is for everyone
+						kixi is for everyone
 					</h3>
 					<p className=" text-zinc-600 max-w-md mx-auto text-center leading-relaxed">
-						gettemplate is built to get inspiration and to use it for your next
-						project and product, it saves times, give ideas and inspire to solve
+						kixi is built to get inspiration and to use it for your next project
+						and product, it saves times, give ideas and inspire to solve
 						problems.
 					</p>
 				</div>

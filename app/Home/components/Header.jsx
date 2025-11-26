@@ -74,7 +74,7 @@ const Header = ({ onRequestTemplate }) => {
 						className="cursor-pointer hover:bg-zinc-100 rounded-xl p-1.5"
 						onClick={() => router.push("/")}
 					>
-						<img src="/kixi-logo" alt="gettemplate" className="w-8 h-8" />
+						<img src="/kixi-logo" alt="kixi" className="w-8 h-8" />
 					</div>
 
 					<div className="items-center gap-1 lg:flex hidden">

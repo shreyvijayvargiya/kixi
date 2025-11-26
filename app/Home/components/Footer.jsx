@@ -8,7 +8,7 @@ const Footer = () => {
 			<div className="flex items-center justify-between w-full mx-auto max-w-7xl p-10 border-l border-r border-zinc-100 border-dashed">
 				<div className="flex flex-col gap-4">
 					<div>
-						<p className="text-lg text-black font-medium">gettemplate</p>
+						<p className="text-lg text-black font-medium">kixi</p>
 						<p className="text-zinc-500 text-xs">
 							Discover real world websites code samples
 						</p>
@@ -44,9 +44,7 @@ const Footer = () => {
 								<Mail className="w-4 h-4" />
 							</a>
 						</div>
-						<p className="text-zinc-400 ">
-							© 2025 gettemplate. All rights reserved.
-						</p>
+						<p className="text-zinc-400 ">© 2025 kixi. All rights reserved.</p>
 					</div>
 				</div>
 				<div className="grid grid-cols-2 md:grid-cols-3 gap-8">

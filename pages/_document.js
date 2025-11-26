@@ -18,11 +18,15 @@ export default class MyDocument extends Document {
 					<meta name="author" content="shrey vijayvargiya" />
 					<meta
 						name="keywords"
-						content="gettemplate, templates, reactjs template, nextjs templates, react code, ui libraries, tailwind, portfolio, landing page, web development"
+						content="kixi, templates, reactjs template, nextjs templates, react code, ui libraries, tailwind, portfolio, landing page, web development"
 					/>
 					<meta
 						name="description"
-						content="gettemplate is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc"
+						content="kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc"
+					/>
+					<meta
+						name="keywords"
+						content="gradient, animation, generator, kixi, design, tools"
 					/>
 
 					{/* Favicon and App Icons */}
@@ -30,39 +34,50 @@ export default class MyDocument extends Document {
 						rel="icon"
 						type="image/png"
 						sizes="32x32"
-						href="https://gettemplate.website/kixi-logo"
+						href="https://kixi.app/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="16x16"
-						href="https://gettemplate.website/kixi-logo"
+						href="https://kixi.app/kixi-logo"
 					/>
 					<link
 						rel="apple-touch-icon"
 						sizes="180x180"
-						href="https://gettemplate.website/kixi-logo"
+						href="https://kixi.app/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="192x192"
-						href="https://gettemplate.website/kixi-logo"
+						href="https://kixi.app/kixi-logo"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="512x512"
-						href="https://gettemplate.website/kixi-logo"
+						href="https://kixi.app/kixi-logo"
 					/>
 
 					{/* Manifest */}
 					<link rel="manifest" href="/manifest.json" />
+					<link rel="canonical" href="https://kixi.app" />
 
 					{/* Default Open Graph Tags */}
 					<meta property="og:type" content="website" />
-					<meta property="og:site_name" content="gettemplate" />
+					<meta property="og:site_name" content="kixi" />
 					<meta property="og:locale" content="en_US" />
+					<meta property="og:title" content="kixi - creative design app" />
+					<meta
+						property="og:description"
+						content="Create beautiful animated gradients with kixi. Generate custom gradient animations for your projects."
+					/>
+					<meta
+						property="og:image"
+						content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYmGOp1T5dTRYUQ1ZJNSXlV8uxqtfcEz9rp62L"
+					/>
+					<meta property="og:url" content="https://kixi.app" />
 					{this.props?.logData && (
 						<meta property="og:title" content={this.props?.logData?.title} />
 					)}
@@ -87,6 +102,15 @@ export default class MyDocument extends Document {
 					<meta name="twitter:card" content="summary_large_image" />
 					<meta name="twitter:site" content="@treyvijay" />
 					<meta name="twitter:creator" content="@treyvijay" />
+					<meta name="twitter:title" content="kixi - creative design app" />
+					<meta
+						name="twitter:description"
+						content="Create beautiful animated gradients with kixi. Generate custom gradient animations for your projects."
+					/>
+					<meta
+						name="twitter:image"
+						content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYmGOp1T5dTRYUQ1ZJNSXlV8uxqtfcEz9rp62L"
+					/>
 					{this.props?.logData && (
 						<meta name="twitter:title" content={this.props?.logData?.title} />
 					)}
@@ -110,7 +134,7 @@ export default class MyDocument extends Document {
 					{/* Analytics Scripts */}
 					<script
 						defer
-						data-domain="gettemplate.website"
+						data-domain="kixi.app"
 						src="https://plausible.io/js/script.js"
 					/>
 					<script
@@ -157,37 +181,37 @@ MyDocument.getInitialProps = async (ctx) => {
 	// Set default logData based on pathname
 	if (ctx.pathname === "" || ctx.pathname === "/") {
 		logData = {
-			title: "gettemplate - React & Next.js Templates",
+			title: "kixi - React & Next.js Templates",
 			description:
-				"gettemplate is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
-			bannerImage: "https://gettemplate.website/kixi-logo",
-			bannerImageUrl: "https://gettemplate.website/kixi-logo",
-			thumbnail: "https://gettemplate.website/kixi-logo",
+				"kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
+			bannerImage: "https://kixi.app/kixi-logo",
+			bannerImageUrl: "https://kixi.app/kixi-logo",
+			thumbnail: "https://kixi.app/kixi-logo",
 		};
 	} else if (ctx.pathname === "/templates") {
 		logData = {
-			title: "gettemplate Templates",
+			title: "kixi Templates",
 			description:
-				"gettemplate is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
-			bannerImage: "https://gettemplate.website/kixi-logo",
-			bannerImageUrl: "https://gettemplate.website/kixi-logo",
-			thumbnail: "https://gettemplate.website/kixi-logo",
+				"kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
+			bannerImage: "https://kixi.app/kixi-logo",
+			bannerImageUrl: "https://kixi.app/kixi-logo",
+			thumbnail: "https://kixi.app/kixi-logo",
 		};
 	} else if (ctx.pathname.startsWith("/template/")) {
 		logData = {
-			title: "gettemplate - React & Next.js Template",
+			title: "kixi - React & Next.js Template",
 			description: "Check out this nextjs template along with source code",
-			bannerImage: "https://gettemplate.website/kixi-logo",
-			bannerImageUrl: "https://gettemplate.website/kixi-logo",
-			thumbnail: "https://gettemplate.website/kixi-logo",
+			bannerImage: "https://kixi.app/kixi-logo",
+			bannerImageUrl: "https://kixi.app/kixi-logo",
+			thumbnail: "https://kixi.app/kixi-logo",
 		};
 	} else if (ctx.pathname === "/account") {
 		logData = {
-			title: "Account - gettemplate",
-			description: "Manage your gettemplate account and subscriptions",
-			bannerImage: "https://gettemplate.website/kixi-logo",
-			bannerImageUrl: "https://gettemplate.website/kixi-logo",
-			thumbnail: "https://gettemplate.website/kixi-logo",
+			title: "Account - kixi",
+			description: "Manage your kixi account and subscriptions",
+			bannerImage: "https://kixi.app/kixi-logo",
+			bannerImageUrl: "https://kixi.app/kixi-logo",
+			thumbnail: "https://kixi.app/kixi-logo",
 		};
 	}
 

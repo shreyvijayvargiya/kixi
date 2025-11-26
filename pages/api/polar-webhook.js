@@ -317,8 +317,7 @@ async function sendSubscriptionConfirmationEmail(
 	subscriptionData = null
 ) {
 	try {
-		const baseUrl =
-			process.env.NEXT_PUBLIC_BASE_URL || "https://gettemplate.com";
+		const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://kixi.com";
 
 		// Extract customer information
 		const customerEmail =

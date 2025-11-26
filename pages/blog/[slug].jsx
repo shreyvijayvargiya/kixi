@@ -58,10 +58,10 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 	return (
 		<>
 			<Head>
-				<title>{title} | GetTemplate</title>
+				<title>{title} | kixi</title>
 				<meta name="description" content={description} />
 				<meta name="keywords" content={tags.join(", ")} />
-				<meta name="author" content="GetTemplate" />
+				<meta name="author" content="kixi" />
 				<meta name="date" content={date} />
 
 				{/* Open Graph / Facebook */}
@@ -69,11 +69,8 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 				<meta property="og:title" content={title} />
 				<meta property="og:description" content={description} />
 				<meta property="og:image" content={bannerImage} />
-				<meta
-					property="og:url"
-					content={`https://gettemplate.website/blog/${slug}`}
-				/>
-				<meta property="og:site_name" content="GetTemplate" />
+				<meta property="og:url" content={`https://kixi.app/blog/${slug}`} />
+				<meta property="og:site_name" content="kixi" />
 
 				{/* Twitter */}
 				<meta property="twitter:card" content="summary_large_image" />
@@ -84,10 +81,7 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 				{/* Additional SEO */}
 				<meta name="robots" content="index, follow" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
-				<link
-					rel="canonical"
-					href={`https://gettemplate.website/blog/${slug}`}
-				/>
+				<link rel="canonical" href={`https://kixi.app/blog/${slug}`} />
 
 				{/* Structured Data */}
 				<script
@@ -101,22 +95,22 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 							image: bannerImage,
 							author: {
 								"@type": "Organization",
-								name: "GetTemplate",
-								url: "https://gettemplate.website",
+								name: "kixi",
+								url: "https://kixi.app",
 							},
 							publisher: {
 								"@type": "Organization",
-								name: "GetTemplate",
+								name: "kixi",
 								logo: {
 									"@type": "ImageObject",
-									url: "https://gettemplate.website/kixi-logo",
+									url: "https://kixi.app/kixi-logo",
 								},
 							},
 							datePublished: date,
 							dateModified: date,
 							mainEntityOfPage: {
 								"@type": "WebPage",
-								"@id": `https://gettemplate.website/blog/${slug}`,
+								"@id": `https://kixi.app/blog/${slug}`,
 							},
 						}),
 					}}

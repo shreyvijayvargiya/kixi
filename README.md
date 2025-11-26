@@ -181,7 +181,7 @@ This project is licensed under the MIT License.
 
 **Shrey Vijayvargiya**
 
-- Website: [gettemplate.website](https://www.gettemplate.website)
+- Website: [kixi.app](https://www.kixi.app)
 - GitHub: [@shreyvijayvargiya](https://github.com/shreyvijayvargiya)
 
 ## 🙏 Acknowledgments

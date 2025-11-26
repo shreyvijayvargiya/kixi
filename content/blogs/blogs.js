@@ -27,9 +27,9 @@ export const blogs = [
 		date: "October 8, 2025",
 	},
 	{
-		title: "Welcome gettemplate",
+		title: "Welcome kixi",
 		description:
-			"Discover the new UI, premium templates, and future roadmaps of GetTemplate.website, your go-to for React and Next.js code templates.",
+			"Discover the new UI, premium templates, and future roadmaps of kixi.app, your go-to for React and Next.js code templates.",
 		banner:
 			"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYEo9UUDgbos21nV4U8LqPX9y0aifKzZCQRjhM",
 		tags: ["Next.js", "React", "Templates", "Updates"],

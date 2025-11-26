@@ -28,7 +28,7 @@ Trace:
 
 npm manifest: 
   {
-  	"name": "gettemplate.website",
+  	"name": "kixi.app",
   	"version": "1.0.0",
   	"description": "Collection of websites templates",
   	"main": "pages/index.js",

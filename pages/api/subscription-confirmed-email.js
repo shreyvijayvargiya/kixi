@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 			paymentMethod,
 			transactionId,
 			purchaseDate,
-			dashboardUrl = "https://gettemplate.com/dashboard",
+			dashboardUrl = "https://kixi.com/dashboard",
 		} = req.body;
 
 		// Validate required fields
@@ -232,7 +232,7 @@ export default async function handler(req, res) {
               <p>
                 Thank you for your subscription! Your payment has been successfully processed 
                 and your account has been upgraded. You now have full access to all premium 
-                features on Gettemplate.
+                features on kixi.
               </p>
 
               <div class="subscription-details">
@@ -360,16 +360,16 @@ export default async function handler(req, res) {
                 your account, our support team is here to help. You can reach us at:
               </p>
               <ul>
-                <li>Email: support@gettemplate.com</li>
-                <li>Help Center: help.gettemplate.com</li>
+                <li>Email: support@kixi.com</li>
+                <li>Help Center: help.kixi.com</li>
                 <li>Live Chat: Available 24/7 in your dashboard</li>
               </ul>
 
               <p>
                 Best regards,<br />
-                <span class="highlight">The Gettemplate Team</span><br />
+                <span class="highlight">The kixi Team</span><br />
                 <span style="font-size: 14px; color: #718096"
-                  >Thank you for choosing Gettemplate!</span
+                  >Thank you for choosing kixi!</span
                 >
               </p>
             </div>
@@ -378,9 +378,9 @@ export default async function handler(req, res) {
               <p>
                 This is an automated confirmation email for your subscription purchase.
               </p>
-              <p>© 2024 Gettemplate. All rights reserved.</p>
+              <p>© 2024 kixi. All rights reserved.</p>
               <p style="font-size: 12px; color: #a0aec0">
-                Need help? Contact us at support@gettemplate.com
+                Need help? Contact us at support@kixi.com
               </p>
             </div>
           </body>

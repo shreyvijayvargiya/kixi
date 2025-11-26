@@ -1,6 +1,6 @@
 Hello and welcome
 
-I am Shrey, creator of [gettemplate.website](https://www.gettemplate.website)
+I am Shrey, creator of [kixi.app](https://www.kixi.app)
 
 It's a collection of React and Nextjs code templates for developers worldwide. I launched it 3 months ago, and last week, I pushed the new UI along with some premium templates as well
 
@@ -11,7 +11,7 @@ It's a collection of React and Nextjs code templates for developers worldwide. I
 
 This entire process now helps developers to first copy-paste the basic, decent, and experienced React templates as well as components.
 
-- Simply go to gettemplate.website/templates
+- Simply go to kixi.app/templates
 - View the sidebar with all types/categories of templates
 - Even Search for your choice
 - Lastly, open the templates, click on view source to view the code in React, Next and Vite
@@ -24,7 +24,7 @@ This entire process now helps developers to first copy-paste the basic, decent, 
 - More premium templates to make some $$$
 - Documentation page
 
-That's it for today, do check the [website](https://gettemplate.website)
+That's it for today, do check the [website](https://kixi.app)
 
 Shrey
 
