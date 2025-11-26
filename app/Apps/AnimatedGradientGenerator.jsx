@@ -120,6 +120,9 @@ import {
 	ChevronUp,
 	Bolt,
 	GripVertical,
+	PanelLeft,
+	SlidersHorizontal,
+	AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -737,6 +740,47 @@ const AnimatedGradientGenerator = () => {
 		useState(false);
 	const backgroundImageDropdownRef = useRef(null);
 	const backgroundImageInputRef = useRef(null);
+	const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
+	const [isControlPanelDrawerOpen, setIsControlPanelDrawerOpen] =
+		useState(false);
+	const [isSmallDeviceModalOpen, setIsSmallDeviceModalOpen] = useState(false);
+
+	useEffect(() => {
+		const handleResize = () => {
+			if (window.innerWidth >= 1024) {
+				setIsSidebarDrawerOpen(false);
+				setIsControlPanelDrawerOpen(false);
+			}
+		};
+
+		handleResize();
+		window.addEventListener("resize", handleResize);
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
+	}, []);
+
+	useEffect(() => {
+		const checkViewportSize = () => {
+			if (typeof window === "undefined") return;
+			setIsSmallDeviceModalOpen(window.innerWidth < 1024);
+		};
+
+		checkViewportSize();
+		window.addEventListener("resize", checkViewportSize);
+		return () => {
+			window.removeEventListener("resize", checkViewportSize);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (typeof document === "undefined") return;
+
+		const shouldLockScroll =
+			isSidebarDrawerOpen || isControlPanelDrawerOpen || isSmallDeviceModalOpen;
+
+		document.body.style.overflow = shouldLockScroll ? "hidden" : "";
+	}, [isSidebarDrawerOpen, isControlPanelDrawerOpen, isSmallDeviceModalOpen]);
 	const [captionEditing, setCaptionEditing] = useState(null);
 	const [textEditing, setTextEditing] = useState(null);
 	const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
@@ -7601,6 +7645,25 @@ const AnimatedGradientGenerator = () => {
 
 	return (
 		<div className="min-h-screen bg-stone-50/50">
+			{isSmallDeviceModalOpen && (
+				<div className="fixed inset-0 z-[20000] flex items-center justify-center p-6 bg-white/95 backdrop-blur-lg">
+					<div className="max-w-sm w-full bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 text-center space-y-4">
+						<div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center">
+							<AlertTriangle className="w-8 h-8 text-amber-500" />
+						</div>
+						<div className="space-y-2">
+							<h2 className="text-xl font-semibold text-zinc-900">
+								Designed for larger screens
+							</h2>
+							<p className="text-sm text-zinc-600">
+								The full Kixi editor needs tablet or desktop resolution to run
+								smoothly. Please switch to a bigger display—we’ll ship a mobile
+								version soon.
+							</p>
+						</div>
+					</div>
+				</div>
+			)}
 			<div
 				className="fixed top-0 left-0 right-0 h-full opacity-20 z-0"
 				style={{
@@ -7613,11 +7676,13 @@ const AnimatedGradientGenerator = () => {
 			<div className="flex">
 				{/* Sidebar */}
 				<motion.aside
-					initial={{ width: 0, opacity: 0 }}
-					animate={{ width: 240, opacity: 1 }}
-					exit={{ width: 0, opacity: 0 }}
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
 					transition={{ duration: 0.2 }}
-					className="bg-white top-[20px] w-[280px] space-y-4 z-40 h-[calc(100vh-56px)] overflow-y-auto hidescrollbar border border-zinc-100 rounded-xl fixed left-4 flex flex-col"
+					className={`bg-white top-[88px] w-[85vw] max-w-sm space-y-4 z-50 h-[calc(100vh-140px)] overflow-y-auto hidescrollbar border border-zinc-100 rounded-xl fixed left-2 flex flex-col transition-transform duration-300 ease-out -translate-x-full lg:translate-x-0 lg:left-4 lg:top-[20px] lg:w-[280px] lg:h-[calc(100vh-56px)] ${
+						isSidebarDrawerOpen ? "translate-x-0 shadow-2xl lg:shadow-none" : ""
+					} lg:z-40`}
 				>
 					<div className="flex-1 overflow-y-auto p-2 flex flex-col justify-between items-start">
 						<div className="w-full">
@@ -12809,7 +12874,7 @@ outline-offset: 2px;`
 											return (
 												<div
 													key={text.id}
-													className="absolute"
+													className="absolute [&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
 													style={{
 														left: `${text.x}%`,
 														top: `${text.y}%`,
@@ -12855,7 +12920,6 @@ outline-offset: 2px;`
 																: "pre-wrap",
 														wordWrap: "break-word",
 													}}
-													className="[&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
 													dangerouslySetInnerHTML={{
 														__html: formatTextContent(text.content, styles),
 													}}
@@ -13666,65 +13730,63 @@ outline-offset: 2px;`
 							</AnimatePresence>
 						</div>
 						{/* Zoom Controls */}
-							<button
-								onClick={() =>
-									setPreviewZoom((prev) => Math.min(prev + 0.1, 1))
-								}
-								className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
-								title="Zoom In"
-								aria-label="Zoom In"
-							>
-								<ZoomIn className="w-4 h-4 text-zinc-700" />
-							</button>
+						<button
+							onClick={() => setPreviewZoom((prev) => Math.min(prev + 0.1, 1))}
+							className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
+							title="Zoom In"
+							aria-label="Zoom In"
+						>
+							<ZoomIn className="w-4 h-4 text-zinc-700" />
+						</button>
 
-							<button
-								onClick={() =>
-									setPreviewZoom((prev) => Math.max(prev - 0.1, 0.1))
-								}
-								className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
-								title="Zoom Out"
-								aria-label="Zoom Out"
-							>
-								<ZoomOut className="w-4 h-4 text-zinc-700" />
-							</button>
-							{/* Undo/Redo Navigation */}
-							<button
-								onClick={undo}
-								disabled={historyIndex <= 0}
-								className={`p-1.5 rounded transition-colors ${
-									historyIndex <= 0
-										? "opacity-50 cursor-not-allowed"
-										: "hover:bg-zinc-100"
-								}`}
-								title="Undo (⌘Z)"
-								aria-label="Undo"
-							>
-								<ArrowLeft className="w-4 h-4 text-zinc-700" />
-							</button>
-							<button
-								onClick={redo}
-								disabled={historyIndex >= history.length - 1}
-								className={`p-1.5 rounded transition-colors ${
-									historyIndex >= history.length - 1
-										? "opacity-50 cursor-not-allowed"
-										: "hover:bg-zinc-100"
-								}`}
-								title="Redo (⌘⇧Z)"
-								aria-label="Redo"
-							>
-								<ArrowRight className="w-4 h-4 text-zinc-700" />
-							</button>
+						<button
+							onClick={() =>
+								setPreviewZoom((prev) => Math.max(prev - 0.1, 0.1))
+							}
+							className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
+							title="Zoom Out"
+							aria-label="Zoom Out"
+						>
+							<ZoomOut className="w-4 h-4 text-zinc-700" />
+						</button>
+						{/* Undo/Redo Navigation */}
+						<button
+							onClick={undo}
+							disabled={historyIndex <= 0}
+							className={`p-1.5 rounded transition-colors ${
+								historyIndex <= 0
+									? "opacity-50 cursor-not-allowed"
+									: "hover:bg-zinc-100"
+							}`}
+							title="Undo (⌘Z)"
+							aria-label="Undo"
+						>
+							<ArrowLeft className="w-4 h-4 text-zinc-700" />
+						</button>
+						<button
+							onClick={redo}
+							disabled={historyIndex >= history.length - 1}
+							className={`p-1.5 rounded transition-colors ${
+								historyIndex >= history.length - 1
+									? "opacity-50 cursor-not-allowed"
+									: "hover:bg-zinc-100"
+							}`}
+							title="Redo (⌘⇧Z)"
+							aria-label="Redo"
+						>
+							<ArrowRight className="w-4 h-4 text-zinc-700" />
+						</button>
 
-							<button
-								onClick={handleCopyHTML}
-								className={`p-1.5 hover:bg-zinc-100 rounded transition-colors ${
-									copied === "html" ? "bg-green-100" : ""
-								}`}
-								title="Copy HTML"
-								aria-label="Copy HTML"
-							>
-								<Copy className="w-4 h-4 text-zinc-700" />
-							</button>
+						<button
+							onClick={handleCopyHTML}
+							className={`p-1.5 hover:bg-zinc-100 rounded transition-colors ${
+								copied === "html" ? "bg-green-100" : ""
+							}`}
+							title="Copy HTML"
+							aria-label="Copy HTML"
+						>
+							<Copy className="w-4 h-4 text-zinc-700" />
+						</button>
 					</div>
 
 					{/* MP4 Generation Loading Modal */}

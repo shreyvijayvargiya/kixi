@@ -5,6 +5,11 @@ export default function Home() {
 	return (
 		<>
 			<Head>
+				<link
+					rel="icon"
+					href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYkSFej94aXep3F9GfAyq0Rdi1PvjVE5n8tmCr"
+					type="image/png"
+				/>
 				<title>kixi - creative design app</title>
 				<meta
 					name="description"
@@ -26,9 +31,9 @@ export default function Home() {
 				/>
 				<meta
 					property="og:image"
-					content="https://gettemplate.website/kixi-logo.png"
+					content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYmGOp1T5dTRYUQ1ZJNSXlV8uxqtfcEz9rp62L"
 				/>
-				<meta property="og:url" content="https://gettemplate.website" />
+				<meta property="og:url" content="https://kixi.app" />
 				<meta property="og:site_name" content="kixi" />
 
 				{/* Twitter */}
@@ -40,11 +45,11 @@ export default function Home() {
 				/>
 				<meta
 					name="twitter:image"
-					content="https://gettemplate.website/kixi-logo.png"
+					content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYmGOp1T5dTRYUQ1ZJNSXlV8uxqtfcEz9rp62L"
 				/>
 
 				{/* Canonical URL */}
-				<link rel="canonical" href="https://gettemplate.website" />
+				<link rel="canonical" href="https://kixi.app" />
 			</Head>
 			<AnimatedGradientGenerator />
 		</>
