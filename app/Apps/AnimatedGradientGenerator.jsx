@@ -136,6 +136,7 @@ import {
 	collection,
 	addDoc,
 	updateDoc,
+	setDoc,
 	doc,
 	getDocs,
 	getDoc,
@@ -815,6 +816,7 @@ const AnimatedGradientGenerator = () => {
 	const [isImageImprovementOpen, setIsImageImprovementOpen] = useState(false);
 	const [improvementPrompt, setImprovementPrompt] = useState("");
 	const [generatedImages, setGeneratedImages] = useState([]);
+	const [variantNotes, setVariantNotes] = useState([]);
 	const improvementPromptRef = useRef(null);
 	const [isUrlScreenshotOpen, setIsUrlScreenshotOpen] = useState(false);
 	const urlScreenshotDropdownRef = useRef(null);
@@ -827,8 +829,10 @@ const AnimatedGradientGenerator = () => {
 	const [isConvertingToReact, setIsConvertingToReact] = useState(false);
 	const [projects, setProjects] = useState([]);
 	const [currentProjectId, setCurrentProjectId] = useState(null);
+	const [activeFrameId, setActiveFrameId] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+	const [isFrameActionLoading, setIsFrameActionLoading] = useState(false);
 	const [projectName, setProjectName] = useState("Untitled Project");
 	const [backgroundImage, setBackgroundImage] = useState(null);
 	const [backgroundShapeRects, setBackgroundShapeRects] = useState([]);
@@ -911,6 +915,29 @@ const AnimatedGradientGenerator = () => {
 			label: "Square (1080×1080)",
 		},
 	};
+
+	const designAst = useMemo(
+		() => ({
+			gradient,
+			images,
+			texts,
+			videos,
+			shapes,
+			icons,
+			backgroundImage,
+			backgroundShapeRects,
+		}),
+		[
+			gradient,
+			images,
+			texts,
+			videos,
+			shapes,
+			icons,
+			backgroundImage,
+			backgroundShapeRects,
+		]
+	);
 
 	// Image handling functions
 	const handleImageUpload = (e) => {
@@ -2471,7 +2498,6 @@ const AnimatedGradientGenerator = () => {
 		};
 		setIcons((prev) => [...prev, newIcon]);
 		setSelectedIcon(newIcon.id);
-		setIsIconSelectorOpen(false);
 	};
 
 	const removeIcon = (id) => {
@@ -3966,8 +3992,8 @@ const AnimatedGradientGenerator = () => {
 				const lastStop = sortedStops[sortedStops.length - 1];
 				const angle =
 					Math.atan2(
-						lastStop.position.y - firstStop.position.y,
-						lastStop.position.x - firstStop.position.x
+						lastStop?.position?.y - firstStop?.position?.y,
+						lastStop?.position?.x - firstStop?.position?.x
 					) *
 					(180 / Math.PI);
 
@@ -4617,8 +4643,8 @@ const AnimatedGradientGenerator = () => {
 						const lastStop = sortedStops[sortedStops.length - 1];
 						const angle =
 							Math.atan2(
-								lastStop.position.y - firstStop.position.y,
-								lastStop.position.x - firstStop.position.x
+								lastStop?.position?.y - firstStop?.position?.y,
+								lastStop?.position?.x - firstStop?.position?.x
 							) *
 							(180 / Math.PI);
 
@@ -5323,7 +5349,8 @@ const AnimatedGradientGenerator = () => {
 	// Canvas-based download for PNG/JPEG
 	const downloadRaster = async (
 		format = "png",
-		dimensionType = downloadDimension
+		dimensionType = downloadDimension,
+		options = {}
 	) => {
 		// Use previewFramePresets if dimensionType is a preview frame size, otherwise use dimensionPresets
 		const dimensions =
@@ -5352,7 +5379,7 @@ const AnimatedGradientGenerator = () => {
 		} else {
 			// Create gradient based on type
 			let gradientObj;
-			const sortedStops = [...gradient.stops].sort((a, b) => {
+			const sortedStops = [...(gradient.stops || [])].sort((a, b) => {
 				const distA = Math.sqrt(
 					a.position.x * a.position.x + a.position.y * a.position.y
 				);
@@ -5362,15 +5389,20 @@ const AnimatedGradientGenerator = () => {
 				return distA - distB;
 			});
 
-			if (gradient.type === "linear") {
+			if (sortedStops.length === 0) {
+				ctx.fillStyle = "#000000";
+				ctx.fillRect(0, 0, width, height);
+			} else if (gradient.type === "linear") {
 				const firstStop = sortedStops[0];
 				const lastStop = sortedStops[sortedStops.length - 1];
 				const angle =
-					Math.atan2(
-						lastStop.position.y - firstStop.position.y,
-						lastStop.position.x - firstStop.position.x
-					) *
-					(180 / Math.PI);
+					sortedStops.length > 1
+						? Math.atan2(
+								lastStop?.position?.y - firstStop?.position?.y,
+								lastStop?.position?.x - firstStop?.position?.x
+							) *
+							(180 / Math.PI)
+						: 0;
 
 				const radians = (angle * Math.PI) / 180;
 				const x1 = width / 2 - (width / 2) * Math.cos(radians);
@@ -5379,9 +5411,14 @@ const AnimatedGradientGenerator = () => {
 				const y2 = height / 2 + (width / 2) * Math.sin(radians);
 
 				gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
-				sortedStops.forEach((stop) => {
+				sortedStops.forEach((stop, index) => {
 					const position = Math.round(stop.position.x) / 100;
-					gradientObj.addColorStop(position, stop.color);
+					gradientObj.addColorStop(
+						Number.isFinite(position)
+							? Math.min(Math.max(position, 0), 1)
+							: index / Math.max(sortedStops.length - 1, 1),
+						stop.color
+					);
 				});
 			} else {
 				// Radial and other types
@@ -5393,18 +5430,25 @@ const AnimatedGradientGenerator = () => {
 					height / 2,
 					Math.max(width, height) / 2
 				);
-				sortedStops.forEach((stop) => {
+				sortedStops.forEach((stop, index) => {
 					const distance = Math.sqrt(
 						Math.pow(stop.position.x - 50, 2) +
 							Math.pow(stop.position.y - 50, 2)
 					);
 					const position = Math.round(distance) / 100;
-					gradientObj.addColorStop(position, stop.color);
+					gradientObj.addColorStop(
+						Number.isFinite(position)
+							? Math.min(Math.max(position, 0), 1)
+							: index / Math.max(sortedStops.length - 1, 1),
+						stop.color
+					);
 				});
 			}
 
-			ctx.fillStyle = gradientObj;
-			ctx.fillRect(0, 0, width, height);
+			if (gradientObj) {
+				ctx.fillStyle = gradientObj;
+				ctx.fillRect(0, 0, width, height);
+			}
 		}
 
 		// Draw all elements (images and texts) on canvas with all styles, respecting z-index
@@ -6101,363 +6145,35 @@ const AnimatedGradientGenerator = () => {
 		const mimeType = format === "jpeg" ? "image/jpeg" : "image/png";
 		const quality = format === "jpeg" ? 0.92 : undefined;
 
-		// Draw all elements in z-index order
-		drawAllElements().then(() => {
-			// Ensure all elements are drawn, then export
-			setTimeout(() => {
-				canvas.toBlob(
-					(blob) => {
-						const url = URL.createObjectURL(blob);
-						const link = document.createElement("a");
-						link.href = url;
-						link.download = `gradient-${dimensionType}-${width}x${height}-${Date.now()}.${format}`;
-						document.body.appendChild(link);
-						link.click();
-						document.body.removeChild(link);
-						URL.revokeObjectURL(url);
-					},
-					mimeType,
-					quality
-				);
-			}, 100);
-		});
-	};
+		await drawAllElements();
+		await new Promise((resolve) => setTimeout(resolve, 100));
 
-	// Export current gradient as base64 PNG for AI processing
-	const exportGradientAsBase64 = async (dimensionType = previewFrameSize) => {
-		return new Promise(async (resolve, reject) => {
-			const dimensions =
-				previewFramePresets[dimensionType] || previewFramePresets.mobile;
-			const canvas = document.createElement("canvas");
-			const width = dimensions.width;
-			const height = dimensions.height;
-			canvas.width = width;
-			canvas.height = height;
-			const ctx = canvas.getContext("2d");
-
-			// Draw background image or gradient
-			if (backgroundImage) {
-				const bgImg = new Image();
-				bgImg.crossOrigin = "anonymous";
-				try {
-					await new Promise((imgResolve, imgReject) => {
-						bgImg.onload = () => {
-							ctx.drawImage(bgImg, 0, 0, width, height);
-							imgResolve();
-						};
-						bgImg.onerror = imgReject;
-						bgImg.src = backgroundImage;
-					});
-				} catch (error) {
-					reject(error);
-					return;
-				}
-			} else {
-				// Create gradient based on type
-				let gradientObj;
-				const sortedStops = [...gradient.stops].sort((a, b) => {
-					const distA = Math.sqrt(
-						a.position.x * a.position.x + a.position.y * a.position.y
-					);
-					const distB = Math.sqrt(
-						b.position.x * b.position.x + b.position.y * b.position.y
-					);
-					return distA - distB;
-				});
-
-				if (gradient.type === "linear") {
-					const firstStop = sortedStops[0];
-					const lastStop = sortedStops[sortedStops.length - 1];
-					const angle =
-						Math.atan2(
-							lastStop.position.y - firstStop.position.y,
-							lastStop.position.x - firstStop.position.x
-						) *
-						(180 / Math.PI);
-
-					const radians = (angle * Math.PI) / 180;
-					const x1 = width / 2 - (width / 2) * Math.cos(radians);
-					const y1 = height / 2 - (width / 2) * Math.sin(radians);
-					const x2 = width / 2 + (width / 2) * Math.cos(radians);
-					const y2 = height / 2 + (width / 2) * Math.sin(radians);
-
-					gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
-					sortedStops.forEach((stop) => {
-						const position = Math.round(stop.position.x) / 100;
-						gradientObj.addColorStop(position, stop.color);
-					});
-				} else {
-					gradientObj = ctx.createRadialGradient(
-						width / 2,
-						height / 2,
-						0,
-						width / 2,
-						height / 2,
-						Math.max(width, height) / 2
-					);
-					sortedStops.forEach((stop) => {
-						const distance = Math.sqrt(
-							Math.pow(stop.position.x - 50, 2) +
-								Math.pow(stop.position.y - 50, 2)
-						);
-						const position = Math.round(distance) / 100;
-						gradientObj.addColorStop(position, stop.color);
-					});
-				}
-
-				ctx.fillStyle = gradientObj;
-				ctx.fillRect(0, 0, width, height);
-			}
-
-			// Draw all elements (reuse logic from downloadRaster)
-			const drawAllElements = async () => {
-				if (!previewRef.current) return;
-
-				const previewActualHeight = previewRef.current.offsetHeight;
-				const previewActualWidth = previewRef.current.offsetWidth;
-				const scaleX = width / previewActualWidth;
-				const scaleY = height / previewActualHeight;
-
-				// Load all images
-				const imageDrawFunctions = await Promise.all(
-					images.map((image) => {
-						return new Promise((resolve) => {
-							const img = new Image();
-							img.crossOrigin = "anonymous";
-							img.onload = () => {
-								resolve({ image, img, ready: true });
-							};
-							img.onerror = () => resolve({ image, img: null, ready: false });
-							img.src = image.src;
-						});
-					})
-				);
-
-				// Combine all drawable elements and sort by z-index
-				const allDrawableElements = [
-					...imageDrawFunctions
-						.filter((item) => item.ready)
-						.map(({ image, img }) => ({
-							type: "image",
-							element: image,
-							img,
-							zIndex: image.styles?.zIndex || 1,
-						})),
-					...shapes.map((shape) => ({
-						type: "shape",
-						element: shape,
-						zIndex: shape.styles?.zIndex || 1,
-					})),
-					...icons.map((icon) => ({
-						type: "icon",
-						element: icon,
-						zIndex: icon.styles?.zIndex || 1,
-					})),
-				].sort((a, b) => (a.zIndex || 1) - (b.zIndex || 1));
-
-				// Draw elements
-				allDrawableElements.forEach(({ type, element, img }) => {
-					if (type === "image" && img) {
-						const image = element;
-						const scaledX =
-							(image.x / 100) * width - (image.width * scaleX) / 2;
-						const scaledY =
-							(image.y / 100) * height - (image.height * scaleY) / 2;
-						const scaledWidth = image.width * scaleX;
-						const scaledHeight = image.height * scaleY;
-						const styles = image.styles || {};
-
-						// Calculate center point for transforms
-						const centerX = scaledX + scaledWidth / 2;
-						const centerY = scaledY + scaledHeight / 2;
-
-						// Apply styles
-						ctx.save();
-
-						// Apply transforms (rotation and skew)
-						const rotation = (styles.rotation || 0) * (Math.PI / 180);
-						const skewX = (styles.skewX || 0) * (Math.PI / 180);
-						const skewY = (styles.skewY || 0) * (Math.PI / 180);
-
-						ctx.translate(centerX, centerY);
-						if (rotation !== 0) {
-							ctx.rotate(rotation);
-						}
-						if (skewX !== 0 || skewY !== 0) {
-							ctx.transform(1, Math.tan(skewY), Math.tan(skewX), 1, 0, 0);
-						}
-						ctx.translate(-centerX, -centerY);
-
-						if (styles.opacity !== undefined) {
-							ctx.globalAlpha = styles.opacity;
-						}
-
-						// Handle object-fit
-						let drawWidth = scaledWidth;
-						let drawHeight = scaledHeight;
-						let drawX = scaledX;
-						let drawY = scaledY;
-
-						if (image.styles?.objectFit === "cover") {
-							const imgAspect = img.width / img.height;
-							const targetAspect = scaledWidth / scaledHeight;
-							if (imgAspect > targetAspect) {
-								drawHeight = scaledWidth / imgAspect;
-								drawY = scaledY + (scaledHeight - drawHeight) / 2;
-							} else {
-								drawWidth = scaledHeight * imgAspect;
-								drawX = scaledX + (scaledWidth - drawWidth) / 2;
-							}
-						} else if (image.styles?.objectFit === "contain") {
-							const imgAspect = img.width / img.height;
-							const targetAspect = scaledWidth / scaledHeight;
-							if (imgAspect > targetAspect) {
-								drawHeight = scaledWidth / imgAspect;
-								drawY = scaledY + (scaledHeight - drawHeight) / 2;
-							} else {
-								drawWidth = scaledHeight * imgAspect;
-								drawX = scaledX + (scaledWidth - drawWidth) / 2;
-							}
-						}
-
-						// Draw rounded rectangle if needed
-						if (image.styles?.borderRadius > 0) {
-							ctx.beginPath();
-							drawRoundedRect(
-								ctx,
-								drawX,
-								drawY,
-								drawWidth,
-								drawHeight,
-								image.styles.borderRadius * scaleX
-							);
-							ctx.clip();
-						}
-
-						ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-						ctx.restore();
-					} else if (type === "shape") {
-						const shape = element;
-						const scaledX =
-							(shape.x / 100) * width - (shape.width * scaleX) / 2;
-						const scaledY =
-							(shape.y / 100) * height - (shape.height * scaleY) / 2;
-						const scaledWidth = shape.width * scaleX;
-						const scaledHeight = shape.height * scaleY;
-						const styles = shape.styles || {};
-
-						// Calculate center point for transforms
-						const centerX = scaledX + scaledWidth / 2;
-						const centerY = scaledY + scaledHeight / 2;
-
-						ctx.save();
-
-						// Apply transforms (rotation and skew)
-						const rotation = (styles.rotation || 0) * (Math.PI / 180);
-						const skewX = (styles.skewX || 0) * (Math.PI / 180);
-						const skewY = (styles.skewY || 0) * (Math.PI / 180);
-
-						ctx.translate(centerX, centerY);
-						if (rotation !== 0) {
-							ctx.rotate(rotation);
-						}
-						if (skewX !== 0 || skewY !== 0) {
-							ctx.transform(1, Math.tan(skewY), Math.tan(skewX), 1, 0, 0);
-						}
-						ctx.translate(-centerX, -centerY);
-
-						if (styles.opacity !== undefined) {
-							ctx.globalAlpha = styles.opacity;
-						}
-
-						// Setup fill style (gradient or solid color)
-						let fillStyle;
-						if (styles.fillGradient) {
-							const sortedStops = [...styles.fillGradient.stops].sort(
-								(a, b) => a.position.x - b.position.x
-							);
-							const angle = (styles.fillGradient.angle || 45) * (Math.PI / 180);
-							const length = Math.sqrt(
-								scaledWidth * scaledWidth + scaledHeight * scaledHeight
-							);
-							const x1 = centerX - (length / 2) * Math.cos(angle);
-							const y1 = centerY - (length / 2) * Math.sin(angle);
-							const x2 = centerX + (length / 2) * Math.cos(angle);
-							const y2 = centerY + (length / 2) * Math.sin(angle);
-
-							const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-							sortedStops.forEach((stop) => {
-								gradient.addColorStop(stop.position.x / 100, stop.color);
-							});
-							fillStyle = gradient;
-						} else {
-							fillStyle = styles.fillColor || "#3b82f6";
-						}
-
-						if (shape.type === "rectangle" || shape.type === "square") {
-							ctx.fillStyle = fillStyle;
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							const radius = (styles.borderRadius || 0) * scaleX;
-							drawRoundedRect(
-								ctx,
-								scaledX,
-								scaledY,
-								scaledWidth,
-								scaledHeight,
-								radius
-							);
-							ctx.fill();
-							if (styles.strokeWidth > 0) {
-								ctx.stroke();
-							}
-						} else if (shape.type === "triangle") {
-							ctx.fillStyle = fillStyle;
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							ctx.beginPath();
-							ctx.moveTo(scaledX + scaledWidth / 2, scaledY);
-							ctx.lineTo(scaledX, scaledY + scaledHeight);
-							ctx.lineTo(scaledX + scaledWidth, scaledY + scaledHeight);
-							ctx.closePath();
-							ctx.fill();
-							if (styles.strokeWidth > 0) {
-								ctx.stroke();
-							}
-						} else if (shape.type === "circle") {
-							const radius = Math.min(scaledWidth, scaledHeight) / 2;
-
-							ctx.fillStyle = fillStyle;
-							ctx.beginPath();
-							ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-							ctx.fill();
-
-							if (styles.strokeWidth > 0) {
-								ctx.strokeStyle = styles.strokeColor || "#1e40af";
-								ctx.lineWidth = styles.strokeWidth || 2;
-								ctx.stroke();
-							}
-						} else if (shape.type === "line") {
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							ctx.beginPath();
-							ctx.moveTo(scaledX, scaledY);
-							ctx.lineTo(scaledX + scaledWidth, scaledY);
-							ctx.stroke();
-						}
-						ctx.restore();
+		const blob = await new Promise((resolve, reject) => {
+			canvas.toBlob(
+				(result) => {
+					if (!result) {
+						reject(new Error("Failed to render canvas to blob"));
+						return;
 					}
-				});
-			};
-
-			drawAllElements()
-				.then(() => {
-					// Convert to base64
-					const base64 = canvas.toDataURL("image/png");
-					resolve(base64);
-				})
-				.catch(reject);
+					resolve(result);
+				},
+				mimeType,
+				quality
+			);
 		});
+
+		if (options?.returnBlob) {
+			return blob;
+		}
+
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = `gradient-${dimensionType}-${width}x${height}-${Date.now()}.${format}`;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
 	};
 
 	// Load user projects from Firestore
@@ -6533,6 +6249,159 @@ const AnimatedGradientGenerator = () => {
 		cacheTime: 1000 * 60 * 5, // Keep data in cache for 5 minutes
 	});
 
+	const {
+		data: projectFramesData,
+		isLoading: isLoadingFrames,
+		error: framesError,
+		refetch: refetchFrames,
+	} = useQuery({
+		queryKey: ["projectFrames", projectIdFromUrl, user?.uid],
+		queryFn: async () => {
+			if (!projectIdFromUrl || !isAuthenticated || !user?.uid) {
+				return [];
+			}
+
+			try {
+				const framesRef = collection(
+					db,
+					"users",
+					user.uid,
+					"kixi-projects",
+					projectIdFromUrl,
+					"frames"
+				);
+				const framesQuery = query(framesRef, orderBy("frameNumber", "asc"));
+				const framesSnapshot = await getDocs(framesQuery);
+
+				if (framesSnapshot.empty) {
+					return [];
+				}
+
+				return framesSnapshot.docs.map((frameDoc) => ({
+					id: frameDoc.id,
+					...frameDoc.data(),
+				}));
+			} catch (error) {
+				console.error("Error loading frames:", error);
+				throw error;
+			}
+		},
+		enabled: !!projectIdFromUrl && !!isAuthenticated && !!user?.uid,
+		staleTime: 1000 * 60,
+		cacheTime: 1000 * 60 * 5,
+	});
+
+	useEffect(() => {
+		if (framesError) {
+			console.error("Error loading frames:", framesError);
+			toast.error("Failed to load frames. Please try again.");
+		}
+	}, [framesError]);
+
+	const framesList = useMemo(() => {
+		if (!projectFramesData || projectFramesData.length === 0) return [];
+		return [...projectFramesData]
+			.sort(
+				(a, b) =>
+					(a.frameNumber ?? Number.MAX_SAFE_INTEGER) -
+					(b.frameNumber ?? Number.MAX_SAFE_INTEGER)
+			)
+			.map((frame, index) => ({
+				...frame,
+				frameNumber: frame.frameNumber ?? index + 1,
+			}));
+	}, [projectFramesData]);
+
+	const applyFrameState = useCallback((frameData) => {
+		if (!frameData) return;
+
+		if (frameData.gradient) {
+			setGradient(JSON.parse(JSON.stringify(frameData.gradient)));
+		}
+		if (frameData.images !== undefined) {
+			setImages(JSON.parse(JSON.stringify(frameData.images || [])));
+		} else {
+			setImages([]);
+		}
+		if (frameData.videos !== undefined) {
+			setVideos(JSON.parse(JSON.stringify(frameData.videos || [])));
+		} else {
+			setVideos([]);
+		}
+		if (frameData.texts !== undefined) {
+			setTexts(JSON.parse(JSON.stringify(frameData.texts || [])));
+		} else {
+			setTexts([]);
+		}
+		if (frameData.icons !== undefined) {
+			setIcons(JSON.parse(JSON.stringify(frameData.icons || [])));
+		} else {
+			setIcons([]);
+		}
+		if (frameData.shapes !== undefined) {
+			setShapes(JSON.parse(JSON.stringify(frameData.shapes || [])));
+		} else {
+			setShapes([]);
+		}
+		if (frameData.backgroundImage !== undefined) {
+			setBackgroundImage(frameData.backgroundImage || null);
+		} else {
+			setBackgroundImage(null);
+		}
+		if (frameData.backgroundShapeRects !== undefined) {
+			setBackgroundShapeRects(
+				JSON.parse(JSON.stringify(frameData.backgroundShapeRects || []))
+			);
+		} else {
+			setBackgroundShapeRects([]);
+		}
+
+		// Reset selections to avoid stale references when switching frames
+		setSelectedImage(null);
+		setSelectedImages([]);
+		setSelectedVideo(null);
+		setSelectedVideos([]);
+		setSelectedText(null);
+		setSelectedTexts([]);
+		setSelectedShape(null);
+		setSelectedIcon(null);
+		setSelectedIcons([]);
+		setSelectedBackgroundShapeRect(null);
+		setSelectedStop(null);
+		setAlignmentGuides({ horizontal: [], vertical: [] });
+	}, []);
+
+	const handleFrameSelect = useCallback(
+		(frameId) => {
+			if (!frameId || frameId === activeFrameId) return;
+			const targetFrame = framesList.find((frame) => frame.id === frameId);
+			if (!targetFrame) return;
+			setActiveFrameId(frameId);
+			applyFrameState(targetFrame);
+		},
+		[activeFrameId, framesList, applyFrameState]
+	);
+
+	useEffect(() => {
+		if (!framesList.length) {
+			if (activeFrameId) {
+				setActiveFrameId(null);
+			}
+			return;
+		}
+
+		if (!activeFrameId) {
+			handleFrameSelect(framesList[0].id);
+		} else {
+			const activeExists = framesList.some(
+				(frame) => frame.id === activeFrameId
+			);
+			if (!activeExists) {
+				handleFrameSelect(framesList[0].id);
+			}
+		}
+	}, [framesList, activeFrameId, handleFrameSelect]);
+
 	// Update states when project data is loaded
 	useEffect(() => {
 		if (projectData && projectData.id !== currentProjectId) {
@@ -6545,6 +6414,7 @@ const AnimatedGradientGenerator = () => {
 			setProjectName(projectData.name || "Untitled Project");
 			setCurrentProjectId(projectData.id);
 			setPublicDocId(projectData.publicDocId || null);
+			setActiveFrameId(null);
 		}
 	}, [projectData]);
 
@@ -6559,83 +6429,6 @@ const AnimatedGradientGenerator = () => {
 			}
 		}
 	}, [projectError]);
-
-	// Save current frame to Firestore
-	const handleSaveProject = async () => {
-		if (!isAuthenticated || !user?.uid) {
-			toast.error("Please sign in to save your project");
-			return;
-		}
-
-		setIsSaving(true);
-		try {
-			const baseProjectData = {
-				name: projectName,
-				gradient,
-				images,
-				texts,
-				videos,
-				shapes,
-				icons,
-				updatedAt: new Date().toISOString(),
-			};
-
-			let savedProjectId = currentProjectId;
-
-			if (currentProjectId) {
-				// Update existing project - don't include createdAt
-				const projectRef = doc(
-					db,
-					"users",
-					user.uid,
-					"kixi-projects",
-					currentProjectId
-				);
-				await updateDoc(projectRef, baseProjectData);
-			} else {
-				// Create new project - include createdAt
-				const projectData = {
-					...baseProjectData,
-					createdAt: new Date().toISOString(),
-				};
-				const projectsRef = collection(db, "users", user.uid, "kixi-projects");
-				const docRef = await addDoc(projectsRef, projectData);
-				savedProjectId = docRef.id;
-				setCurrentProjectId(docRef.id);
-				router.push(`/app?projectId=${docRef.id}`, undefined, {
-					shallow: true,
-				});
-			}
-
-			// If project is already published, update the published version as well
-			if (publicDocId && savedProjectId) {
-				try {
-					// Generate updated HTML content
-					const htmlContent = generateHTML();
-
-					// Update published project
-					const publishedDocRef = doc(db, "published-projects", publicDocId);
-					await updateDoc(publishedDocRef, {
-						publicHtmlContent: htmlContent,
-						projectName: projectName,
-						updatedAt: new Date().toISOString(),
-					});
-				} catch (publishError) {
-					console.error("Error updating published project:", publishError);
-					// Don't fail the save if publish update fails, just log it
-				}
-			}
-
-			await loadProjects();
-			setCopied("saved");
-			setTimeout(() => setCopied(""), 2000);
-		} catch (error) {
-			console.error("Error saving project:", error);
-			toast.error("Failed to save project. Please try again.");
-		} finally {
-			setIsSaving(false);
-		}
-	};
 
 	// Publish project to public collection
 	const handlePublishProject = async () => {
@@ -6745,6 +6538,7 @@ const AnimatedGradientGenerator = () => {
 				setProjectName(projectData.name || "Untitled Project");
 				setCurrentProjectId(projectId);
 				setPublicDocId(projectData.publicDocId || null);
+				setActiveFrameId(null);
 			}
 		} catch (error) {
 			console.error("Error loading project:", error);
@@ -6799,6 +6593,7 @@ const AnimatedGradientGenerator = () => {
 		setVideos([]);
 		setShapes([]);
 		setIcons([]);
+		setActiveFrameId(null);
 
 		// Save to Firestore
 		try {
@@ -6845,7 +6640,7 @@ const AnimatedGradientGenerator = () => {
 
 	// Image improvement mutation
 	const generateImprovedImages = useMutation({
-		mutationFn: async ({ imageBase64, prompt, ast }) => {
+		mutationFn: async ({ imageBase64, prompt, ast, variantCount }) => {
 			const response = await fetch("/api/generate-improved-images", {
 				method: "POST",
 				headers: {
@@ -6855,6 +6650,7 @@ const AnimatedGradientGenerator = () => {
 					imageBase64,
 					prompt,
 					ast,
+					variantCount,
 				}),
 			});
 
@@ -6867,8 +6663,11 @@ const AnimatedGradientGenerator = () => {
 		},
 		onSuccess: (data) => {
 			setGeneratedImages(data.images || []);
+			setVariantNotes(data.notes || []);
+			toast.success("AI variants are ready.");
 		},
 		onError: (error) => {
+			setVariantNotes([]);
 			console.error("Error generating images:", error);
 			toast.error(
 				error.message || "Failed to generate images. Please try again."
@@ -6993,6 +6792,93 @@ const AnimatedGradientGenerator = () => {
 		img.src = screenshotImage;
 	};
 
+	const blobToBase64 = (blob) =>
+		new Promise((resolve, reject) => {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				const result = reader.result;
+				if (typeof result === "string") {
+					const base64 = result.includes(",") ? result.split(",")[1] : result;
+					resolve(base64);
+				} else {
+					reject(new Error("Failed to convert blob to base64"));
+				}
+			};
+			reader.onerror = () => reject(new Error("Failed to read blob data"));
+			reader.readAsDataURL(blob);
+		});
+
+	const isGeneratingVariants =
+		generateImprovedImages.isPending || generateImprovedImages.isLoading;
+
+	const handleGenerateAIVariants = async () => {
+		if (isGeneratingVariants) return;
+		if (!improvementPrompt.trim()) {
+			toast.error("Add a prompt so Mystic AI knows what to remix.");
+			return;
+		}
+		if (!previewRef.current) {
+			toast.error("Preview canvas is not ready yet.");
+			return;
+		}
+
+		try {
+			setGeneratedImages([]);
+			setVariantNotes([]);
+			const rasterBlob = await downloadRaster("png", previewFrameSize, {
+				returnBlob: true,
+			});
+			const imageBase64 = await blobToBase64(rasterBlob);
+			await generateImprovedImages.mutateAsync({
+				imageBase64,
+				prompt: improvementPrompt.trim(),
+				ast: designAst,
+				variantCount: 3,
+			});
+		} catch (error) {
+			console.error("Freepik generation failed:", error);
+			toast.error(
+				error?.message ||
+					"Freepik Mystic couldn't finish the request. Please try again."
+			);
+		}
+	};
+
+	const handleAddVariantToCanvas = (imageSrc) => {
+		if (!imageSrc) return;
+		const img = new Image();
+		img.onload = () => {
+			const newImage = {
+				id: Date.now() + Math.random(),
+				src: imageSrc,
+				x: 50,
+				y: 50,
+				width: Math.min(img.width, gradient.dimensions.width),
+				height: Math.min(img.height, gradient.dimensions.height),
+				styles: {
+					objectFit: "cover",
+					opacity: 1,
+					shadow: "none",
+					ringWidth: 0,
+					ringColor: "#000000",
+					borderRadius: 24,
+					borderWidth: 0,
+					borderColor: "#000000",
+					borderStyle: "solid",
+					zIndex: 3,
+				},
+			};
+
+			setImages((prev) => [...prev, newImage]);
+			setSelectedImage(newImage.id);
+			toast.success("Variant added to the canvas.");
+		};
+		img.onerror = () => {
+			toast.error("Unable to load the generated variant. Please try again.");
+		};
+		img.src = imageSrc;
+	};
+
 	// Sync modal with current frame size when opened or when frame size changes
 	useEffect(() => {
 		if (isModalOpen) {
@@ -7057,8 +6943,208 @@ const AnimatedGradientGenerator = () => {
 			texts: JSON.parse(JSON.stringify(texts)),
 			icons: JSON.parse(JSON.stringify(icons)),
 			shapes: JSON.parse(JSON.stringify(shapes)),
+			backgroundImage: backgroundImage || null,
+			backgroundShapeRects: JSON.parse(
+				JSON.stringify(backgroundShapeRects || [])
+			),
 		};
-	}, [gradient, images, videos, texts, icons, shapes]);
+	}, [
+		gradient,
+		images,
+		videos,
+		texts,
+		icons,
+		shapes,
+		backgroundImage,
+		backgroundShapeRects,
+	]);
+
+	const saveFrameState = useCallback(
+		async (projectId, { createNew = false } = {}) => {
+			if (!projectId || !isAuthenticated || !user?.uid) {
+				return null;
+			}
+
+			try {
+				const shouldUseLocalFrames =
+					projectId === currentProjectId || projectId === projectIdFromUrl;
+				const referenceFrames = shouldUseLocalFrames ? framesList : [];
+				const hasActiveFrame = shouldUseLocalFrames && activeFrameId;
+
+				const framePayload = {
+					...getFullState(),
+					updatedAt: new Date().toISOString(),
+				};
+				const framesRef = collection(
+					db,
+					"users",
+					user.uid,
+					"kixi-projects",
+					projectId,
+					"frames"
+				);
+
+				if (createNew || !hasActiveFrame) {
+					const nextFrameNumber =
+						referenceFrames.reduce(
+							(max, frame) => Math.max(max, frame.frameNumber || 0),
+							0
+						) + 1;
+
+					const newFrameDoc = await addDoc(framesRef, {
+						...framePayload,
+						name: `Frame ${nextFrameNumber}`,
+						frameNumber: nextFrameNumber,
+						createdAt: new Date().toISOString(),
+					});
+					setActiveFrameId(newFrameDoc.id);
+					await refetchFrames();
+					return { frameId: newFrameDoc.id, frameNumber: nextFrameNumber };
+				}
+
+				const frameRef = doc(
+					db,
+					"users",
+					user.uid,
+					"kixi-projects",
+					projectId,
+					"frames",
+					activeFrameId
+				);
+				await setDoc(frameRef, framePayload, { merge: true });
+				await refetchFrames();
+				return { frameId: activeFrameId };
+			} catch (error) {
+				console.error("Error saving frame:", error);
+				throw error;
+			}
+		},
+		[
+			activeFrameId,
+			framesList,
+			getFullState,
+			isAuthenticated,
+			currentProjectId,
+			projectIdFromUrl,
+			refetchFrames,
+			user?.uid,
+		]
+	);
+
+	const handleAddFrame = async () => {
+		if (!isAuthenticated || !user?.uid) {
+			toast.error("Please sign in to add frames");
+			return;
+		}
+
+		const targetProjectId = currentProjectId || projectIdFromUrl;
+		if (!targetProjectId) {
+			toast.error("Save your project before adding frames");
+			return;
+		}
+
+		try {
+			setIsFrameActionLoading(true);
+			const result = await saveFrameState(targetProjectId, { createNew: true });
+			const frameLabel = result?.frameNumber
+				? `Frame ${result.frameNumber}`
+				: "Frame";
+			toast.success(`${frameLabel} created`);
+		} catch (error) {
+			console.error("Error creating frame:", error);
+			toast.error("Failed to create frame. Please try again.");
+		} finally {
+			setIsFrameActionLoading(false);
+		}
+	};
+
+	// Save current frame to Firestore
+	const handleSaveProject = async () => {
+		if (!isAuthenticated || !user?.uid) {
+			toast.error("Please sign in to save your project");
+			return;
+		}
+
+		setIsSaving(true);
+		try {
+			const baseProjectData = {
+				name: projectName,
+				gradient,
+				images,
+				texts,
+				videos,
+				shapes,
+				icons,
+				updatedAt: new Date().toISOString(),
+			};
+
+			let savedProjectId = currentProjectId;
+
+			if (currentProjectId) {
+				// Update existing project - don't include createdAt
+				const projectRef = doc(
+					db,
+					"users",
+					user.uid,
+					"kixi-projects",
+					currentProjectId
+				);
+				await updateDoc(projectRef, baseProjectData);
+			} else {
+				// Create new project - include createdAt
+				const projectData = {
+					...baseProjectData,
+					createdAt: new Date().toISOString(),
+				};
+				const projectsRef = collection(db, "users", user.uid, "kixi-projects");
+				const docRef = await addDoc(projectsRef, projectData);
+				savedProjectId = docRef.id;
+				setCurrentProjectId(docRef.id);
+				router.push(`/app?projectId=${docRef.id}`, undefined, {
+					shallow: true,
+				});
+			}
+
+			const targetProjectId =
+				savedProjectId || currentProjectId || projectIdFromUrl;
+			if (targetProjectId) {
+				try {
+					await saveFrameState(targetProjectId);
+				} catch (frameError) {
+					console.error("Error saving frame state:", frameError);
+					toast.error("Project saved, but frame sync failed. Please retry.");
+				}
+			}
+
+			// If project is already published, update the published version as well
+			if (publicDocId && savedProjectId) {
+				try {
+					// Generate updated HTML content
+					const htmlContent = generateHTML();
+
+					// Update published project
+					const publishedDocRef = doc(db, "published-projects", publicDocId);
+					await updateDoc(publishedDocRef, {
+						publicHtmlContent: htmlContent,
+						projectName: projectName,
+						updatedAt: new Date().toISOString(),
+					});
+				} catch (publishError) {
+					console.error("Error updating published project:", publishError);
+					// Don't fail the save if publish update fails, just log it
+				}
+			}
+
+			await loadProjects();
+			setCopied("saved");
+			setTimeout(() => setCopied(""), 2000);
+		} catch (error) {
+			console.error("Error saving project:", error);
+			toast.error("Failed to save project. Please try again.");
+		} finally {
+			setIsSaving(false);
+		}
+	};
 
 	// Load history from cookies on mount
 	useEffect(() => {
@@ -7159,6 +7245,14 @@ const AnimatedGradientGenerator = () => {
 			if (stateToRestore.shapes !== undefined) {
 				setShapes(JSON.parse(JSON.stringify(stateToRestore.shapes)));
 			}
+			if (stateToRestore.backgroundImage !== undefined) {
+				setBackgroundImage(stateToRestore.backgroundImage || null);
+			}
+			if (stateToRestore.backgroundShapeRects !== undefined) {
+				setBackgroundShapeRects(
+					JSON.parse(JSON.stringify(stateToRestore.backgroundShapeRects || []))
+				);
+			}
 		}
 	}, [history, historyIndex]);
 
@@ -7188,6 +7282,14 @@ const AnimatedGradientGenerator = () => {
 			}
 			if (stateToRestore.shapes !== undefined) {
 				setShapes(JSON.parse(JSON.stringify(stateToRestore.shapes)));
+			}
+			if (stateToRestore.backgroundImage !== undefined) {
+				setBackgroundImage(stateToRestore.backgroundImage || null);
+			}
+			if (stateToRestore.backgroundShapeRects !== undefined) {
+				setBackgroundShapeRects(
+					JSON.parse(JSON.stringify(stateToRestore.backgroundShapeRects || []))
+				);
 			}
 		}
 	}, [history, historyIndex]);
@@ -9308,7 +9410,7 @@ const AnimatedGradientGenerator = () => {
 									<div className="p-3 space-y-3">
 										<div>
 											{/* Frame Size Selector */}
-											<label className="text-xs">Select frame</label>
+											<label className="text-xs mb-1">Select frame</label>
 											<div className="flex items-center">
 												<Dropdown
 													value={previewFrameSize}
@@ -9355,10 +9457,22 @@ const AnimatedGradientGenerator = () => {
 										</div>
 										<button
 											onClick={() => setIsModalOpen(true)}
-											className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-zinc-200 hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in"
+											className="w-full flex items-center gap-1.5 px-3 py-1.5 text-xs border border-zinc-200 hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in"
 										>
 											<PlayIcon className="w-3 h-3" />
 											Preview
+										</button>
+										<button
+											type="button"
+											onClick={() => {
+												setVariantNotes([]);
+												setGeneratedImages([]);
+												setIsImageImprovementOpen(true);
+											}}
+											className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-xl border border-amber-200 bg-white hover:bg-amber-50 text-amber-900 transition-colors"
+										>
+											<Sparkles className="w-3.5 h-3.5" />
+											Generate AI Variants
 										</button>
 									</div>
 
@@ -13729,6 +13843,50 @@ outline-offset: 2px;`
 								)}
 							</AnimatePresence>
 						</div>
+						{/* Frame Navigation */}
+						<div className="flex items-center gap-2 pl-2 pr-3 ml-1 border-l border-zinc-200">
+							<span className="text-[11px] font-semibold tracking-wide text-zinc-500 uppercase">
+								Frames
+							</span>
+							<div className="flex items-center gap-1">
+								{framesList.length > 0 ? (
+									framesList.map((frame) => (
+										<button
+											key={frame.id}
+											onClick={() => handleFrameSelect(frame.id)}
+											className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
+												frame.id === activeFrameId
+													? "bg-zinc-900 text-white"
+													: "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+											}`}
+											title={`Open Frame ${frame.frameNumber}`}
+										>
+											{frame.frameNumber}
+										</button>
+									))
+								) : (
+									<span className="text-[11px] text-zinc-400 px-2">None</span>
+								)}
+								{isLoadingFrames && (
+									<Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+								)}
+							</div>
+							<button
+								onClick={handleAddFrame}
+								disabled={
+									isFrameActionLoading || !isAuthenticated || isLoadingFrames
+								}
+								className="flex items-center justify-center w-8 h-8 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+								title="Add Frame"
+								aria-label="Add Frame"
+							>
+								{isFrameActionLoading ? (
+									<Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
+								) : (
+									<Plus className="w-4 h-4 text-zinc-700" />
+								)}
+							</button>
+						</div>
 						{/* Zoom Controls */}
 						<button
 							onClick={() => setPreviewZoom((prev) => Math.min(prev + 0.1, 1))}
@@ -13829,6 +13987,138 @@ outline-offset: 2px;`
 										<p className="text-sm text-zinc-500">
 											{Math.round(mp4Progress)}%
 										</p>
+									</div>
+								</motion.div>
+							</motion.div>
+						)}
+					</AnimatePresence>
+
+					<AnimatePresence>
+						{isImageImprovementOpen && (
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								exit={{ opacity: 0 }}
+								className="fixed inset-0 z-[20010] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+								onClick={() => setIsImageImprovementOpen(false)}
+							>
+								<motion.div
+									initial={{ y: 40, opacity: 0 }}
+									animate={{ y: 0, opacity: 1 }}
+									exit={{ y: 40, opacity: 0 }}
+									transition={{ duration: 0.2 }}
+									className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-zinc-100 p-6 space-y-5 max-h-[90vh] overflow-y-auto hidescrollbar"
+									onClick={(e) => e.stopPropagation()}
+								>
+									<div className="flex items-start justify-between gap-4">
+										<div>
+											<h3 className="text-lg font-semibold text-zinc-900">
+												Freepik Mystic Variants
+											</h3>
+											<p className="text-sm text-zinc-500">
+												We capture the current previewRef canvas, bundle your
+												AST, and ask Gemini 2.5 Flash Image to remix it into
+												fresh variants.
+											</p>
+										</div>
+										<button
+											onClick={() => setIsImageImprovementOpen(false)}
+											className="w-8 h-8 rounded-full border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors"
+											title="Close"
+										>
+											<X className="w-4 h-4" />
+										</button>
+									</div>
+
+									<div className="space-y-2">
+										<label className="text-xs font-medium text-zinc-700">
+											What should Mystic AI do?
+										</label>
+										<textarea
+											ref={improvementPromptRef}
+											value={improvementPrompt}
+											onChange={(e) => setImprovementPrompt(e.target.value)}
+											placeholder="Example: Make this hero futuristic with neon blues and glassmorphic cards, keep the CTA legible."
+											className="w-full min-h-[100px] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none"
+										/>
+										<div className="flex flex-wrap items-center justify-between gap-3">
+											<p className="text-[11px] text-zinc-500">
+												Your AST + previewRef snapshot are only used for this
+												request.
+											</p>
+											<button
+												type="button"
+												onClick={handleGenerateAIVariants}
+												disabled={isGeneratingVariants}
+												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl text-white bg-amber-600 hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+											>
+												{isGeneratingVariants ? (
+													<>
+														<Loader2 className="w-3.5 h-3.5 animate-spin" />
+														<span>Generating...</span>
+													</>
+												) : (
+													<>
+														<Sparkles className="w-3.5 h-3.5" />
+														<span>Generate variants</span>
+													</>
+												)}
+											</button>
+										</div>
+									</div>
+
+									{variantNotes.length > 0 && (
+										<div className="space-y-2">
+											<p className="text-xs font-semibold text-zinc-700">
+												Model notes
+											</p>
+											<div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 space-y-2 max-h-40 overflow-y-auto">
+												{variantNotes.map((note, index) => (
+													<p
+														key={`note-${index}`}
+														className="text-xs text-zinc-600"
+													>
+														{note}
+													</p>
+												))}
+											</div>
+										</div>
+									)}
+
+									<div className="space-y-2">
+										<p className="text-xs font-semibold text-zinc-700">
+											Generated variants
+										</p>
+										{generatedImages.length > 0 ? (
+											<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+												{generatedImages.map((image, index) => (
+													<div
+														key={`variant-${index}`}
+														className="space-y-2 rounded-2xl border border-zinc-100 p-2 bg-white shadow-sm"
+													>
+														<div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-zinc-100">
+															<img
+																src={image}
+																alt={`Mystic variant ${index + 1}`}
+																className="w-full h-full object-cover"
+															/>
+														</div>
+														<button
+															type="button"
+															onClick={() => handleAddVariantToCanvas(image)}
+															className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl border border-zinc-200 hover:border-zinc-400 transition-colors"
+														>
+															<Plus className="w-3 h-3" />
+															Add to canvas
+														</button>
+													</div>
+												))}
+											</div>
+										) : (
+											<div className="rounded-2xl border border-dashed border-zinc-200 p-6 text-center text-xs text-zinc-500">
+												Variants will appear here after you run Mystic AI.
+											</div>
+										)}
 									</div>
 								</motion.div>
 							</motion.div>
