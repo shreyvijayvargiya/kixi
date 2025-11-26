@@ -1,10 +1,10 @@
 # kixi
 
-A powerful platform for creating stunning animated gradients and accessing premium React, Next.js, and Vite code templates. Build beautiful websites faster with production-ready components and templates.
+A powerful platform for creating stunning designs, gradients, graphics and creatives
 
 ## 🚀 Features
 
-### Animated Gradient Generator
+### creative design app
 
 - **Real-Time Preview**: See your gradient animations instantly as you customize them
 - **Customizable Colors**: Create gradients with unlimited color combinations
@@ -12,24 +12,6 @@ A powerful platform for creating stunning animated gradients and accessing premi
 - **AI-Powered Generation**: Generate perfect gradients from simple text prompts
 - **Multiple Export Formats**: Export as PNG, SVG, GIF, MP4, or React code
 - **Production-Ready Code**: Get clean, copy-paste React code for your projects
-
-### Template Marketplace
-
-- **Landing Pages**: Ready-to-use landing page templates
-- **Portfolio Templates**: Beautiful portfolio designs for developers and designers
-- **AI Templates**: AI-generated template designs
-- **Content Templates**: Pre-built content sections
-- **Payment & Forms**: Integrated payment and form components
-- **React, Next.js & Vite**: Templates available in multiple frameworks
-
-### Additional Features
-
-- **Google Authentication**: Secure login with Google
-- **Unlimited Projects**: Create and save unlimited gradient projects
-- **Template Search**: Find templates quickly with search functionality
-- **Category Filtering**: Browse templates by category
-- **Source Code Access**: View and download complete source code
-- **GitHub Integration**: Push code directly to your GitHub repository (coming soon)
 
 ## 🛠️ Tech Stack
 
@@ -87,7 +69,6 @@ GOOGLE_AI_API_KEY=your_google_ai_key
 MISTRAL_API_KEY=your_mistral_key
 
 # Payment Configuration
-LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_key
 POLAR_API_KEY=your_polar_key
 
 # Email Configuration

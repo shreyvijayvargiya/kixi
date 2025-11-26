@@ -1,26 +1,74 @@
-import { Loader2, PlusIcon, Mail } from "lucide-react";
+import { Loader2, PlusIcon, Mail, InfoIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useState } from "react";
 
 const subscriptionPlans = {
+	halfYearly: {
+		id: "05fee37c-d369-49fa-bb5b-b606df933a61",
+		priceUSD: 49,
+		title: "6 months",
+		features: [
+			{
+				title: "🎨 Advanced editor like Figma",
+				description:
+					"Design with vector tools, grids, and component presets that feel familiar",
+			},
+			{
+				title: "📁 Create unlimited projects",
+				description: "Start, duplicate, and organize every idea without limits",
+			},
+			{
+				title: "🔔 Access to new updates",
+				description:
+					"Receive every feature and template refresh the moment it ships",
+			},
+		],
+	},
 	yearly: {
 		id: "05fee37c-d369-49fa-bb5b-b606df933a61",
 		priceUSD: 99,
 		title: "Annual",
 		features: [
 			{
-				title: "⭐ All Templates Access",
-				description: "Access to all premium templates",
+				title: "🧠 Smart presets library",
+				description: "600+ ready-made gradients, shapes, and typography kits",
 			},
 			{
-				title: "💻 Unlimited projects",
-				description: "Create unlimited kixi on the app",
+				title: "🤝 Team co-editing",
+				description: "Invite 3 collaborators with shared asset trays",
 			},
 			{
-				title: "🚀 New Templates",
-				description: "Get new templates every week",
+				title: "🔁 Version timeline",
+				description: "Snapshot every iteration and roll back instantly",
+			},
+			{
+				title: "🧵 Workflow automations",
+				description: "Export directly to Figma, Webflow, and Framer",
+			},
+		],
+	},
+	lifetime: {
+		id: "05fee37c-d369-49fa-bb5b-b606df933a61",
+		priceUSD: 199,
+		title: "Lifetime",
+		features: [
+			{
+				title: "🚀 Infinite updates",
+				description: "Lifetime access to every future tool and template",
+			},
+			{
+				title: "🛠️ Beta feature invites",
+				description: "Try AI layout assistants before public launch",
+			},
+			{
+				title: "🔐 Secure asset vault",
+				description: "2TB encrypted storage for brand kits and exports",
+			},
+			{
+				title: "🎯 White-glove onboarding",
+				description: "1:1 sessions with the Kixi design team",
 			},
 		],
 	},
@@ -28,29 +76,29 @@ const subscriptionPlans = {
 
 const faqData = [
 	{
-		question: "What do I get when I subscribe?",
+		question: "What does kixi PRO unlock?",
 		answer:
-			"You get instant access to all premium React and Next.js templates with complete source code. Download any template in ZIP format, view the code repository, and customize it for your projects.",
+			"Every plan unlocks the advanced gradient editor, motion timeline, and export studio. You can mix templates, drop in media, and ship production-ready assets without leaving Kixi.",
 	},
 	{
-		question: "Can I cancel my subscription anytime?",
+		question: "Can I cancel or switch plans?",
 		answer:
-			"Yes, you can cancel your annual subscription anytime. However, there are no refunds for remaining months. For custom enterprise plans, please contact our sales team to discuss cancellation terms.",
+			"Yes. Quarterly and annual plans renew automatically but can be cancelled at any time from your dashboard. You keep access until the billing cycle ends, and you can upgrade to Lifetime whenever you like.",
 	},
 	{
-		question: "What's included in the source code?",
+		question: "Do I keep my projects if I cancel?",
 		answer:
-			"The source code includes all React/Next.js components, CSS files (Tailwind), configuration files, and project structure. Everything you need to run the template locally or deploy it to your hosting platform.",
+			"Your canvases stay saved. You can view them on the free tier, but editing, exporting, and AI-powered features pause until you restart a PRO plan.",
 	},
 	{
-		question: "Do I get support and updates?",
+		question: "How often do you add new templates?",
 		answer:
-			"Yes! All plans include new template updates every week. Enterprise and custom plan customers get priority support with faster response times for any questions or issues you may have.",
+			"We publish fresh gradients, layout blueprints, and motion recipes every week. Lifetime members automatically receive every new release forever.",
 	},
 	{
-		question: "Can I use templates for commercial projects?",
+		question: "Can I use Kixi output commercially?",
 		answer:
-			"Absolutely! All templates come with full commercial rights. You can use them for client projects, personal websites, or any commercial application without any restrictions or attribution required.",
+			"Absolutely. Anything you export—graphics, animations, or code snippets—is yours to use in personal, client, or commercial projects with no attribution required.",
 	},
 ];
 
@@ -130,7 +178,7 @@ const SubscriptionModal = () => {
 						className="p-2 rounded-xl bg-black animate-[spin_6s_linear_infinite] shadow-2xl shadow-zinc-400"
 					>
 						<p className="text-white p-4 rounded-xl bg-zinc-900 animate-[spin_3s_linear_infinite] backdrop-blur-md">
-							PRO
+							Kixi
 						</p>
 					</motion.div>
 					<br />
@@ -140,7 +188,7 @@ const SubscriptionModal = () => {
 						transition={{ delay: 0.2 }}
 						className="text-4xl font-bold text-zinc-900"
 					>
-						kixi PRO
+						kixi Subscription
 					</motion.h2>
 					<motion.p
 						initial={{ opacity: 0, y: 20 }}
@@ -148,122 +196,73 @@ const SubscriptionModal = () => {
 						transition={{ delay: 0.3 }}
 						className="text-zinc-600 max-w-xs mx-auto text-center"
 					>
-						Get access to view and download the complete code repository for all
-						templates.
+						Buy the plan that suits your need.
 					</motion.p>
 				</div>
 
-				<motion.div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 max-w-4xl mx-auto">
-					{/* Annual Plan */}
-					<motion.div className="bg-gradient-to-tr from-zinc-100 to-white hover:shadow-2xl hover:bg-white ring-4 ring-zinc-50 hover:ring-8 hover:ring-zinc-100 transition-all duration-300 ease-in rounded-2xl border border-zinc-200 border-dashed p-8 shadow relative">
-						<div className="text-center mb-8">
-							<h3 className="text-2xl font-semibold text-zinc-900 mb-2">
-								Annual
-							</h3>
-							<p className="text-zinc-600">Best for yearly projects</p>
-						</div>
-						<div className="text-3xl font-bold text-zinc-900 mb-6">
-							${subscriptionPlans.yearly.priceUSD}/year
-						</div>
-						<ul className="space-y-4">
-							{subscriptionPlans.yearly.features.map((feature, index) => (
-								<li key={index} className="flex items-start gap-3">
-									<div>
-										<p className="font-medium text-zinc-900">{feature.title}</p>
-										<p className="text-sm text-zinc-600">
-											{feature.description}
-										</p>
-									</div>
-								</li>
-							))}
-						</ul>
-						<br />
-						<button
-							onClick={() =>
-								handleSubscribe(subscriptionPlans.yearly.id, "yearly")
-							}
-							disabled={loadingPlan === "yearly"}
-							className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					viewport={{ once: true }}
+					transition={{ staggerChildren: 0.1 }}
+					className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
+				>
+					{Object.entries(subscriptionPlans).map(([key, plan], index) => (
+						<motion.div
+							key={key}
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: index * 0.05 }}
+							className="border border-zinc-200 bg-stone-50/50 rounded-2xl p-6 backdrop-blur-sm shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
 						>
-							{loadingPlan === "yearly" ? (
-								<>
-									<Loader2 className="w-4 h-4 animate-spin" />
-									Processing...
-								</>
-							) : (
-								<>${subscriptionPlans.yearly.priceUSD}/year - Subscribe</>
-							)}
-						</button>
-					</motion.div>
-
-					{/* Contact Sales */}
-					<motion.div className="bg-gradient-to-tr from-white to-zinc-100 hover:shadow-2xl hover:bg-white ring-4 ring-zinc-50 hover:ring-8 hover:ring-zinc-100 transition-all duration-300 ease-in rounded-2xl border border-zinc-200 p-8 shadow-md relative">
-						<div className="absolute -top-3 -right-3 bg-blue-500 text-white text-xs font-medium px-3 py-1 rounded-full">
-							Custom
-						</div>
-						<div className="text-center mb-8">
-							<h3 className="text-2xl font-semibold text-zinc-900 mb-2">
-								Contact Sales
-							</h3>
-							<p className="text-zinc-600">
-								Need a custom plan or enterprise solution?
-							</p>
-						</div>
-						<div className="text-3xl font-bold text-zinc-900 mb-6">
-							Custom Pricing
-						</div>
-						<ul className="space-y-4">
-							<li className="flex items-start gap-3">
-								<div>
-									<p className="font-medium text-zinc-900">
-										💼 Enterprise Solutions
-									</p>
-									<p className="text-sm text-zinc-600">
-										Tailored plans for teams and organizations
-									</p>
-								</div>
-							</li>
-							<li className="flex items-start gap-3">
-								<div>
-									<p className="font-medium text-zinc-900">
-										🎯 Custom Features
-									</p>
-									<p className="text-sm text-zinc-600">
-										Get exactly what you need for your project
-									</p>
-								</div>
-							</li>
-							<li className="flex items-start gap-3">
-								<div>
-									<p className="font-medium text-zinc-900">
-										🤝 Dedicated Support
-									</p>
-									<p className="text-sm text-zinc-600">
-										Priority support and personalized assistance
-									</p>
-								</div>
-							</li>
-							<li className="flex items-start gap-3">
-								<div>
-									<p className="font-medium text-zinc-900">
-										📞 Direct Communication
-									</p>
-									<p className="text-sm text-zinc-600">
-										Work directly with our team to find the best solution
-									</p>
-								</div>
-							</li>
-						</ul>
-						<br />
-						<a
-							href="mailto:connect@ihatereading.in?subject=Enterprise/Custom Plan Inquiry"
-							className="w-full bg-zinc-900 hover:bg-zinc-800 text-white py-3 rounded-xl transition-colors font-medium flex items-center justify-center gap-2"
-						>
-							<Mail className="w-4 h-4" />
-							Contact Sales
-						</a>
-					</motion.div>
+							<div className="mb-4">
+								<p className="text-sm uppercase tracking-wide text-zinc-500">
+									{plan.title}
+								</p>
+								<p className="text-3xl font-bold text-zinc-900 mt-2">
+									${plan.priceUSD}
+									<span className="text-sm font-medium text-zinc-500 ml-1">
+										{plan.title === "Lifetime" ? "/once" : "/plan"}
+									</span>
+								</p>
+								<p className="text-sm text-zinc-500 mt-1">
+									Total: ${plan.priceUSD} for {plan.title}
+								</p>
+							</div>
+							<ul className="space-y-3 flex-1">
+								{plan.features.map((feature, featureIndex) => (
+									<li key={featureIndex} className="text-sm text-zinc-700">
+										<span className="font-semibold text-zinc-900">
+											{feature.title}
+										</span>{" "}
+										– {feature.description}
+									</li>
+								))}
+							</ul>
+							<button
+								onClick={() => handleSubscribe(plan.id, key)}
+								disabled={loadingPlan === key}
+								className="mt-6 w-full border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white p-2 text-xs rounded-xl transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+							>
+								{loadingPlan === key ? (
+									<>
+										<Loader2 className="w-4 h-4 animate-spin" />
+										Processing...
+									</>
+								) : (
+									<>
+										Choose {plan.title} · Total ${plan.priceUSD}
+									</>
+								)}
+							</button>
+						</motion.div>
+					))}
 				</motion.div>
+				<span className="text-xs p-5 my-2 max-w-xs mx-auto rounded-xl bg-orange-50 flex items-start justify-start gap-2">
+					<InfoIcon className="w-8 h-8" />
+					We usually provide half-yearly or annual subscription for better
+					trust. Cancel anytime you want.
+				</span>
 
 				{/* FAQ Section */}
 				<motion.div

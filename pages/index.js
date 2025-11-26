@@ -5,7 +5,7 @@ export default function Home() {
 	return (
 		<>
 			<Head>
-				<title>kixi - Animated Gradient Generator</title>
+				<title>kixi - creative design app</title>
 				<meta
 					name="description"
 					content="Create beautiful animated gradients with kixi. Generate custom gradient animations for your projects."
@@ -19,10 +19,7 @@ export default function Home() {
 
 				{/* Open Graph / Facebook */}
 				<meta property="og:type" content="website" />
-				<meta
-					property="og:title"
-					content="kixi - Animated Gradient Generator"
-				/>
+				<meta property="og:title" content="kixi - creative design app" />
 				<meta
 					property="og:description"
 					content="Create beautiful animated gradients with kixi. Generate custom gradient animations for your projects."
@@ -36,10 +33,7 @@ export default function Home() {
 
 				{/* Twitter */}
 				<meta name="twitter:card" content="summary_large_image" />
-				<meta
-					name="twitter:title"
-					content="kixi - Animated Gradient Generator"
-				/>
+				<meta name="twitter:title" content="kixi - creative design app" />
 				<meta
 					name="twitter:description"
 					content="Create beautiful animated gradients with kixi. Generate custom gradient animations for your projects."

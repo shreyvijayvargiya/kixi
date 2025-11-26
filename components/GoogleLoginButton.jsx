@@ -172,21 +172,17 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 			<AnimatePresence>
 				{showModal && (
 					<div
-						className="bg-stone-50 fixed inset-0 z-50 flex items-center justify-center p-4 h-screen .canvas-dots-bg {
-					background-image: radial-gradient(
-						circle,
-						rgba(0, 0, 0, 0.15) 1px,
-						transparent 1px
-					);
-					background-size: 20px 20px;
-					background-position: 0 0;
-				}"
+						className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+						style={{
+							backgroundColor: "rgba(250, 250, 248, 0.95)",
+							backdropFilter: "blur(6px)",
+						}}
 					>
 						<div
-							className="absolute h-full inset-0 opacity-20 z-0"
+							className="absolute inset-0 opacity-20 pointer-events-none"
 							style={{
 								backgroundImage:
-									"radial-gradient(circle, #d1d5db 1.5px, transparent 1.5px)",
+									"radial-gradient(circle, rgba(0, 0, 0, 0.1) 1.5px, transparent 1.5px)",
 								backgroundSize: "20px 20px",
 							}}
 						/>
@@ -196,7 +192,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 							animate={{ opacity: 1, scale: 1, y: 0 }}
 							exit={{ opacity: 0, scale: 0.95, y: 10 }}
 							transition={{ type: "spring", duration: 0.3 }}
-							className="relative w-full max-w-xl ring ring-zinc-100 shadow-2xl shadow-zinc-200 bg-white rounded-2xl z-10 overflow-hidden"
+							className="relative w-full max-w-xl ring ring-zinc-100 shadow-2xl shadow-zinc-200 bg-white rounded-2xl z-[10000] overflow-hidden"
 						>
 							<button
 								onClick={() => setShowModal(false)}
@@ -213,14 +209,14 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 										transition={{ duration: 0.6, delay: 0.2 }}
 										className="text-center lg:text-left"
 									>
-										<motion.h2
+										<motion.img
+											className="w-10 h-10"
 											initial={{ opacity: 0, y: 20 }}
 											animate={{ opacity: 1, y: 0 }}
 											transition={{ duration: 0.6, delay: 0.3 }}
-											className="text-3xl md:text-4xl lg:text-5xl font-bold text-zinc-900 mb-6"
-										>
-											kixi
-										</motion.h2>
+											src="./kixi-logo.png"
+											alt="kixi"
+										/>
 										<motion.p
 											initial={{ opacity: 0, y: 20 }}
 											animate={{ opacity: 1, y: 0 }}

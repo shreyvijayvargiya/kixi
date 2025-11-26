@@ -624,7 +624,7 @@ export default async function handler(req, res) {
 			});
 		}
 
-		const systemPrompt = `You are an AI assistant for an animated gradient generator tool. Users can ask you to edit their gradient designs using natural language.
+		const systemPrompt = `You are an AI assistant for an creative design app tool. Users can ask you to edit their gradient designs using natural language.
 
 AVAILABLE ACTIONS:
 1. change_background_color - Change gradient colors (use color or colorName like "dark", "light", "blue", "red")

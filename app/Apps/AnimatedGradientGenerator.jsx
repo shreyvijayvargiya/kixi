@@ -7642,10 +7642,11 @@ const AnimatedGradientGenerator = () => {
 									<Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
 								</div>
 							) : projects.length === 0 ? (
-								<div className="text-left py-2 text-zinc-500 text-sm">
+								<div className="text-left py-2 space-y-2 text-zinc-500 text-sm">
 									{isAuthenticated
 										? "No projects yet. Create your first one!"
 										: "Sign in to save and manage your projects"}
+									{/* <GoogleLoginButton /> */}
 								</div>
 							) : (
 								isAuthenticated && (
@@ -7744,7 +7745,7 @@ const AnimatedGradientGenerator = () => {
 							>
 								Twitter
 							</a>
-							<button
+							{/* <button
 								onClick={() => {
 									setShowSubscriptionModal(!showSubscriptionModal);
 								}}
@@ -7752,7 +7753,7 @@ const AnimatedGradientGenerator = () => {
 							>
 								<Money01Icon className="w-4 h-4" />
 								Buy PRO
-							</button>
+							</button> */}
 						</div>
 					</div>
 				</motion.aside>
@@ -7833,68 +7834,6 @@ const AnimatedGradientGenerator = () => {
 					`}</style>
 					<div className="max-w-7xl mx-auto relative">
 						<div className="space-y-1 lg:pr-[100px] mt-16">
-							{/* Zoom Controls */}
-							<div className="w-fit ml-auto flex gap-2 p-1 bg-white rounded-xl border border-zinc-100 justify-end items-center">
-								<button
-									onClick={() =>
-										setPreviewZoom((prev) => Math.min(prev + 0.1, 1))
-									}
-									className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
-									title="Zoom In"
-									aria-label="Zoom In"
-								>
-									<ZoomIn className="w-4 h-4 text-zinc-700" />
-								</button>
-
-								<button
-									onClick={() =>
-										setPreviewZoom((prev) => Math.max(prev - 0.1, 0.1))
-									}
-									className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
-									title="Zoom Out"
-									aria-label="Zoom Out"
-								>
-									<ZoomOut className="w-4 h-4 text-zinc-700" />
-								</button>
-								{/* Undo/Redo Navigation */}
-								<button
-									onClick={undo}
-									disabled={historyIndex <= 0}
-									className={`p-1.5 rounded transition-colors ${
-										historyIndex <= 0
-											? "opacity-50 cursor-not-allowed"
-											: "hover:bg-zinc-100"
-									}`}
-									title="Undo (⌘Z)"
-									aria-label="Undo"
-								>
-									<ArrowLeft className="w-4 h-4 text-zinc-700" />
-								</button>
-								<button
-									onClick={redo}
-									disabled={historyIndex >= history.length - 1}
-									className={`p-1.5 rounded transition-colors ${
-										historyIndex >= history.length - 1
-											? "opacity-50 cursor-not-allowed"
-											: "hover:bg-zinc-100"
-									}`}
-									title="Redo (⌘⇧Z)"
-									aria-label="Redo"
-								>
-									<ArrowRight className="w-4 h-4 text-zinc-700" />
-								</button>
-
-								<button
-									onClick={handleCopyHTML}
-									className={`p-1.5 hover:bg-zinc-100 rounded transition-colors ${
-										copied === "html" ? "bg-green-100" : ""
-									}`}
-									title="Copy HTML"
-									aria-label="Copy HTML"
-								>
-									<Copy className="w-4 h-4 text-zinc-700" />
-								</button>
-							</div>
 							<div className="bg-white rounded-xl relative">
 								{/* Immediate parent container of previewRef with zoom transform */}
 								<div
@@ -9174,91 +9113,7 @@ const AnimatedGradientGenerator = () => {
 										</button>
 										<GoogleLoginButton />
 									</div>
-									<div className="px-3 flex items-center gap-2 justify-between">
-										<div ref={downloadDropdownRef} className="relative">
-											<button
-												onClick={() =>
-													setIsDownloadDropdownOpen(!isDownloadDropdownOpen)
-												}
-												className="w-fit flex items-center gap-2 px-3 py-1.5 text-xs bg-white hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in border border-zinc-200"
-											>
-												<Download className="w-3 h-3" />
-												Download
-											</button>
-											<AnimatePresence>
-												{isDownloadDropdownOpen && (
-													<motion.div
-														initial={{ opacity: 0, y: -10 }}
-														animate={{ opacity: 1, y: 0 }}
-														exit={{ opacity: 0, y: -10 }}
-														transition={{ duration: 0.15 }}
-														className="absolute right-0 mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50 min-w-[200px]"
-													>
-														<div className="flex flex-col">
-															<button
-																type="button"
-																onClick={() => {
-																	downloadSVG(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download as SVG</span>
-															</button>
-															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("png", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download as PNG</span>
-															</button>
-															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("jpeg", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download as JPEG</span>
-															</button>
-															{/* GIF Download - Only show if background animation is enabled */}
-															{gradient.backgroundAnimation.enabled && (
-																<button
-																	type="button"
-																	onClick={() => {
-																		downloadGIF(previewFrameSize);
-																		setIsDownloadDropdownOpen(false);
-																	}}
-																	className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-																>
-																	<Download className="w-4 h-4" />
-																	<span>Download as GIF</span>
-																</button>
-															)}
-															{/* MP4 Download */}
-															<button
-																type="button"
-																onClick={() => {
-																	downloadMP4(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Video className="w-4 h-4" />
-																<span>Download as MP4</span>
-															</button>
-														</div>
-													</motion.div>
-												)}
-											</AnimatePresence>
-										</div>
+									<div className="px-3 flex items-center gap-2 justify-start">
 										<button
 											onClick={(e) => {
 												if (publicDocId && !isPublishing) {
@@ -9297,6 +9152,90 @@ const AnimatedGradientGenerator = () => {
 															: "Publish"}
 											</span>
 										</button>
+										<div ref={downloadDropdownRef} className="relative">
+											<button
+												onClick={() =>
+													setIsDownloadDropdownOpen(!isDownloadDropdownOpen)
+												}
+												className="w-fit flex items-center gap-2 px-3 py-1.5 text-xs bg-white hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in border border-zinc-200"
+											>
+												<Download className="w-3 h-3" />
+												Download
+											</button>
+											<AnimatePresence>
+												{isDownloadDropdownOpen && (
+													<motion.div
+														initial={{ opacity: 0, y: -10 }}
+														animate={{ opacity: 1, y: 0 }}
+														exit={{ opacity: 0, y: -10 }}
+														transition={{ duration: 0.15 }}
+														className="absolute left-0 mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50 w-fit min-w-[180px]"
+													>
+														<div className="flex flex-col">
+															<button
+																type="button"
+																onClick={() => {
+																	downloadSVG(previewFrameSize);
+																	setIsDownloadDropdownOpen(false);
+																}}
+																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2"
+															>
+																<Download className="w-3 h-3" />
+																<span>Download as SVG</span>
+															</button>
+															<button
+																type="button"
+																onClick={() => {
+																	downloadRaster("png", previewFrameSize);
+																	setIsDownloadDropdownOpen(false);
+																}}
+																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+															>
+																<Download className="w-3 h-3" />
+																<span>Download as PNG</span>
+															</button>
+															<button
+																type="button"
+																onClick={() => {
+																	downloadRaster("jpeg", previewFrameSize);
+																	setIsDownloadDropdownOpen(false);
+																}}
+																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+															>
+																<Download className="w-3 h-3" />
+																<span>Download as JPEG</span>
+															</button>
+															{/* GIF Download - Only show if background animation is enabled */}
+															{gradient.backgroundAnimation.enabled && (
+																<button
+																	type="button"
+																	onClick={() => {
+																		downloadGIF(previewFrameSize);
+																		setIsDownloadDropdownOpen(false);
+																	}}
+																	className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+																>
+																	<Download className="w-3 h-3" />
+																	<span>Download as GIF</span>
+																</button>
+															)}
+															{/* MP4 Download */}
+															<button
+																type="button"
+																onClick={() => {
+																	downloadMP4(previewFrameSize);
+																	setIsDownloadDropdownOpen(false);
+																}}
+																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+															>
+																<Video className="w-3 h-3" />
+																<span>Download as MP4</span>
+															</button>
+														</div>
+													</motion.div>
+												)}
+											</AnimatePresence>
+										</div>
 									</div>
 								</div>
 
@@ -13726,6 +13665,66 @@ outline-offset: 2px;`
 								)}
 							</AnimatePresence>
 						</div>
+						{/* Zoom Controls */}
+							<button
+								onClick={() =>
+									setPreviewZoom((prev) => Math.min(prev + 0.1, 1))
+								}
+								className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
+								title="Zoom In"
+								aria-label="Zoom In"
+							>
+								<ZoomIn className="w-4 h-4 text-zinc-700" />
+							</button>
+
+							<button
+								onClick={() =>
+									setPreviewZoom((prev) => Math.max(prev - 0.1, 0.1))
+								}
+								className="p-1.5 hover:bg-zinc-100 rounded transition-colors"
+								title="Zoom Out"
+								aria-label="Zoom Out"
+							>
+								<ZoomOut className="w-4 h-4 text-zinc-700" />
+							</button>
+							{/* Undo/Redo Navigation */}
+							<button
+								onClick={undo}
+								disabled={historyIndex <= 0}
+								className={`p-1.5 rounded transition-colors ${
+									historyIndex <= 0
+										? "opacity-50 cursor-not-allowed"
+										: "hover:bg-zinc-100"
+								}`}
+								title="Undo (⌘Z)"
+								aria-label="Undo"
+							>
+								<ArrowLeft className="w-4 h-4 text-zinc-700" />
+							</button>
+							<button
+								onClick={redo}
+								disabled={historyIndex >= history.length - 1}
+								className={`p-1.5 rounded transition-colors ${
+									historyIndex >= history.length - 1
+										? "opacity-50 cursor-not-allowed"
+										: "hover:bg-zinc-100"
+								}`}
+								title="Redo (⌘⇧Z)"
+								aria-label="Redo"
+							>
+								<ArrowRight className="w-4 h-4 text-zinc-700" />
+							</button>
+
+							<button
+								onClick={handleCopyHTML}
+								className={`p-1.5 hover:bg-zinc-100 rounded transition-colors ${
+									copied === "html" ? "bg-green-100" : ""
+								}`}
+								title="Copy HTML"
+								aria-label="Copy HTML"
+							>
+								<Copy className="w-4 h-4 text-zinc-700" />
+							</button>
 					</div>
 
 					{/* MP4 Generation Loading Modal */}
@@ -13787,7 +13786,7 @@ outline-offset: 2px;`
 									animate={{ scale: 1, opacity: 1 }}
 									exit={{ scale: 0.9, opacity: 0 }}
 									onClick={(e) => e.stopPropagation()}
-									className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
+									className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
 								>
 									<div className="p-2 my-2 absolute right-4 top-4 z-50 hover:bg-zinc-50 cursor-pointer rounded-full">
 										<Cancel01Icon

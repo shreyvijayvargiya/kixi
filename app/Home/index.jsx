@@ -63,7 +63,7 @@ const faqs = [
 	{
 		question: "What is kixi?",
 		answer:
-			"kixi is a powerful animated gradient generator that helps you create stunning, animated gradients for your projects. Create beautiful gradients with customizable colors, animations, and export them in multiple formats including PNG, SVG, GIF, MP4, or React code.",
+			"kixi is a powerful creative design app that helps you create stunning, animated gradients for your projects. Create beautiful gradients with customizable colors, animations, and export them in multiple formats including PNG, SVG, GIF, MP4, or React code.",
 	},
 	{
 		question: "How do I create a gradient?",

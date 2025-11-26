@@ -10,6 +10,7 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	X,
+	Camera,
 } from "lucide-react";
 
 const FeaturesSectionModal = ({ isOpen, onClose }) => {
@@ -36,19 +37,26 @@ const FeaturesSectionModal = ({ isOpen, onClose }) => {
 				"Export your gradients as PNG, SVG, GIF, MP4, or React code. Perfect for any use case.",
 			bgColor: "bg-blue-50",
 		},
+		// {
+		// 	icon: <Code className="w-6 h-6 text-zinc-800" />,
+		// 	title: "React Code Export",
+		// 	description:
+		// 		"Generate production-ready React code for your gradients. Copy and paste into your project.",
+		// 	bgColor: "bg-zinc-50",
+		// },
+		// {
+		// 	icon: <ShieldCheck className="w-6 h-6 text-zinc-800" />,
+		// 	title: "AI Multi-Object Support",
+		// 	description:
+		// 		"Ask AI to layout images, text, video, shapes, background layers, and icons in one shot.",
+		// 	bgColor: "bg-green-50",
+		// },
 		{
-			icon: <Code className="w-6 h-6 text-zinc-800" />,
-			title: "React Code Export",
+			icon: <Camera className="w-6 h-6 text-zinc-800" />,
+			title: "URL to Screenshot",
 			description:
-				"Generate production-ready React code for your gradients. Copy and paste into your project.",
-			bgColor: "bg-zinc-50",
-		},
-		{
-			icon: <ShieldCheck className="w-6 h-6 text-zinc-800" />,
-			title: "AI-Powered Generation",
-			description:
-				"Use AI to generate perfect gradients from simple text prompts. Let AI do the creative work.",
-			bgColor: "bg-green-50",
+				"Paste any URL and instantly capture a pixel-perfect screenshot you can drop into your scene.",
+			bgColor: "bg-emerald-50",
 		},
 		{
 			icon: <Rocket className="w-6 h-6 text-zinc-800" />,
