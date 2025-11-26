@@ -3945,29 +3945,47 @@ const AnimatedGradientGenerator = () => {
 			dimensionPresets.mobile;
 		const width = dimensions.width;
 		const height = dimensions.height;
-		const sortedStops = [...gradient.stops].sort((a, b) => {
-			const distA = Math.sqrt(
-				a.position.x * a.position.x + a.position.y * a.position.y
-			);
-			const distB = Math.sqrt(
-				b.position.x * b.position.x + b.position.y * b.position.y
-			);
-			return distA - distB;
-		});
+		const gradientStops = Array.isArray(gradient?.stops)
+			? gradient.stops.filter(
+					(stop) =>
+						stop &&
+						stop.position &&
+						typeof stop.position.x === "number" &&
+						typeof stop.position.y === "number"
+				)
+			: [];
+		const hasStops = gradientStops.length > 0;
+		const sortedStops = hasStops
+			? [...gradientStops].sort((a, b) => {
+					const distA = Math.sqrt(
+						a.position.x * a.position.x + a.position.y * a.position.y
+					);
+					const distB = Math.sqrt(
+						b.position.x * b.position.x + b.position.y * b.position.y
+					);
+					return distA - distB;
+				})
+			: [];
 
 		let backgroundElement = "";
 		let gradientElement = "";
 
 		if (backgroundImage) {
 			backgroundElement = `<image href="${backgroundImage}" x="0" y="0" width="${width}" height="${height}" preserveAspectRatio="xMidYMid slice" />`;
+		} else if (!hasStops) {
+			gradientElement = `
+      <linearGradient id="gradientFill" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#ffffff" />
+      </linearGradient>`;
 		} else {
 			if (gradient.type === "linear") {
 				const firstStop = sortedStops[0];
-				const lastStop = sortedStops[sortedStops.length - 1];
+				const lastStop = sortedStops[sortedStops.length - 1] || firstStop;
 				const angle =
 					Math.atan2(
-						lastStop.position.y - firstStop.position.y,
-						lastStop.position.x - firstStop.position.x
+						(lastStop?.position?.y || 0) - (firstStop?.position?.y || 0),
+						(lastStop?.position?.x || 0) - (firstStop?.position?.x || 0)
 					) *
 					(180 / Math.PI);
 
@@ -3980,10 +3998,10 @@ const AnimatedGradientGenerator = () => {
 				gradientElement = `
       <linearGradient id="gradientFill" x1="${x1}%" y1="${y1}%" x2="${x2}%" y2="${y2}%">
         ${sortedStops
-					.map(
-						(stop) =>
-							`<stop offset="${stop.position.x}%" stop-color="${stop.color}" />`
-					)
+					.map((stop) => {
+						const offset = Math.max(0, Math.min(100, stop.position?.x ?? 0));
+						return `<stop offset="${offset}%" stop-color="${stop.color}" />`;
+					})
 					.join("\n        ")}
       </linearGradient>`;
 			} else {
@@ -3995,7 +4013,8 @@ const AnimatedGradientGenerator = () => {
 							Math.pow(stop.position.x - 50, 2) +
 								Math.pow(stop.position.y - 50, 2)
 						);
-						return `<stop offset="${distance}%" stop-color="${stop.color}" />`;
+						const offset = Math.max(0, Math.min(100, distance));
+						return `<stop offset="${offset}%" stop-color="${stop.color}" />`;
 					})
 					.join("\n        ")}
       </radialGradient>`;
@@ -5351,60 +5370,81 @@ const AnimatedGradientGenerator = () => {
 			});
 		} else {
 			// Create gradient based on type
-			let gradientObj;
-			const sortedStops = [...gradient.stops].sort((a, b) => {
-				const distA = Math.sqrt(
-					a.position.x * a.position.x + a.position.y * a.position.y
-				);
-				const distB = Math.sqrt(
-					b.position.x * b.position.x + b.position.y * b.position.y
-				);
-				return distA - distB;
-			});
+			const gradientStops = Array.isArray(gradient?.stops)
+				? gradient.stops.filter(
+						(stop) =>
+							stop &&
+							stop.position &&
+							typeof stop.position.x === "number" &&
+							typeof stop.position.y === "number"
+					)
+				: [];
 
-			if (gradient.type === "linear") {
-				const firstStop = sortedStops[0];
-				const lastStop = sortedStops[sortedStops.length - 1];
-				const angle =
-					Math.atan2(
-						lastStop.position.y - firstStop.position.y,
-						lastStop.position.x - firstStop.position.x
-					) *
-					(180 / Math.PI);
-
-				const radians = (angle * Math.PI) / 180;
-				const x1 = width / 2 - (width / 2) * Math.cos(radians);
-				const y1 = height / 2 - (width / 2) * Math.sin(radians);
-				const x2 = width / 2 + (width / 2) * Math.cos(radians);
-				const y2 = height / 2 + (width / 2) * Math.sin(radians);
-
-				gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
-				sortedStops.forEach((stop) => {
-					const position = Math.round(stop.position.x) / 100;
-					gradientObj.addColorStop(position, stop.color);
-				});
+			if (gradientStops.length === 0) {
+				ctx.fillStyle = "#ffffff";
+				ctx.fillRect(0, 0, width, height);
 			} else {
-				// Radial and other types
-				gradientObj = ctx.createRadialGradient(
-					width / 2,
-					height / 2,
-					0,
-					width / 2,
-					height / 2,
-					Math.max(width, height) / 2
-				);
-				sortedStops.forEach((stop) => {
-					const distance = Math.sqrt(
-						Math.pow(stop.position.x - 50, 2) +
-							Math.pow(stop.position.y - 50, 2)
+				let gradientObj;
+				const sortedStops = [...gradientStops].sort((a, b) => {
+					const distA = Math.sqrt(
+						a.position.x * a.position.x + a.position.y * a.position.y
 					);
-					const position = Math.round(distance) / 100;
-					gradientObj.addColorStop(position, stop.color);
+					const distB = Math.sqrt(
+						b.position.x * b.position.x + b.position.y * b.position.y
+					);
+					return distA - distB;
 				});
-			}
 
-			ctx.fillStyle = gradientObj;
-			ctx.fillRect(0, 0, width, height);
+				if (gradient.type === "linear") {
+					const firstStop = sortedStops[0];
+					const lastStop = sortedStops[sortedStops.length - 1] || firstStop;
+					const angle =
+						Math.atan2(
+							(lastStop?.position?.y || 0) - (firstStop?.position?.y || 0),
+							(lastStop?.position?.x || 0) - (firstStop?.position?.x || 0)
+						) *
+						(180 / Math.PI);
+
+					const radians = (angle * Math.PI) / 180;
+					const x1 = width / 2 - (width / 2) * Math.cos(radians);
+					const y1 = height / 2 - (width / 2) * Math.sin(radians);
+					const x2 = width / 2 + (width / 2) * Math.cos(radians);
+					const y2 = height / 2 + (width / 2) * Math.sin(radians);
+
+					gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
+					sortedStops.forEach((stop) => {
+						const position = Math.max(
+							0,
+							Math.min(1, Math.round(stop.position.x) / 100)
+						);
+						gradientObj.addColorStop(position, stop.color);
+					});
+				} else {
+					// Radial and other types
+					gradientObj = ctx.createRadialGradient(
+						width / 2,
+						height / 2,
+						0,
+						width / 2,
+						height / 2,
+						Math.max(width, height) / 2
+					);
+					sortedStops.forEach((stop) => {
+						const distance = Math.sqrt(
+							Math.pow(stop.position.x - 50, 2) +
+								Math.pow(stop.position.y - 50, 2)
+						);
+						const position = Math.max(
+							0,
+							Math.min(1, Math.round(distance) / 100)
+						);
+						gradientObj.addColorStop(position, stop.color);
+					});
+				}
+
+				ctx.fillStyle = gradientObj;
+				ctx.fillRect(0, 0, width, height);
+			}
 		}
 
 		// Draw all elements (images and texts) on canvas with all styles, respecting z-index
@@ -6154,59 +6194,80 @@ const AnimatedGradientGenerator = () => {
 				}
 			} else {
 				// Create gradient based on type
-				let gradientObj;
-				const sortedStops = [...gradient.stops].sort((a, b) => {
-					const distA = Math.sqrt(
-						a.position.x * a.position.x + a.position.y * a.position.y
-					);
-					const distB = Math.sqrt(
-						b.position.x * b.position.x + b.position.y * b.position.y
-					);
-					return distA - distB;
-				});
+				const gradientStops = Array.isArray(gradient?.stops)
+					? gradient.stops.filter(
+							(stop) =>
+								stop &&
+								stop.position &&
+								typeof stop.position.x === "number" &&
+								typeof stop.position.y === "number"
+						)
+					: [];
 
-				if (gradient.type === "linear") {
-					const firstStop = sortedStops[0];
-					const lastStop = sortedStops[sortedStops.length - 1];
-					const angle =
-						Math.atan2(
-							lastStop.position.y - firstStop.position.y,
-							lastStop.position.x - firstStop.position.x
-						) *
-						(180 / Math.PI);
-
-					const radians = (angle * Math.PI) / 180;
-					const x1 = width / 2 - (width / 2) * Math.cos(radians);
-					const y1 = height / 2 - (width / 2) * Math.sin(radians);
-					const x2 = width / 2 + (width / 2) * Math.cos(radians);
-					const y2 = height / 2 + (width / 2) * Math.sin(radians);
-
-					gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
-					sortedStops.forEach((stop) => {
-						const position = Math.round(stop.position.x) / 100;
-						gradientObj.addColorStop(position, stop.color);
-					});
+				if (gradientStops.length === 0) {
+					ctx.fillStyle = "#ffffff";
+					ctx.fillRect(0, 0, width, height);
 				} else {
-					gradientObj = ctx.createRadialGradient(
-						width / 2,
-						height / 2,
-						0,
-						width / 2,
-						height / 2,
-						Math.max(width, height) / 2
-					);
-					sortedStops.forEach((stop) => {
-						const distance = Math.sqrt(
-							Math.pow(stop.position.x - 50, 2) +
-								Math.pow(stop.position.y - 50, 2)
+					let gradientObj;
+					const sortedStops = [...gradientStops].sort((a, b) => {
+						const distA = Math.sqrt(
+							a.position.x * a.position.x + a.position.y * a.position.y
 						);
-						const position = Math.round(distance) / 100;
-						gradientObj.addColorStop(position, stop.color);
+						const distB = Math.sqrt(
+							b.position.x * b.position.x + b.position.y * b.position.y
+						);
+						return distA - distB;
 					});
-				}
 
-				ctx.fillStyle = gradientObj;
-				ctx.fillRect(0, 0, width, height);
+					if (gradient.type === "linear") {
+						const firstStop = sortedStops[0];
+						const lastStop = sortedStops[sortedStops.length - 1] || firstStop;
+						const angle =
+							Math.atan2(
+								(lastStop?.position?.y || 0) - (firstStop?.position?.y || 0),
+								(lastStop?.position?.x || 0) - (firstStop?.position?.x || 0)
+							) *
+							(180 / Math.PI);
+
+						const radians = (angle * Math.PI) / 180;
+						const x1 = width / 2 - (width / 2) * Math.cos(radians);
+						const y1 = height / 2 - (width / 2) * Math.sin(radians);
+						const x2 = width / 2 + (width / 2) * Math.cos(radians);
+						const y2 = height / 2 + (width / 2) * Math.sin(radians);
+
+						gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
+						sortedStops.forEach((stop) => {
+							const position = Math.max(
+								0,
+								Math.min(1, Math.round(stop.position.x) / 100)
+							);
+							gradientObj.addColorStop(position, stop.color);
+						});
+					} else {
+						gradientObj = ctx.createRadialGradient(
+							width / 2,
+							height / 2,
+							0,
+							width / 2,
+							height / 2,
+							Math.max(width, height) / 2
+						);
+						sortedStops.forEach((stop) => {
+							const distance = Math.sqrt(
+								Math.pow(stop.position.x - 50, 2) +
+									Math.pow(stop.position.y - 50, 2)
+							);
+							const position = Math.max(
+								0,
+								Math.min(1, Math.round(distance) / 100)
+							);
+							gradientObj.addColorStop(position, stop.color);
+						});
+					}
+
+					ctx.fillStyle = gradientObj;
+					ctx.fillRect(0, 0, width, height);
+				}
 			}
 
 			// Draw all elements (reuse logic from downloadRaster)
