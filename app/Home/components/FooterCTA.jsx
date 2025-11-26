@@ -9,7 +9,7 @@ const FAQSection = () => {
 		{
 			question: "What is kixi?",
 			answer:
-				"kixi is a collection of React website templates designed for developers, designers, and entrepreneurs. We provide high-quality, modern templates for building landing pages, portfolio websites, and micro SaaS applications. All templates are FREE to use and built with the latest technologies and best practices.",
+				"kixi is the advance creative design tool to create designs and creatives with ease",
 		},
 		{
 			question: "What tech stack do you use?",
@@ -17,7 +17,7 @@ const FAQSection = () => {
 				"All templates are built with modern technologies including Next.js, React, TypeScript, Tailwind CSS, and Framer Motion. They're optimized for performance, SEO, and developer experience. Each template comes with production-ready code that follows industry best practices.",
 		},
 		{
-			question: "How do I use a template?",
+			question: "How do I use a Kixi?",
 			answer:
 				"Using our templates is simple: 1) Browse our collection and find a template you like, 2) View the live preview, 3) Click 'View Source Code' to access the repository, 4) Download or clone the code, 5) Install dependencies and run locally, 6) Customize with your content, and 7) Deploy to your preferred platform.",
 		},

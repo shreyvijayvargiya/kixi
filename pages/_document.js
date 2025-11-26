@@ -22,7 +22,7 @@ export default class MyDocument extends Document {
 					/>
 					<meta
 						name="description"
-						content="kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc"
+						content="kixi is the advance creative design tool to create designs and creatives with ease"
 					/>
 					<meta
 						name="keywords"
@@ -183,7 +183,7 @@ MyDocument.getInitialProps = async (ctx) => {
 		logData = {
 			title: "kixi - React & Next.js Templates",
 			description:
-				"kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
+				"kixi is the advance creative design tool to create designs and creatives with ease",
 			bannerImage: "https://kixi.app/kixi-logo",
 			bannerImageUrl: "https://kixi.app/kixi-logo",
 			thumbnail: "https://kixi.app/kixi-logo",
@@ -192,15 +192,15 @@ MyDocument.getInitialProps = async (ctx) => {
 		logData = {
 			title: "kixi Templates",
 			description:
-				"kixi is the collection of react tailwind, next code templates such as landing pages, portfolios, onboardings, payment pages, animations etc",
+				"kixi is the advance creative design tool to create designs and creatives with ease",
 			bannerImage: "https://kixi.app/kixi-logo",
 			bannerImageUrl: "https://kixi.app/kixi-logo",
 			thumbnail: "https://kixi.app/kixi-logo",
 		};
 	} else if (ctx.pathname.startsWith("/template/")) {
 		logData = {
-			title: "kixi - React & Next.js Template",
-			description: "Check out this nextjs template along with source code",
+			title: "kixi - creative design app",
+			description: "kixi is the advance creative design tool to create designs and creatives with ease",
 			bannerImage: "https://kixi.app/kixi-logo",
 			bannerImageUrl: "https://kixi.app/kixi-logo",
 			thumbnail: "https://kixi.app/kixi-logo",
