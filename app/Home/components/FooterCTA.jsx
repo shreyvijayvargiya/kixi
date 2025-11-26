@@ -7,89 +7,54 @@ const FAQSection = () => {
 
 	const faqs = [
 		{
-			question: "What is kixi?",
+			question: "What exactly is kixi?",
 			answer:
-				"kixi is the advance creative design tool to create designs and creatives with ease",
+				"kixi is an advanced creative canvas where you can design animated gradients, mix media, and export production-ready assets without leaving the browser.",
 		},
 		{
-			question: "What tech stack do you use?",
+			question: "How is the editor different from Figma or Canva?",
 			answer:
-				"All templates are built with modern technologies including Next.js, React, TypeScript, Tailwind CSS, and Framer Motion. They're optimized for performance, SEO, and developer experience. Each template comes with production-ready code that follows industry best practices.",
+				"We focus on gradient-first motion design. Kixi ships timeline controls, warp tools, AI-assisted layouts, and instant exports that are tailored for generative visuals rather than traditional UI mockups.",
 		},
 		{
-			question: "How do I use a Kixi?",
+			question: "What can I place on the canvas?",
 			answer:
-				"Using our templates is simple: 1) Browse our collection and find a template you like, 2) View the live preview, 3) Click 'View Source Code' to access the repository, 4) Download or clone the code, 5) Install dependencies and run locally, 6) Customize with your content, and 7) Deploy to your preferred platform.",
+				"You can combine images, videos, icons, shapes, multi-line text, and reusable background patterns. Everything supports drag, resize, z-index management, and precise numeric inputs.",
 		},
 		{
-			question: "How do I view the source code?",
+			question: "Does kixi support AI workflows?",
 			answer:
-				"Each template has a 'Source' button that takes you directly to the code repository. You can view the complete source code, including all components, styles, and assets. The code is well-organized with clear documentation and setup instructions.",
+				"Yes. You can prompt AI to compose multi-object scenes, ask it to restyle existing layouts, and even generate gradients or icon sets that match your brand palette.",
 		},
 		{
-			question: "Are templates really FREE to use?",
+			question: "Can I capture a web page into my design?",
 			answer:
-				"Yes! All our templates are completely FREE to use for personal and commercial projects. You can download the source code, customize it, and deploy it without any restrictions. We believe in making quality templates accessible to everyone.",
+				"The URL-to-screenshot tool lets you paste any link, grab a high-res capture, and drop it straight into your project with auto-scaling and masks.",
 		},
 		{
-			question: "What are premium templates?",
+			question: "How do exports work?",
 			answer:
-				"Premium templates are advanced, feature-rich templates with additional functionality like authentication systems, payment integration, admin dashboards, and more complex UI components. Check out our <a href='/premium-templates' class='text-blue-600 hover:underline'>premium templates collection</a> for these enhanced options.",
+				"Create once and export as PNG, SVG, GIF, MP4, or copy the React code. You control frame sizes, animation duration, and render quality from the control panel.",
 		},
 		{
-			question: "Can I customize the templates?",
+			question: "Can I save and manage multiple projects?",
 			answer:
-				"Absolutely! All templates are fully customizable. You can modify the design, add your own content, change colors and fonts, and extend the functionality. The code is well-documented and follows best practices for easy customization. You have complete control over the final product.",
+				"Sign in with Google to access the project sidebar. You can create unlimited canvases, rename them, reload older versions, and publish shareable links.",
 		},
 		{
-			question: "How do I download the code repository?",
+			question: "Is there a team or client workflow?",
 			answer:
-				"To download a template's code repository: 1) Click the 'Source' button on any template, 2) This opens the GitHub repository, 3) Click 'Code' and then 'Download ZIP' or clone using Git, 4) Extract the files to your local machine, 5) Follow the README instructions to set up the project.",
+				"We support multi-device previews, exported code handoffs, and collaboration via shared project links today. Real-time co-editing is on the roadmap.",
 		},
 		{
-			question: "How do I deploy the code repository?",
+			question: "Do I need to pay to get started?",
 			answer:
-				"Deploying is straightforward: 1) Customize your template locally, 2) Push your code to GitHub, 3) Connect to deployment platforms like Vercel, Netlify, or GitHub Pages, 4) Configure your domain and environment variables, 5) Deploy! Most platforms offer one-click deployment from GitHub repositories.",
+				"The playground is free. Upgrading to kixi PRO unlocks advanced exports, priority rendering, increased storage, and upcoming automation features.",
 		},
 		{
-			question: "What kind of support do you provide?",
+			question: "Which devices are supported?",
 			answer:
-				"We provide comprehensive email support for all users. You can reach us at connect@ihatereading.in for any questions about implementation, customization, or technical issues. We also offer community support through GitHub issues and our Discord community.",
-		},
-		{
-			question: "Can I use templates for client projects?",
-			answer:
-				"Yes! You can use our templates for client projects, personal websites, and commercial applications. The templates are free to use for any purpose. However, you cannot resell or redistribute the templates themselves as standalone products.",
-		},
-		{
-			question: "How often do you release new templates?",
-			answer:
-				"We release new templates regularly to keep our collection fresh and up-to-date. Follow our changelog to stay informed about new additions. All templates are immediately available to all users at no cost.",
-		},
-		{
-			question: "Are these FREE React.js templates for commercial use?",
-			answer:
-				"Yes! All our FREE React.js templates are completely free for both personal and commercial use. You can use them for client projects, startups, SaaS applications, and any commercial venture without any restrictions. Our templates are built with modern React.js best practices and are production-ready.",
-		},
-		{
-			question: "Do you have FREE Next.js Tailwind CSS templates?",
-			answer:
-				"Absolutely! We specialize in FREE Next.js Tailwind CSS templates that are perfect for modern web development. All our templates use Next.js for optimal performance and SEO, combined with Tailwind CSS for beautiful, responsive designs. These templates are ideal for landing pages, portfolios, and SaaS applications.",
-		},
-		{
-			question: "What makes your templates SEO-friendly?",
-			answer:
-				"Our templates are built with SEO best practices including: Next.js for server-side rendering, optimized meta tags, structured data, fast loading times, mobile-responsive design, semantic HTML, and clean URL structures. Each template is designed to rank well in search engines and provide excellent user experience.",
-		},
-		{
-			question: "Can I use these templates for SaaS applications?",
-			answer:
-				"Definitely! Our FREE React.js and Next.js templates are perfect for building SaaS applications. They include modern UI components, responsive designs, and are built with scalability in mind. Many developers use our templates as starting points for their SaaS products, adding authentication, payment systems, and other features as needed.",
-		},
-		{
-			question: "Are your templates mobile-responsive?",
-			answer:
-				"Yes! All our FREE templates are fully mobile-responsive and built with mobile-first design principles. They use Tailwind CSS for responsive layouts that work perfectly on desktop, tablet, and mobile devices. Each template is tested across different screen sizes to ensure optimal user experience on all devices.",
+				"The editor is optimized for desktop and large tablets. Small screens will see a prompt asking you to switch to a bigger display so the timeline and control panels have room.",
 		},
 	];
 
