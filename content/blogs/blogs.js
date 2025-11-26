@@ -27,7 +27,7 @@ export const blogs = [
 		date: "October 8, 2025",
 	},
 	{
-		title: "Welcome kixi",
+		title: "Welcome to kixi - creative design app",
 		description:
 			"Discover the new UI, premium templates, and future roadmaps of kixi.app, your go-to for React and Next.js code templates.",
 		banner:
