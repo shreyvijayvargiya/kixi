@@ -175,7 +175,7 @@ const LayerList = ({
 		<div className="w-full bg-white border border-zinc-200 rounded-xl overflow-hidden flex-col">
 			{/* List */}
 			<div className="overflow-y-auto hidescrollbar flex-1">
-				<div className="p-2 space-y-1">
+				<div className="p-1.5 space-y-1">
 					{elements.map((element, index) => {
 						const IconComponent = element.icon;
 						const selected = isSelected(element);
@@ -191,13 +191,13 @@ const LayerList = ({
 								onDragEnd={handleDragEnd}
 								onClick={() => handleClick(element)}
 								className={`
-                  flex items-center gap-2 px-3 py-2 rounded-xl cursor-move
+                  flex items-center gap-2 px-2 py-1 rounded-xl cursor-move
                   transition-colors
                   ${
 										dragOverIndex === index
 											? "bg-blue-50 border-2 border-blue-300"
 											: selected
-												? "bg-orange-50 border border-orange-300"
+												? "bg-orange-50"
 												: "bg-zinc-50/10 hover:bg-zinc-100 border border-transparent"
 									}
                   ${draggedItem === index ? "opacity-50" : ""}
@@ -206,7 +206,7 @@ const LayerList = ({
 								whileTap={{ scale: 0.98 }}
 							>
 								{/* Drag Handle */}
-								<GripVertical className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+								<GripVertical className="w-3 h-3 text-zinc-400 flex-shrink-0" />
 
 								{/* Icon */}
 								<IconComponent
@@ -227,10 +227,10 @@ const LayerList = ({
 
 								{/* Z-Index Badge */}
 								<span
-									className={`text-xs px-1.5 py-0.5 rounded ${
+									className={`text-xs rounded ${
 										selected
-											? "bg-orange-200 text-orange-800"
-											: "bg-zinc-200 text-zinc-600"
+											? "bg-orange-100 text-zinc-600"
+											: "text-zinc-600"
 									}`}
 								>
 									{element.zIndex}
