@@ -73,6 +73,37 @@ import {
 	FolderSearch,
 	Info,
 	Settings2,
+	Image as ImageIcon,
+	Camera,
+	Video,
+	Mic,
+	Volume2,
+	VolumeX,
+	Music2,
+	Play,
+	Pause,
+	StopCircle,
+	Clipboard,
+	ClipboardCheck,
+	Grid,
+	Layout,
+	Columns,
+	Rows,
+	Palette,
+	Brush,
+	PenSquare,
+	PenLine,
+	Layers,
+	Move,
+	MousePointer2,
+	Monitor,
+	Tablet,
+	Smartphone,
+	Sparkles,
+	GalleryHorizontal,
+	GalleryVertical,
+	Shapes,
+	Globe,
 } from "lucide-react";
 
 const IconSelector = ({
@@ -122,6 +153,8 @@ const IconSelector = ({
 
 		{ name: "FolderClock", component: FolderClock },
 
+		{ name: "Globe", component: Globe },
+
 		{ name: "FileWarning", component: FileWarning },
 
 		{ name: "FileQuestion", component: FileQuestion },
@@ -130,6 +163,18 @@ const IconSelector = ({
 
 		{ name: "Settings2", component: Settings2 },
 
+		{ name: "Layers", component: Layers },
+
+		{ name: "Move", component: Move },
+
+		{ name: "Cursor", component: MousePointer2 },
+
+		{ name: "Monitor", component: Monitor },
+
+		{ name: "Tablet", component: Tablet },
+
+		{ name: "Smartphone", component: Smartphone },
+
 		{ name: "CloudLightning", component: CloudLightning },
 
 		{ name: "FileText", component: FileText },
@@ -137,6 +182,8 @@ const IconSelector = ({
 		{ name: "File", component: File },
 
 		{ name: "FileImage", component: FileImage },
+
+		{ name: "Image", component: ImageIcon },
 
 		{ name: "FileCode", component: FileCode },
 
@@ -178,9 +225,17 @@ const IconSelector = ({
 
 		{ name: "Cloud", component: Cloud },
 
+		{ name: "Camera", component: Camera },
+
+		{ name: "VideoCamera", component: Video },
+
 		{ name: "Download", component: Upload },
 
 		{ name: "Share", component: Share2 },
+
+		{ name: "Clipboard", component: Clipboard },
+
+		{ name: "ClipboardCheck", component: ClipboardCheck },
 
 		{ name: "Lock", component: Lock },
 
@@ -204,6 +259,12 @@ const IconSelector = ({
 
 		{ name: "Lightning", component: CloudLightning },
 
+		{ name: "Sparkles", component: Sparkles },
+
+		{ name: "GalleryHorizontal", component: GalleryHorizontal },
+
+		{ name: "GalleryVertical", component: GalleryVertical },
+
 		{ name: "Star", component: Star },
 
 		{ name: "Bookmark", component: Bookmark },
@@ -211,6 +272,14 @@ const IconSelector = ({
 		{ name: "Tag", component: Tag },
 
 		{ name: "Label", component: Text },
+
+		{ name: "Palette", component: Palette },
+
+		{ name: "Brush", component: Brush },
+
+		{ name: "PenSquare", component: PenSquare },
+
+		{ name: "PenLine", component: PenLine },
 
 		{ name: "Badge", component: Badge },
 
@@ -236,6 +305,16 @@ const IconSelector = ({
 
 		{ name: "Rectangle", component: RectangleEllipsis },
 
+		{ name: "Shapes", component: Shapes },
+
+		{ name: "Grid", component: Grid },
+
+		{ name: "Layout", component: Layout },
+
+		{ name: "Columns", component: Columns },
+
+		{ name: "Rows", component: Rows },
+
 		{ name: "Box", component: Box },
 
 		{ name: "Package", component: Package },
@@ -243,6 +322,20 @@ const IconSelector = ({
 		{ name: "Basket", component: ShoppingBasket },
 
 		{ name: "Briefcase", component: Briefcase },
+
+		{ name: "Mic", component: Mic },
+
+		{ name: "VolumeUp", component: Volume2 },
+
+		{ name: "VolumeMute", component: VolumeX },
+
+		{ name: "Music", component: Music2 },
+
+		{ name: "Play", component: Play },
+
+		{ name: "Pause", component: Pause },
+
+		{ name: "Stop", component: StopCircle },
 	];
 
 	// Configure Fuse.js for fuzzy search
@@ -271,8 +364,6 @@ const IconSelector = ({
 
 	const handleIconClick = (iconName, IconComponent) => {
 		onSelectIcon(iconName, IconComponent);
-
-		onClose();
 	};
 
 	const handleClose = () => {
@@ -302,7 +393,7 @@ const IconSelector = ({
 				left: "50%",
 				top: "50%",
 				width: "400px",
-				height: "320px",
+				height: "420px",
 				maxWidth: "90vw",
 				maxHeight: "80vh",
 				transform: "translate(-50%, -50%)",
@@ -311,7 +402,7 @@ const IconSelector = ({
 		>
 			{/* Header - Draggable area */}
 			<div
-				className="flex items-center justify-between p-4 border-b border-zinc-200 cursor-move select-none"
+				className="flex items-center justify-between px-4 py-2 border-b border-zinc-200 cursor-move select-none"
 				onMouseDown={(e) => {
 					// Prevent text selection while dragging
 					if (e.target === e.currentTarget || e.target.closest("h3")) {
@@ -320,7 +411,7 @@ const IconSelector = ({
 				}}
 			>
 				<h3 className={`text-lg font-semibold ${colors.text} select-none`}>
-					Select Icon
+					Select Icon {icons.length}
 				</h3>
 
 				<button
@@ -332,7 +423,7 @@ const IconSelector = ({
 					className={`p-1 ${colors.buttonSecondary} rounded-xl transition-colors hover:${colors.hover} cursor-pointer`}
 				>
 					<svg
-						className={`w-4 h-4 ${colors.textMuted}`}
+						className={`w-3 h-3 ${colors.textMuted}`}
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -349,12 +440,12 @@ const IconSelector = ({
 
 			{/* Search Input */}
 
-			<div className="p-4 border-b border-zinc-200">
+			<div className="px-4 py-2 border-b border-zinc-200">
 				<div
 					className={`flex gap-1 items-center justify-start ${colors.input} ${colors.text} rounded-xl hover:bg-zinc-50 px-2`}
 				>
 					<svg
-						className={` w-4 h-4 ${colors.textMuted}`}
+						className={`w-3 h-3 ${colors.textMuted}`}
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"
@@ -372,7 +463,7 @@ const IconSelector = ({
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						placeholder="Search icons..."
-						className={`w-full px py-2 ${colors.input} rounded-xl border-none  ${colors.textPlaceholder} focus:outline-none transition-colors`}
+						className={`w-full py-1 ${colors.input} rounded-xl border-none  ${colors.textPlaceholder} focus:outline-none transition-colors`}
 						autoFocus
 					/>
 
@@ -398,7 +489,7 @@ const IconSelector = ({
 
 			<div
 				className="p-4 overflow-y-auto"
-				style={{ height: "calc(100% - 140px)" }}
+				style={{ height: "calc(100% - 10px)" }}
 			>
 				<div className="flex flex-wrap gap-2 items-center">
 					{filteredIcons.length > 0 ? (
