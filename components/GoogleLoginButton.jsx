@@ -237,7 +237,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 												initial={{ opacity: 0, y: 10 }}
 												animate={{ opacity: 1, y: 0 }}
 												transition={{ duration: 0.5, delay: 0.5 }}
-												className="text-2xl font-semibold text-zinc-900 mb-2"
+												className="text-xl text-zinc-900 mb-2"
 											>
 												Get Started
 											</motion.h3>
@@ -261,9 +261,9 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 													signInWithGoogle({
 														cb: () => {
 															setShowModal(false);
-															// Force a re-render to ensure state updates are reflected
+															// Redirect to /app after login
 															setTimeout(() => {
-																window.location.reload();
+																router.push("/app");
 															}, 100);
 														},
 													})

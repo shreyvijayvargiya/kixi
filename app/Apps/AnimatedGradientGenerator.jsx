@@ -18,107 +18,22 @@ import {
 	Image as ImageIcon,
 	Type,
 	Video,
-	MessageCircle,
 	Sparkles,
-	Send,
 	Square,
 	RectangleHorizontal,
-	Info,
-	Wand2,
 	Loader2,
 	Globe,
 	Save,
-	Settings,
 	Search,
-	Bell,
-	Mail,
-	Phone,
-	MapPin,
-	Calendar,
-	Clock,
-	Check,
-	List,
-	Layout,
-	Layers,
 	Zap,
-	Battery,
-	Wifi,
-	Bluetooth,
-	Volume2,
-	VolumeX,
-	Play,
-	Pause,
-	SkipForward,
-	SkipBack,
-	Repeat,
-	File,
-	Folder,
-	FolderOpen,
-	FileText,
-	FileImage,
-	FileVideo,
-	FileAudio,
-	Archive,
-	Bookmark,
-	Tag,
-	Tags,
-	Link,
 	ExternalLink,
-	Printer,
-	Scissors,
-	Clipboard,
-	ClipboardCheck,
-	RefreshCw,
-	RotateCw,
-	RotateCcw,
-	FlipHorizontal,
-	FlipVertical,
-	Maximize,
-	Minimize2,
-	Move,
-	Target,
-	Shield,
-	ShieldCheck,
-	Key,
-	Fingerprint,
-	QrCode,
-	CreditCard,
-	Wallet,
-	Coins,
-	DollarSign,
-	TrendingUp,
-	TrendingDown,
-	BarChart,
-	BarChart2,
-	LineChart,
-	PieChart,
-	Activity,
-	Pulse,
-	Code,
-	Code2,
-	Terminal,
-	Hexagon,
-	Octagon,
-	Pentagon,
-	Radial,
-	Rectangle,
-	RectangleVertical,
-	CircleDot,
-	Dot,
-	Ellipsis,
-	EllipsisVertical,
-	Laptop2Icon,
-	Icon,
-	SquareDashed,
-	GripVertical,
-	PanelLeft,
-	SlidersHorizontal,
 	AlertTriangle,
-	SquareActivity,
+	Shapes,
+	Minus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { LucideIcons } from "./lucideIcons";
+import { LucideIcons, AllIcons } from "./lucideIcons";
 import { useSelector, useDispatch } from "react-redux";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 
@@ -138,17 +53,7 @@ import {
 	deleteDoc,
 } from "firebase/firestore";
 import { useRouter } from "next/router";
-import {
-	Add01Icon,
-	Cancel01Icon,
-	IconjarIcon,
-	InformationCircleIcon,
-	Money01Icon,
-	PlayIcon,
-	Search01Icon,
-	Square01Icon,
-	ToolsIcon,
-} from "hugeicons-react";
+import { Add01Icon, Cancel01Icon, PlayIcon } from "hugeicons-react";
 import SubscriptionModal from "../../components/SubscriptionModal";
 import FeaturesSectionModal from "./FeaturesSectionModal";
 import { BackgroundShape, getShapeOptions } from "../../lib/utils/bgShapes";
@@ -569,7 +474,9 @@ const gradientPresets = [
 // Helper function to generate gradient CSS from preset
 const generatePresetGradientCSS = (preset) => {
 	if (preset.type === "linear") {
-		return `linear-gradient(${preset.angle || 45}deg, ${preset.stops[0].color}, ${preset.stops[1].color})`;
+		return `linear-gradient(${preset.angle || 45}deg, ${
+			preset.stops[0].color
+		}, ${preset.stops[1].color})`;
 	} else if (preset.type === "radial") {
 		return `radial-gradient(circle, ${preset.stops[0].color}, ${preset.stops[1].color})`;
 	} else if (preset.type === "conic") {
@@ -803,6 +710,12 @@ const AnimatedGradientGenerator = () => {
 	const previewRef = useRef(null);
 	const modalPreviewRef = useRef(null);
 	const downloadDropdownRef = useRef(null);
+	const generateCodeDropdownRef = useRef(null);
+	const previewCodeDropdownRef = useRef(null);
+	const [isGenerateCodeDropdownOpen, setIsGenerateCodeDropdownOpen] =
+		useState(false);
+	const [generatedReactCode, setGeneratedReactCode] = useState("");
+	const [codeCopied, setCodeCopied] = useState(false);
 	const aiChatInputRef = useRef(null);
 	const [isImageImprovementOpen, setIsImageImprovementOpen] = useState(false);
 	const [improvementPrompt, setImprovementPrompt] = useState("");
@@ -822,7 +735,15 @@ const AnimatedGradientGenerator = () => {
 	const [currentProjectId, setCurrentProjectId] = useState(null);
 	const [activeFrameId, setActiveFrameId] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const lastSavedStateRef = useRef(null);
+	const autoSaveTimeoutRef = useRef(null);
+	const handleSaveProjectRef = useRef(null);
 	const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+	const [editingProjectId, setEditingProjectId] = useState(null);
+	const [editingProjectName, setEditingProjectName] = useState("");
+	const [isEditingFrameName, setIsEditingFrameName] = useState(false);
+	const [editingFrameNameValue, setEditingFrameNameValue] = useState("");
 	const [isFrameActionLoading, setIsFrameActionLoading] = useState(false);
 	const [projectName, setProjectName] = useState("Untitled Project");
 	const [backgroundImage, setBackgroundImage] = useState(null);
@@ -1809,24 +1730,31 @@ const AnimatedGradientGenerator = () => {
 	};
 
 	// Shape handling functions
-	const addShape = (shapeType) => {
+	const addShape = (shapeType, svgString = null, shapeName = null) => {
+		// Check if this is an SVG shape from the icon selector
+		const isSvgShape = svgString !== null;
+
 		const newShape = {
 			id: Date.now() + Math.random(),
-			type: shapeType, // "rectangle", "square", "line", "triangle", "circle"
+			type: isSvgShape ? "svg" : shapeType, // "rectangle", "square", "line", "triangle", "circle", "svg"
+			svgString: svgString, // Store SVG string for SVG shapes
+			shapeName: shapeName || shapeType, // Store shape name for display
 			x: 50,
 			y: 50,
-			width:
-				shapeType === "line"
-					? 200
-					: shapeType === "square" || shapeType === "circle"
-						? 150
-						: 200,
-			height:
-				shapeType === "line"
-					? 2
-					: shapeType === "square" || shapeType === "circle"
-						? 150
-						: 150,
+			width: isSvgShape
+				? 100
+				: shapeType === "line"
+				? 200
+				: shapeType === "square" || shapeType === "circle"
+				? 150
+				: 200,
+			height: isSvgShape
+				? 100
+				: shapeType === "line"
+				? 2
+				: shapeType === "square" || shapeType === "circle"
+				? 150
+				: 150,
 			styles: {
 				fillColor: "#3b82f6",
 				strokeColor: "#1e40af",
@@ -1843,6 +1771,7 @@ const AnimatedGradientGenerator = () => {
 		setShapes((prev) => [...prev, newShape]);
 		setSelectedShape(newShape.id);
 		setIsShapeDropdownOpen(false);
+		setIsIconSelectorOpen(false);
 	};
 
 	const removeShape = (id) => {
@@ -2465,13 +2394,17 @@ const AnimatedGradientGenerator = () => {
 		);
 	}, [iconSearchQuery, availableIcons]);
 
-	const addIcon = (iconName) => {
-		const IconComponent = LucideIcons[iconName];
-		if (!IconComponent) return;
+	const addIcon = (iconName, IconComponent) => {
+		// Look up from AllIcons (combined Lucide + Huge icons) if no component passed
+		const ResolvedComponent = IconComponent || AllIcons[iconName];
+		if (!ResolvedComponent) return;
+
+		// Determine the icon key for storage (try to find the display name)
+		const iconKey = IconComponent?.displayName || iconName;
 
 		const newIcon = {
 			id: Date.now() + Math.random(),
-			iconName: iconName,
+			iconName: iconKey,
 			x: 50,
 			y: 50,
 			width: 48,
@@ -3289,7 +3222,7 @@ const AnimatedGradientGenerator = () => {
 			filter: gradient.noise.enabled
 				? `contrast(${1 + gradient.noise.intensity * 0.2}) brightness(${
 						1 + gradient.noise.intensity * 0.1
-					})`
+				  })`
 				: "none",
 		};
 
@@ -3376,7 +3309,9 @@ const AnimatedGradientGenerator = () => {
 			const b = parseInt(color.slice(5, 7), 16);
 			rgbaColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
 		}
-		return `${shadow.x || 0}px ${shadow.y || 0}px ${shadow.blur || 0}px ${rgbaColor}`;
+		return `${shadow.x || 0}px ${shadow.y || 0}px ${
+			shadow.blur || 0
+		}px ${rgbaColor}`;
 	};
 
 	// Helper function to format drop-shadow CSS (for filter)
@@ -3493,7 +3428,9 @@ const AnimatedGradientGenerator = () => {
 			const b = parseInt(color.slice(5, 7), 16);
 			rgbaColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
 		}
-		return `drop-shadow(${shadow.x || 0}px ${shadow.y || 0}px ${shadow.blur || 0}px ${rgbaColor})`;
+		return `drop-shadow(${shadow.x || 0}px ${shadow.y || 0}px ${
+			shadow.blur || 0
+		}px ${rgbaColor})`;
 	};
 
 	const copyToClipboard = async (text, type) => {
@@ -3531,7 +3468,9 @@ const AnimatedGradientGenerator = () => {
 			}
 			if (element.styles?.skewX || element.styles?.skewY) {
 				transforms.push(
-					`skew(${element.styles.skewX || 0}deg, ${element.styles.skewY || 0}deg)`
+					`skew(${element.styles.skewX || 0}deg, ${
+						element.styles.skewY || 0
+					}deg)`
 				);
 			}
 			return transforms.join(" ");
@@ -3545,8 +3484,12 @@ const AnimatedGradientGenerator = () => {
 			// Basic pattern generation - you may want to expand this based on actual shape patterns
 			return `<svg width="100%" height="100%" style="position: absolute; inset: 0; pointer-events: none;">
                 <defs>
-                    <pattern id="${uniqueId}-pattern" x="0" y="0" width="${20 * scale}" height="${20 * scale}" patternUnits="userSpaceOnUse">
-                        <circle cx="${10 * scale}" cy="${10 * scale}" r="${2 * scale}" fill="currentColor" opacity="0.3" />
+                    <pattern id="${uniqueId}-pattern" x="0" y="0" width="${
+				20 * scale
+			}" height="${20 * scale}" patternUnits="userSpaceOnUse">
+                        <circle cx="${10 * scale}" cy="${10 * scale}" r="${
+				2 * scale
+			}" fill="currentColor" opacity="0.3" />
                     </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#${uniqueId}-pattern)" />
@@ -3613,7 +3556,9 @@ const AnimatedGradientGenerator = () => {
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${style}">${generateBackgroundShapePattern(rect)}</div>`;
+					return `<div style="${style}">${generateBackgroundShapePattern(
+						rect
+					)}</div>`;
 				}
 
 				if (type === "image") {
@@ -3639,7 +3584,13 @@ const AnimatedGradientGenerator = () => {
 						border-style: ${styles.borderStyle || "solid"};
 						opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 						box-shadow: ${formatShadowCSS(styles.shadow)};
-						${styles.ringWidth > 0 ? `outline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"}; outline-offset: 2px;` : ""}
+						${
+							styles.ringWidth > 0
+								? `outline: ${styles.ringWidth}px solid ${
+										styles.ringColor || "#3b82f6"
+								  }; outline-offset: 2px;`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
@@ -3647,11 +3598,22 @@ const AnimatedGradientGenerator = () => {
 						width: 100%;
 						height: 100%;
 						object-fit: ${styles.objectFit || "contain"};
-						${styles.noise?.enabled ? `filter: contrast(${1 + (styles.noise.intensity || 0.3) * 0.2}) brightness(${1 + (styles.noise.intensity || 0.3) * 0.1});` : ""}
+						${
+							styles.noise?.enabled
+								? `filter: contrast(${
+										1 + (styles.noise.intensity || 0.3) * 0.2
+								  }) brightness(${1 + (styles.noise.intensity || 0.3) * 0.1});`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${wrapperStyle}"><img src="${image.src}" style="${imgStyle}" alt="${(image.caption || "").replace(/"/g, "&quot;")}" /></div>`;
+					return `<div style="${wrapperStyle}"><img src="${
+						image.src
+					}" style="${imgStyle}" alt="${(image.caption || "").replace(
+						/"/g,
+						"&quot;"
+					)}" /></div>`;
 				}
 
 				if (type === "video") {
@@ -3677,7 +3639,13 @@ const AnimatedGradientGenerator = () => {
 						border-style: ${styles.borderStyle || "solid"};
 						opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 						box-shadow: ${formatShadowCSS(styles.shadow)};
-						${styles.ringWidth > 0 ? `outline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"}; outline-offset: 2px;` : ""}
+						${
+							styles.ringWidth > 0
+								? `outline: ${styles.ringWidth}px solid ${
+										styles.ringColor || "#3b82f6"
+								  }; outline-offset: 2px;`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
@@ -3688,7 +3656,11 @@ const AnimatedGradientGenerator = () => {
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${wrapperStyle}"><video src="${video.src}" style="${videoStyle}" ${styles.autoplay !== false ? "autoplay loop muted playsinline" : ""} controls></video></div>`;
+					return `<div style="${wrapperStyle}"><video src="${
+						video.src
+					}" style="${videoStyle}" ${
+						styles.autoplay !== false ? "autoplay loop muted playsinline" : ""
+					} controls></video></div>`;
 				}
 
 				if (type === "text") {
@@ -3755,20 +3727,36 @@ const AnimatedGradientGenerator = () => {
 					const borderRadius = shape.borderRadius || styles.borderRadius || 0;
 
 					if (shapeType === "rectangle" || shapeType === "square") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <rect x="0" y="0" width="100%" height="100%" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" rx="${borderRadius}" ry="${borderRadius}" />
                         </svg>`;
 					} else if (shapeType === "circle") {
 						const radius = Math.min(shape.width, shape.height) / 2;
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <circle cx="50%" cy="50%" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					} else if (shapeType === "triangle") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <polygon points="50%,0 0,100% 100%,100%" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					} else if (shapeType === "line") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <line x1="0" y1="50%" x2="100%" y2="50%" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					}
@@ -3818,7 +3806,12 @@ const AnimatedGradientGenerator = () => {
 				position: absolute;
 				inset: 0;
 				background: ${gradientCSS};
-				${frameGradient.backgroundAnimation?.enabled && frameGradient.backgroundAnimation.type === "slide" ? `background-size: 200% 200%;` : ""}
+				${
+					frameGradient.backgroundAnimation?.enabled &&
+					frameGradient.backgroundAnimation.type === "slide"
+						? `background-size: 200% 200%;`
+						: ""
+				}
 				${backgroundAnimation ? `animation: ${backgroundAnimation};` : ""}
 			`;
 
@@ -4016,7 +4009,7 @@ const AnimatedGradientGenerator = () => {
 						stop.position &&
 						typeof stop.position.x === "number" &&
 						typeof stop.position.y === "number"
-				)
+			  )
 			: [];
 		const hasStops = gradientStops.length > 0;
 		const sortedStops = hasStops
@@ -4028,7 +4021,7 @@ const AnimatedGradientGenerator = () => {
 						b.position.x * b.position.x + b.position.y * b.position.y
 					);
 					return distA - distB;
-				})
+			  })
 			: [];
 
 		let backgroundElement = "";
@@ -4212,7 +4205,11 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Image element with clip-path and filter
-				let imageElement = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${clipPathId ? ` clip-path="url(#${clipPathId})"` : ""}${transformAttr}>`;
+				let imageElement = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${
+					clipPathId ? ` clip-path="url(#${clipPathId})"` : ""
+				}${transformAttr}>`;
 
 				// Border if exists
 				if (styles.borderWidth && styles.borderWidth > 0) {
@@ -4232,7 +4229,15 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Image itself
-				imageElement += `\n      <image href="${image.src}" x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" preserveAspectRatio="${styles.objectFit === "cover" ? "xMidYMid slice" : styles.objectFit === "fill" ? "none" : "xMidYMid meet"}"${styleAttr} />`;
+				imageElement += `\n      <image href="${
+					image.src
+				}" x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" preserveAspectRatio="${
+					styles.objectFit === "cover"
+						? "xMidYMid slice"
+						: styles.objectFit === "fill"
+						? "none"
+						: "xMidYMid meet"
+				}"${styleAttr} />`;
 
 				// Ring if exists
 				if (styles.ringWidth && styles.ringWidth > 0) {
@@ -4240,7 +4245,15 @@ const AnimatedGradientGenerator = () => {
 					const ringColor = styles.ringColor || "#3b82f6";
 					const ringOffset = 2 * scaleY;
 					const ringRadius = (styles.borderRadius || 0) * scaleY;
-					imageElement += `\n      <rect x="${scaledX - ringOffset - ringWidth}" y="${scaledY - ringOffset - ringWidth}" width="${scaledWidth + (ringOffset + ringWidth) * 2}" height="${scaledHeight + (ringOffset + ringWidth) * 2}" rx="${ringRadius + ringOffset + ringWidth}" ry="${ringRadius + ringOffset + ringWidth}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" />`;
+					imageElement += `\n      <rect x="${
+						scaledX - ringOffset - ringWidth
+					}" y="${scaledY - ringOffset - ringWidth}" width="${
+						scaledWidth + (ringOffset + ringWidth) * 2
+					}" height="${scaledHeight + (ringOffset + ringWidth) * 2}" rx="${
+						ringRadius + ringOffset + ringWidth
+					}" ry="${
+						ringRadius + ringOffset + ringWidth
+					}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" />`;
 				}
 
 				imageElement += `\n    </g>`;
@@ -4249,7 +4262,12 @@ const AnimatedGradientGenerator = () => {
 				if (image.caption) {
 					const captionX = scaledX + scaledWidth / 2;
 					const captionY = scaledY + scaledHeight + 20 * scaleY;
-					imageElement += `\n    <text x="${captionX}" y="${captionY}" text-anchor="middle" fill="black" font-size="${16 * scaleY}" font-family="Arial">${image.caption.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`;
+					imageElement += `\n    <text x="${captionX}" y="${captionY}" text-anchor="middle" fill="black" font-size="${
+						16 * scaleY
+					}" font-family="Arial">${image.caption
+						.replace(/&/g, "&amp;")
+						.replace(/</g, "&lt;")
+						.replace(/>/g, "&gt;")}</text>`;
 				}
 
 				return (shadowFilterDef || clipPathDef) + imageElement;
@@ -4403,7 +4421,9 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Build text group with background, border, and text
-				let textGroup = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${transformAttr} opacity="${opacity}">`;
+				let textGroup = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${transformAttr} opacity="${opacity}">`;
 
 				// Background rectangle
 				if (backgroundColor !== "transparent") {
@@ -4573,26 +4593,50 @@ const AnimatedGradientGenerator = () => {
 						)
 						.join("");
 					gradientDef = `\n      <defs>
-        <linearGradient id="shape-gradient-${shape.id}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${styles.fillGradient.angle || 45} ${scaledX + scaledWidth / 2} ${scaledY + scaledHeight / 2})">${stopsString}
+        <linearGradient id="shape-gradient-${
+					shape.id
+				}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${
+						styles.fillGradient.angle || 45
+					} ${scaledX + scaledWidth / 2} ${
+						scaledY + scaledHeight / 2
+					})">${stopsString}
         </linearGradient>
       </defs>`;
 				}
 
-				let shapeElement = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${transformAttr} opacity="${styles.opacity !== undefined ? styles.opacity : 1}">${gradientDef}`;
+				let shapeElement = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${transformAttr} opacity="${
+					styles.opacity !== undefined ? styles.opacity : 1
+				}">${gradientDef}`;
 
 				if (shape.type === "rectangle" || shape.type === "square") {
-					shapeElement += `\n      <rect x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" rx="${(styles.borderRadius || 0) * scaleY}" ry="${(styles.borderRadius || 0) * scaleY}" />`;
+					shapeElement += `\n      <rect x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" rx="${
+						(styles.borderRadius || 0) * scaleY
+					}" ry="${(styles.borderRadius || 0) * scaleY}" />`;
 				} else if (shape.type === "line") {
 					const lineY = scaledY + scaledHeight / 2;
-					shapeElement += `\n      <line x1="${scaledX}" y1="${lineY}" x2="${scaledX + scaledWidth}" y2="${lineY}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					shapeElement += `\n      <line x1="${scaledX}" y1="${lineY}" x2="${
+						scaledX + scaledWidth
+					}" y2="${lineY}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				} else if (shape.type === "triangle") {
-					const points = `${scaledX + scaledWidth / 2},${scaledY} ${scaledX},${scaledY + scaledHeight} ${scaledX + scaledWidth},${scaledY + scaledHeight}`;
-					shapeElement += `\n      <polygon points="${points}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					const points = `${scaledX + scaledWidth / 2},${scaledY} ${scaledX},${
+						scaledY + scaledHeight
+					} ${scaledX + scaledWidth},${scaledY + scaledHeight}`;
+					shapeElement += `\n      <polygon points="${points}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				} else if (shape.type === "circle") {
 					const radius = Math.min(scaledWidth, scaledHeight) / 2;
 					const centerX = scaledX + scaledWidth / 2;
 					const centerY = scaledY + scaledHeight / 2;
-					shapeElement += `\n      <circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					shapeElement += `\n      <circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				}
 
 				shapeElement += `\n    </g>`;
@@ -4619,7 +4663,11 @@ const AnimatedGradientGenerator = () => {
 		const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>${gradientElement}${defsContent}
   </defs>
-  ${backgroundImage ? backgroundElement : `<rect width="100%" height="100%" fill="url(#gradientFill)" />`}
+  ${
+		backgroundImage
+			? backgroundElement
+			: `<rect width="100%" height="100%" fill="url(#gradientFill)" />`
+	}
   ${imageContent}
   ${textContent}
   ${shapeContent}
@@ -5042,7 +5090,9 @@ const AnimatedGradientGenerator = () => {
 						// Draw text
 						const fontSize = (styles.fontSize || 24) * scaleY;
 						const fontFamily = styles.fontFamily || "Arial";
-						ctx.font = `${styles.fontStyle || "normal"} ${styles.fontWeight || "normal"} ${fontSize}px ${fontFamily}`;
+						ctx.font = `${styles.fontStyle || "normal"} ${
+							styles.fontWeight || "normal"
+						} ${fontSize}px ${fontFamily}`;
 						ctx.fillStyle = styles.color || "#000000";
 						ctx.textAlign = styles.textAlign || "left";
 						ctx.textBaseline = "middle";
@@ -6747,6 +6797,8 @@ const AnimatedGradientGenerator = () => {
 
 	const updateFrameQueryParam = useCallback(
 		(frameId) => {
+			if (!router.isReady) return;
+
 			const currentQuery = router.query || {};
 			const nextQuery = { ...currentQuery };
 
@@ -6756,12 +6808,16 @@ const AnimatedGradientGenerator = () => {
 				delete nextQuery.frame;
 			}
 
-			router.replace({
-				pathname: router.pathname,
-				query: nextQuery,
-			});
+			router.replace(
+				{
+					pathname: "/app",
+					query: nextQuery,
+				},
+				undefined,
+				{ shallow: true }
+			);
 		},
-		[router]
+		[router.isReady, router.query]
 	);
 
 	const handleFrameSelect = useCallback(
@@ -6779,12 +6835,13 @@ const AnimatedGradientGenerator = () => {
 	);
 
 	useEffect(() => {
+		if (!router.isReady) return;
+
 		if (!framesList.length) {
 			if (activeFrameId) {
 				setActiveFrameId(null);
 			}
 			lastFrameQueryRef.current = null;
-			updateFrameQueryParam(null);
 			return;
 		}
 
@@ -6798,20 +6855,32 @@ const AnimatedGradientGenerator = () => {
 			lastFrameQueryRef.current = normalizedFrameQuery;
 			if (normalizedFrameQuery && frameExistsInList) {
 				if (normalizedFrameQuery !== activeFrameId) {
-					handleFrameSelect(normalizedFrameQuery);
+					const targetFrame = framesList.find(
+						(f) => f.id === normalizedFrameQuery
+					);
+					if (targetFrame) {
+						setActiveFrameId(normalizedFrameQuery);
+						applyFrameState(targetFrame);
+					}
 				}
 				return;
 			}
 
-			if (normalizedFrameQuery && !frameExistsInList) {
-				handleFrameSelect(framesList[0].id);
+			if (normalizedFrameQuery && !frameExistsInList && framesList[0]) {
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 				return;
 			}
 		}
 
-		if (!normalizedFrameQuery) {
+		if (!normalizedFrameQuery && framesList[0]) {
 			if (!activeFrameId) {
-				handleFrameSelect(framesList[0].id);
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 				return;
 			}
 
@@ -6819,16 +6888,14 @@ const AnimatedGradientGenerator = () => {
 				(frame) => frame.id === activeFrameId
 			);
 			if (!activeExists) {
-				handleFrameSelect(framesList[0].id);
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 			}
 		}
-	}, [
-		framesList,
-		activeFrameId,
-		handleFrameSelect,
-		frameIdFromUrl,
-		updateFrameQueryParam,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [framesList, frameIdFromUrl, router.isReady]);
 
 	// Update states when project data is loaded
 	useEffect(() => {
@@ -7068,6 +7135,104 @@ const AnimatedGradientGenerator = () => {
 		}
 	};
 
+	// Rename project
+	const handleRenameProject = async (projectId, newName) => {
+		if (!newName.trim()) {
+			setEditingProjectId(null);
+			setEditingProjectName("");
+			return;
+		}
+
+		try {
+			// Find the project to get its publicDocId
+			const project = projects.find((p) => p.id === projectId);
+			const trimmedName = newName.trim();
+
+			// Update in users/kixi-projects
+			const projectRef = doc(db, "users", user.uid, "kixi-projects", projectId);
+			await updateDoc(projectRef, {
+				name: trimmedName,
+				updatedAt: new Date().toISOString(),
+			});
+
+			// If project is published, also update in published-projects
+			if (project?.publicDocId) {
+				const publishedDocRef = doc(
+					db,
+					"published-projects",
+					project.publicDocId
+				);
+				await updateDoc(publishedDocRef, {
+					projectName: trimmedName,
+					updatedAt: new Date().toISOString(),
+				});
+			}
+
+			// Update local state
+			setProjects((prevProjects) =>
+				prevProjects.map((p) =>
+					p.id === projectId ? { ...p, name: trimmedName } : p
+				)
+			);
+
+			// If this is the current project, update the projectName state too
+			if (currentProjectId === projectId) {
+				setProjectName(trimmedName);
+			}
+
+			toast.success("Project renamed successfully");
+		} catch (error) {
+			console.error("Error renaming project:", error);
+			toast.error("Failed to rename project. Please try again.");
+		} finally {
+			setEditingProjectId(null);
+			setEditingProjectName("");
+		}
+	};
+
+	// Rename frame
+	const handleRenameFrame = async (newName) => {
+		const trimmedName = newName?.trim();
+
+		// Reset editing state regardless
+		setIsEditingFrameName(false);
+		setEditingFrameNameValue("");
+
+		if (!trimmedName || !activeFrameId || !currentProjectId || !user?.uid) {
+			return;
+		}
+
+		try {
+			// Update frame name in Firestore
+			const frameRef = doc(
+				db,
+				"users",
+				user.uid,
+				"kixi-projects",
+				currentProjectId,
+				"frames",
+				activeFrameId
+			);
+			await updateDoc(frameRef, {
+				name: trimmedName,
+				updatedAt: new Date().toISOString(),
+			});
+
+			// Refetch frames to update local state
+			refetchFrames();
+
+			toast.success("Frame renamed successfully");
+		} catch (error) {
+			console.error("Error renaming frame:", error);
+			toast.error("Failed to rename frame. Please try again.");
+		}
+	};
+
+	// Get current active frame data
+	const activeFrame = useMemo(() => {
+		return framesList.find((frame) => frame.id === activeFrameId) || null;
+	}, [framesList, activeFrameId]);
+
 	// Image improvement mutation
 	const generateImprovedImages = useMutation({
 		mutationFn: async ({ imageBase64, prompt, ast, variantCount }) => {
@@ -7104,6 +7269,108 @@ const AnimatedGradientGenerator = () => {
 			);
 		},
 	});
+
+	// Generate React Code mutation
+	const generateReactCodeMutation = useMutation({
+		mutationFn: async () => {
+			const state = {
+				gradient: {
+					type: gradient.type,
+					angle: gradient.angle,
+					stops: gradient.stops,
+					noise: gradient.noise,
+					animation: gradient.animation,
+					backgroundAnimation: gradient.backgroundAnimation,
+					dimensions: gradient.dimensions,
+				},
+				images: images.map((img) => ({
+					x: img.x,
+					y: img.y,
+					width: img.width,
+					height: img.height,
+					src: img.src,
+					caption: img.caption,
+					styles: img.styles,
+				})),
+				videos: videos.map((vid) => ({
+					x: vid.x,
+					y: vid.y,
+					width: vid.width,
+					height: vid.height,
+					src: vid.src,
+					caption: vid.caption,
+					styles: vid.styles,
+				})),
+				texts: texts.map((text) => ({
+					content: text.content,
+					x: text.x,
+					y: text.y,
+					width: text.width,
+					height: text.height,
+					styles: text.styles,
+				})),
+				shapes: shapes.map((shape) => ({
+					shapeType: shape.shapeType,
+					x: shape.x,
+					y: shape.y,
+					width: shape.width,
+					height: shape.height,
+					fillColor: shape.fillColor,
+					strokeColor: shape.strokeColor,
+					strokeWidth: shape.strokeWidth,
+					borderRadius: shape.borderRadius,
+					opacity: shape.opacity,
+					zIndex: shape.zIndex,
+				})),
+				icons: icons.map((icon) => ({
+					iconName: icon.iconName,
+					x: icon.x,
+					y: icon.y,
+					width: icon.width,
+					height: icon.height,
+					styles: icon.styles,
+				})),
+			};
+
+			const response = await fetch("/api/convert-to-react", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ state }),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || "Failed to generate React code");
+			}
+
+			return response.json();
+		},
+		onSuccess: (data) => {
+			setGeneratedReactCode(data.code || "");
+			setIsGenerateCodeDropdownOpen(true);
+			toast.success("React code generated successfully!");
+		},
+		onError: (error) => {
+			console.error("Error generating React code:", error);
+			toast.error(
+				error.message || "Failed to generate code. Please try again."
+			);
+		},
+	});
+
+	// Copy generated code to clipboard
+	const handleCopyGeneratedCode = async () => {
+		try {
+			await navigator.clipboard.writeText(generatedReactCode);
+			setCodeCopied(true);
+			toast.success("Code copied to clipboard!");
+			setTimeout(() => setCodeCopied(false), 2000);
+		} catch (err) {
+			toast.error("Failed to copy code");
+		}
+	};
 
 	// Auto-focus improvement prompt when modal opens
 	useEffect(() => {
@@ -7339,7 +7606,9 @@ const AnimatedGradientGenerator = () => {
 	const saveHistoryToCookie = useCallback((historyData) => {
 		try {
 			const cookieValue = JSON.stringify(historyData);
-			document.cookie = `gradientHistory=${encodeURIComponent(cookieValue)}; path=/; max-age=86400`; // 24 hours
+			document.cookie = `gradientHistory=${encodeURIComponent(
+				cookieValue
+			)}; path=/; max-age=86400`; // 24 hours
 		} catch (error) {
 			console.error("Failed to save history to cookie:", error);
 		}
@@ -7702,6 +7971,26 @@ const AnimatedGradientGenerator = () => {
 			}
 
 			await loadProjects();
+
+			// Reset unsaved changes tracking
+			lastSavedStateRef.current = JSON.stringify({
+				gradient,
+				images,
+				videos,
+				texts,
+				icons,
+				shapes,
+				backgroundImage,
+				backgroundShapeRects,
+			});
+			setHasUnsavedChanges(false);
+
+			// Clear auto-save timeout since we just saved
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+				autoSaveTimeoutRef.current = null;
+			}
+
 			setCopied("saved");
 			setTimeout(() => setCopied(""), 2000);
 		} catch (error) {
@@ -7711,6 +8000,9 @@ const AnimatedGradientGenerator = () => {
 			setIsSaving(false);
 		}
 	};
+
+	// Keep ref updated for auto-save
+	handleSaveProjectRef.current = handleSaveProject;
 
 	// Load history from cookies on mount
 	useEffect(() => {
@@ -7953,6 +8245,94 @@ const AnimatedGradientGenerator = () => {
 		saveToHistory,
 	]);
 
+	// Track unsaved changes and auto-save with debouncing
+	const getCanvasState = useCallback(() => {
+		return JSON.stringify({
+			gradient,
+			images,
+			videos,
+			texts,
+			icons,
+			shapes,
+			backgroundImage,
+			backgroundShapeRects,
+		});
+	}, [
+		gradient,
+		images,
+		videos,
+		texts,
+		icons,
+		shapes,
+		backgroundImage,
+		backgroundShapeRects,
+	]);
+
+	// Detect changes and mark as unsaved
+	useEffect(() => {
+		// Skip if not authenticated or no project
+		if (!isAuthenticated || !currentProjectId) return;
+
+		const currentState = getCanvasState();
+
+		// Initialize last saved state if not set
+		if (lastSavedStateRef.current === null) {
+			lastSavedStateRef.current = currentState;
+			return;
+		}
+
+		// Compare current state with last saved state
+		if (currentState !== lastSavedStateRef.current) {
+			setHasUnsavedChanges(true);
+
+			// Clear existing auto-save timeout
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+
+			// Set new auto-save timeout (45 seconds of inactivity)
+			autoSaveTimeoutRef.current = setTimeout(() => {
+				// Only auto-save if there are unsaved changes and user is authenticated
+				if (handleSaveProjectRef.current) {
+					handleSaveProjectRef.current();
+				}
+			}, 45000); // 45 seconds
+		}
+
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+		};
+	}, [getCanvasState, isAuthenticated, currentProjectId]);
+
+	// Reset unsaved changes when project changes (loading a different project)
+	useEffect(() => {
+		if (currentProjectId) {
+			// Give a small delay for state to settle after loading
+			const timer = setTimeout(() => {
+				lastSavedStateRef.current = getCanvasState();
+				setHasUnsavedChanges(false);
+			}, 500);
+			return () => clearTimeout(timer);
+		}
+	}, [currentProjectId]);
+
+	// Warn user before leaving page with unsaved changes
+	useEffect(() => {
+		const handleBeforeUnload = (e) => {
+			if (hasUnsavedChanges && isAuthenticated && currentProjectId) {
+				e.preventDefault();
+				e.returnValue =
+					"You have unsaved changes. Are you sure you want to leave?";
+				return e.returnValue;
+			}
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+	}, [hasUnsavedChanges, isAuthenticated, currentProjectId]);
+
 	const { animation, backgroundAnimation } = useMemo(
 		() => generateAnimationCSS(),
 		[gradient]
@@ -7985,6 +8365,34 @@ const AnimatedGradientGenerator = () => {
 				);
 		}
 	}, [isDownloadDropdownOpen, handleDownloadDropdownClickOutside]);
+
+	// Handle click outside generate code dropdown
+	const handleGenerateCodeDropdownClickOutside = useCallback((event) => {
+		const isInsideControlPanel =
+			generateCodeDropdownRef.current &&
+			generateCodeDropdownRef.current.contains(event.target);
+		const isInsidePreview =
+			previewCodeDropdownRef.current &&
+			previewCodeDropdownRef.current.contains(event.target);
+
+		if (!isInsideControlPanel && !isInsidePreview) {
+			setIsGenerateCodeDropdownOpen(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (isGenerateCodeDropdownOpen) {
+			document.addEventListener(
+				"mousedown",
+				handleGenerateCodeDropdownClickOutside
+			);
+			return () =>
+				document.removeEventListener(
+					"mousedown",
+					handleGenerateCodeDropdownClickOutside
+				);
+		}
+	}, [isGenerateCodeDropdownOpen, handleGenerateCodeDropdownClickOutside]);
 
 	// Keyboard shortcuts for adding elements
 	useEffect(() => {
@@ -8407,9 +8815,44 @@ const AnimatedGradientGenerator = () => {
 											>
 												<div className="flex items-center justify-between gap-2 mb-1 p-1 relative z-10">
 													<div className="flex-1 min-w-0">
-														<h4 className="text-sm text-zinc-800 truncate">
-															{project.name || "Untitled Project"}
-														</h4>
+														{editingProjectId === project.id ? (
+															<input
+																type="text"
+																value={editingProjectName}
+																onChange={(e) =>
+																	setEditingProjectName(e.target.value)
+																}
+																onKeyDown={(e) => {
+																	if (e.key === "Enter") {
+																		e.preventDefault();
+																		handleRenameProject(
+																			project.id,
+																			editingProjectName
+																		);
+																	} else if (e.key === "Escape") {
+																		setEditingProjectId(null);
+																		setEditingProjectName("");
+																	}
+																}}
+																onClick={(e) => e.stopPropagation()}
+																autoFocus
+																className="text-sm text-zinc-800 rounded w-full bg-white border border-zinc-300 px-1 py-0.5 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+															/>
+														) : (
+															<h4
+																className="text-sm text-zinc-800 truncate cursor-text hover:bg-zinc-100 px-1 py-0.5 rounded"
+																onClick={(e) => {
+																	e.stopPropagation();
+																	setEditingProjectId(project.id);
+																	setEditingProjectName(
+																		project.name || "Untitled Project"
+																	);
+																}}
+																title="Click to rename"
+															>
+																{project.name || "Untitled Project"}
+															</h4>
+														)}
 													</div>
 													<button
 														onClick={(e) => {
@@ -8419,7 +8862,7 @@ const AnimatedGradientGenerator = () => {
 														}}
 														className="p-1 hover:bg-red-100 rounded-xl transition-all relative z-20 flex-shrink-0"
 													>
-														<Trash2 className="w-4 h-4 text-red-400" />
+														<Trash2 className="w-3 h-3 text-red-400" />
 													</button>
 												</div>
 												{/* Layer List - Fixed on Left Side */}
@@ -8567,7 +9010,65 @@ const AnimatedGradientGenerator = () => {
 					`}</style>
 					<div className="max-w-7xl mx-auto relative">
 						<div className="space-y-1 lg:pr-[100px] mt-16">
+							{/* Frame Name Input */}
+							{isAuthenticated && activeFrameId && (
+								<div className="relative z-50 mb-2 flex justify-start items-center">
+									{isEditingFrameName ? (
+										<input
+											type="text"
+											value={editingFrameNameValue}
+											onChange={(e) => setEditingFrameNameValue(e.target.value)}
+											onKeyDown={(e) => {
+												if (e.key === "Enter") {
+													e.preventDefault();
+													handleRenameFrame(editingFrameNameValue);
+												} else if (e.key === "Escape") {
+													setIsEditingFrameName(false);
+													setEditingFrameNameValue("");
+												}
+											}}
+											onBlur={() => handleRenameFrame(editingFrameNameValue)}
+											autoFocus
+											placeholder="Frame name..."
+											className="px-3 py-1.5 text-sm bg-white border border-zinc-300 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-zinc-400 min-w-[160px]"
+										/>
+									) : (
+										<button
+											onClick={() => {
+												setIsEditingFrameName(true);
+												setEditingFrameNameValue(
+													activeFrame?.name ||
+														`Frame ${activeFrame?.frameNumber || 1}`
+												);
+											}}
+											className="px-3 py-1.5 text-sm font-medium bg-white border border-zinc-200 rounded-xl hover:bg-zinc-50 hover:border-zinc-300 transition-all shadow-sm flex items-center gap-2"
+											title="Click to rename frame"
+										>
+											<span className="text-zinc-700 truncate max-w-[200px]">
+												{activeFrame?.name ||
+													`Frame ${activeFrame?.frameNumber || 1}`}
+											</span>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												width="14"
+												height="14"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												className="text-zinc-400"
+											>
+												<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+												<path d="m15 5 4 4" />
+											</svg>
+										</button>
+									)}
+								</div>
+							)}
 							<div className="bg-white rounded-xl relative">
+								
 								{/* Immediate parent container of previewRef with zoom transform */}
 								<div
 									className="flex justify-center items-center w-full overflow-hidden"
@@ -8585,12 +9086,12 @@ const AnimatedGradientGenerator = () => {
 												? {
 														width: `${gradient.dimensions.width}px`,
 														height: `${gradient.dimensions.height}px`,
-													}
+												  }
 												: {
 														aspectRatio: `${gradient.dimensions.width} / ${gradient.dimensions.height}`,
 														width: "100%",
 														maxWidth: "100%",
-													}),
+												  }),
 											// Calculate maxHeight based on aspect ratio: for portrait frames, allow more height
 											maxHeight:
 												gradient.dimensions.height > gradient.dimensions.width
@@ -8603,14 +9104,14 @@ const AnimatedGradientGenerator = () => {
 														backgroundSize: "cover",
 														backgroundPosition: "center",
 														backgroundRepeat: "no-repeat",
-													}
+												  }
 												: {
 														background: generateGradientCSS(),
 														...(isPlaying &&
 															gradient.backgroundAnimation.enabled && {
 																backgroundSize: "200% 200%",
 															}),
-													}),
+												  }),
 											...(isPlaying &&
 												!backgroundImage &&
 												backgroundAnimation && {
@@ -8696,7 +9197,11 @@ const AnimatedGradientGenerator = () => {
 													top: `${rect.y}%`,
 													width: `${rect.width}px`,
 													height: `${rect.height}px`,
-													transform: `translate(-50%, -50%) rotate(${rect.styles?.rotation || 0}deg) skew(${rect.styles?.skewX || 0}deg, ${rect.styles?.skewY || 0}deg)`,
+													transform: `translate(-50%, -50%) rotate(${
+														rect.styles?.rotation || 0
+													}deg) skew(${rect.styles?.skewX || 0}deg, ${
+														rect.styles?.skewY || 0
+													}deg)`,
 													zIndex: rect.styles?.zIndex || 1,
 													opacity: rect.styles?.opacity || 1,
 												}}
@@ -8729,7 +9234,7 @@ const AnimatedGradientGenerator = () => {
 															e.stopPropagation();
 															removeBackgroundShapeRect(rect.id);
 														}}
-														className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+														className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
 														title="Delete background shape"
 													>
 														<X className="w-3 h-3" />
@@ -8840,7 +9345,11 @@ const AnimatedGradientGenerator = () => {
 													top: `${text.y}%`,
 													width: `${text.width}px`,
 													minHeight: `${text.height}px`,
-													transform: `translate(-50%, -50%) rotate(${text.styles?.rotation || 0}deg) skew(${text.styles?.skewX || 0}deg, ${text.styles?.skewY || 0}deg)`,
+													transform: `translate(-50%, -50%) rotate(${
+														text.styles?.rotation || 0
+													}deg) skew(${text.styles?.skewX || 0}deg, ${
+														text.styles?.skewY || 0
+													}deg)`,
 													zIndex: text.styles?.zIndex || 2,
 												}}
 												onMouseDown={(e) => handleTextMouseDown(e, text.id)}
@@ -8871,7 +9380,7 @@ const AnimatedGradientGenerator = () => {
 																text.styles?.backgroundColor === "transparent"
 																	? "rgba(255, 255, 255, 0.8)"
 																	: text.styles?.backgroundColor ||
-																		"transparent",
+																	  "transparent",
 															padding: `${text.styles?.padding || 0}px`,
 															borderRadius:
 																text.styles?.borderRadius === 100
@@ -8932,21 +9441,22 @@ const AnimatedGradientGenerator = () => {
 												)}
 
 												{/* Text Controls */}
-												{textEditing !== text.id && (
-													<div className="absolute -top-2 -right-2 flex gap-1">
-														{/* Delete Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																removeText(text.id);
-															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Delete text"
-														>
-															<X className="w-3 h-3" />
-														</button>
-													</div>
-												)}
+												{selectedText === text.id &&
+													textEditing !== text.id && (
+														<div className="absolute -top-2 -right-2 flex gap-1">
+															{/* Delete Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	removeText(text.id);
+																}}
+																className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Delete text"
+															>
+																<X className="w-3 h-3" />
+															</button>
+														</div>
+													)}
 
 												{/* Resize Handles */}
 												{selectedText === text.id &&
@@ -9021,7 +9531,11 @@ const AnimatedGradientGenerator = () => {
 													top: `${image.y}%`,
 													width: `${image.width}px`,
 													height: `${image.height}px`,
-													transform: `translate(-50%, -50%) rotate(${image.styles?.rotation || 0}deg) skew(${image.styles?.skewX || 0}deg, ${image.styles?.skewY || 0}deg)`,
+													transform: `translate(-50%, -50%) rotate(${
+														image.styles?.rotation || 0
+													}deg) skew(${image.styles?.skewX || 0}deg, ${
+														image.styles?.skewY || 0
+													}deg)`,
 													zIndex: image.styles?.zIndex || 1,
 												}}
 											>
@@ -9120,7 +9634,9 @@ const AnimatedGradientGenerator = () => {
 																toggleObjectFit(image.id);
 															}}
 															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title={`Object Fit: ${image.styles?.objectFit || "contain"} (click to change)`}
+															title={`Object Fit: ${
+																image.styles?.objectFit || "contain"
+															} (click to change)`}
 														>
 															<ImageIcon className="w-3 h-3" />
 														</button>
@@ -9141,7 +9657,7 @@ const AnimatedGradientGenerator = () => {
 																e.stopPropagation();
 																removeImage(image.id);
 															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+															className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
 															title="Delete image"
 														>
 															<X className="w-3 h-3" />
@@ -9331,7 +9847,9 @@ const AnimatedGradientGenerator = () => {
 																toggleVideoObjectFit(video.id);
 															}}
 															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title={`Object Fit: ${video.styles?.objectFit || "contain"} (click to change)`}
+															title={`Object Fit: ${
+																video.styles?.objectFit || "contain"
+															} (click to change)`}
 														>
 															<Video className="w-3 h-3" />
 														</button>
@@ -9352,7 +9870,7 @@ const AnimatedGradientGenerator = () => {
 																e.stopPropagation();
 																removeVideo(video.id);
 															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+															className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
 															title="Delete video"
 														>
 															<X className="w-3 h-3" />
@@ -9452,12 +9970,14 @@ const AnimatedGradientGenerator = () => {
 												shape.type === "rectangle"
 													? RectangleHorizontal
 													: shape.type === "square"
-														? Square
-														: shape.type === "triangle"
-															? Triangle
-															: shape.type === "circle"
-																? Circle
-																: Minus;
+													? Square
+													: shape.type === "triangle"
+													? Triangle
+													: shape.type === "circle"
+													? Circle
+													: shape.type === "svg"
+													? Shapes
+													: Minus;
 
 											return (
 												<div
@@ -9472,7 +9992,11 @@ const AnimatedGradientGenerator = () => {
 														top: `${shape.y}%`,
 														width: `${shape.width}px`,
 														height: `${shape.height}px`,
-														transform: `translate(-50%, -50%) rotate(${shape.styles?.rotation || 0}deg) skew(${shape.styles?.skewX || 0}deg, ${shape.styles?.skewY || 0}deg)`,
+														transform: `translate(-50%, -50%) rotate(${
+															shape.styles?.rotation || 0
+														}deg) skew(${shape.styles?.skewX || 0}deg, ${
+															shape.styles?.skewY || 0
+														}deg)`,
 														zIndex: shape.styles?.zIndex || 1,
 													}}
 													onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}
@@ -9481,9 +10005,15 @@ const AnimatedGradientGenerator = () => {
 													<svg
 														width="100%"
 														height="100%"
-														viewBox="0 0 100 100"
+														viewBox={
+															shape.type === "svg"
+																? "0 0 200 200"
+																: "0 0 100 100"
+														}
 														preserveAspectRatio={
-															shape.type === "circle" ? "xMidYMid meet" : "none"
+															shape.type === "circle" || shape.type === "svg"
+																? "xMidYMid meet"
+																: "none"
 														}
 														className="cursor-move"
 														style={{
@@ -9500,7 +10030,9 @@ const AnimatedGradientGenerator = () => {
 																	y1="0%"
 																	x2="100%"
 																	y2="0%"
-																	gradientTransform={`rotate(${shape.styles.fillGradient.angle || 45} 50 50)`}
+																	gradientTransform={`rotate(${
+																		shape.styles.fillGradient.angle || 45
+																	} 50 50)`}
 																>
 																	{shape.styles.fillGradient.stops
 																		?.sort(
@@ -9586,6 +10118,21 @@ const AnimatedGradientGenerator = () => {
 																strokeWidth={shape.styles?.strokeWidth || 2}
 															/>
 														)}
+														{shape.type === "svg" && shape.svgString && (
+															<g
+																dangerouslySetInnerHTML={{
+																	__html: shape.svgString
+																		.replace(/\$\{width\}/g, "200")
+																		.replace(/\$\{height\}/g, "200")
+																		.replace(
+																			/\$\{color\}/g,
+																			shape.styles?.fillColor || "#3b82f6"
+																		)
+																		.replace(/<svg[^>]*>/, "")
+																		.replace(/<\/svg>/, ""),
+																}}
+															/>
+														)}
 													</svg>
 
 													{/* Shape Controls */}
@@ -9597,7 +10144,7 @@ const AnimatedGradientGenerator = () => {
 																	e.stopPropagation();
 																	removeShape(shape.id);
 																}}
-																className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
 																title="Delete shape"
 															>
 																<X className="w-3 h-3" />
@@ -9666,7 +10213,7 @@ const AnimatedGradientGenerator = () => {
 
 										{/* Icons Layer */}
 										{icons.map((icon) => {
-											const IconComponent = LucideIcons[icon.iconName];
+											const IconComponent = AllIcons[icon.iconName];
 											if (!IconComponent) return null;
 
 											return (
@@ -9682,7 +10229,11 @@ const AnimatedGradientGenerator = () => {
 														top: `${icon.y}%`,
 														width: `${icon.width}px`,
 														height: `${icon.height}px`,
-														transform: `translate(-50%, -50%) rotate(${icon.styles?.rotation || 0}deg) skew(${icon.styles?.skewX || 0}deg, ${icon.styles?.skewY || 0}deg)`,
+														transform: `translate(-50%, -50%) rotate(${
+															icon.styles?.rotation || 0
+														}deg) skew(${icon.styles?.skewX || 0}deg, ${
+															icon.styles?.skewY || 0
+														}deg)`,
 														zIndex: icon.styles?.zIndex || 1,
 													}}
 													onMouseDown={(e) => handleIconMouseDown(e, icon.id)}
@@ -9706,7 +10257,7 @@ const AnimatedGradientGenerator = () => {
 																	e.stopPropagation();
 																	removeIcon(icon.id);
 																}}
-																className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
 																title="Delete icon"
 															>
 																<X className="w-3 h-3" />
@@ -9829,7 +10380,16 @@ const AnimatedGradientGenerator = () => {
 										<button
 											onClick={handleSaveProject}
 											disabled={isSaving || !isAuthenticated}
-											className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-zinc-100 shadow border border-zinc-200 text-black rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-xs"
+											className={`flex items-center gap-1.5 px-3 py-2 shadow border rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs ${
+												hasUnsavedChanges && !isSaving && copied !== "saved"
+													? "bg-orange-100 border-orange-300 hover:bg-orange-200 text-orange-800"
+													: "bg-white hover:bg-zinc-100 border-zinc-200 text-black disabled:hover:bg-white"
+											}`}
+											title={
+												hasUnsavedChanges
+													? "You have unsaved changes"
+													: "Save project"
+											}
 										>
 											{isSaving ? (
 												<Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -9840,8 +10400,10 @@ const AnimatedGradientGenerator = () => {
 												{copied === "saved"
 													? "Saved!"
 													: isSaving
-														? "Saving..."
-														: "Save"}
+													? "Saving..."
+													: hasUnsavedChanges
+													? "Save*"
+													: "Save"}
 											</span>
 										</button>
 										<GoogleLoginButton />
@@ -9879,10 +10441,10 @@ const AnimatedGradientGenerator = () => {
 												{copied === "published"
 													? "Published!"
 													: isPublishing
-														? "Publishing..."
-														: publicDocId
-															? "View Published"
-															: "Publish"}
+													? "Publishing..."
+													: publicDocId
+													? "View Published"
+													: "Publish"}
 											</span>
 										</button>
 										<div ref={downloadDropdownRef} className="relative">
@@ -10040,6 +10602,115 @@ const AnimatedGradientGenerator = () => {
 											<Sparkles className="w-3.5 h-3.5" />
 											Generate AI Variants
 										</button> */}
+										{/* Generate React Code Button */}
+										<div ref={generateCodeDropdownRef} className="relative">
+											<button
+												onClick={() => {
+													if (
+														!isGenerateCodeDropdownOpen &&
+														!generatedReactCode
+													) {
+														generateReactCodeMutation.mutate();
+													} else {
+														setIsGenerateCodeDropdownOpen(
+															!isGenerateCodeDropdownOpen
+														);
+													}
+												}}
+												disabled={generateReactCodeMutation.isPending}
+												className="w-full flex items-center gap-2 px-3 py-1.5 text-xs bg-white hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in border border-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+												title="Generate React code for this design"
+											>
+												{generateReactCodeMutation.isPending ? (
+													<Loader2 className="w-3 h-3 animate-spin" />
+												) : (
+													<Zap className="w-3 h-3" />
+												)}
+												{generateReactCodeMutation.isPending
+													? "Generating..."
+													: "Get Code"}
+											</button>
+											<AnimatePresence>
+												{isGenerateCodeDropdownOpen && generatedReactCode && (
+													<motion.div
+														initial={{ opacity: 0, y: -10 }}
+														animate={{ opacity: 1, y: 0 }}
+														exit={{ opacity: 0, y: -10 }}
+														transition={{ duration: 0.15 }}
+														className="absolute right-0 mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50"
+														style={{ width: "240px", maxWidth: "240px" }}
+													>
+														<div className="flex flex-col">
+															{/* Header */}
+															<div className="flex items-center justify-between px-3 py-2 border-b border-zinc-100 bg-zinc-50">
+																<span className="text-xs font-medium text-zinc-700">
+																	React Code
+																</span>
+																<button
+																	onClick={handleCopyGeneratedCode}
+																	className={`flex items-center gap-1 px-2 py-1 text-xs rounded-xl transition-colors ${
+																		codeCopied
+																			? "bg-green-100 text-green-700"
+																			: "hover:bg-zinc-200 text-zinc-600"
+																	}`}
+																>
+																	<Copy className="w-3 h-3" />
+																	{codeCopied ? "Copied!" : "Copy"}
+																</button>
+															</div>
+															{/* Code Preview */}
+															<div className="p-2 max-h-[200px] overflow-auto">
+																<pre className="text-[10px] leading-relaxed text-zinc-700 whitespace-pre-wrap break-words font-mono bg-zinc-50 p-2 rounded-xl">
+																	{generatedReactCode.length > 500
+																		? generatedReactCode.substring(0, 500) +
+																		  "..."
+																		: generatedReactCode}
+																</pre>
+															</div>
+															{/* Packages Section */}
+															<div className="px-3 py-2 border-t border-zinc-100 bg-zinc-50">
+																<span className="text-[10px] font-medium text-zinc-600 block mb-1.5">
+																	Install packages:
+																</span>
+																<div className="flex flex-wrap gap-1">
+																	<code className="text-[9px] bg-zinc-200 px-1.5 py-0.5 rounded text-zinc-700">
+																		framer-motion
+																	</code>
+																	<code className="text-[9px] bg-zinc-200 px-1.5 py-0.5 rounded text-zinc-700">
+																		lucide-react
+																	</code>
+																	<code className="text-[9px] bg-zinc-200 px-1.5 py-0.5 rounded text-zinc-700">
+																		tailwindcss
+																	</code>
+																</div>
+																<div className="mt-2 p-1.5 bg-zinc-100 rounded text-[9px] font-mono text-zinc-600">
+																	npm i framer-motion lucide-react
+																</div>
+															</div>
+															{/* Regenerate Button */}
+															<div className="px-3 py-2 border-t border-zinc-100">
+																<button
+																	onClick={() =>
+																		generateReactCodeMutation.mutate()
+																	}
+																	disabled={generateReactCodeMutation.isPending}
+																	className="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 text-xs bg-zinc-900 text-white rounded-xl hover:bg-zinc-800 transition-colors disabled:opacity-50"
+																>
+																	{generateReactCodeMutation.isPending ? (
+																		<Loader2 className="w-3 h-3 animate-spin" />
+																	) : (
+																		<Sparkles className="w-3 h-3" />
+																	)}
+																	{generateReactCodeMutation.isPending
+																		? "Generating..."
+																		: "Regenerate"}
+																</button>
+															</div>
+														</div>
+													</motion.div>
+												)}
+											</AnimatePresence>
+										</div>
 									</div>
 
 									<div className="border-t p-3 space-y-3">
@@ -11013,7 +11684,9 @@ const AnimatedGradientGenerator = () => {
 																			skewY !== 0
 																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
 																				: "";
-																		const css = `font-size: ${styles.fontSize || 24}px;
+																		const css = `font-size: ${
+																			styles.fontSize || 24
+																		}px;
 font-weight: ${styles.fontWeight || "normal"};
 font-style: ${styles.fontStyle || "normal"};
 color: ${styles.color || "#000000"};
@@ -11021,8 +11694,14 @@ text-align: ${styles.textAlign || "left"};
 font-family: ${styles.fontFamily || "Arial"};
 background-color: ${styles.backgroundColor || "transparent"};
 padding: ${styles.padding || 0}px;
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
+border-radius: ${
+																			styles.borderRadius === 100
+																				? "50%"
+																				: `${styles.borderRadius || 0}px`
+																		};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																			styles.borderColor || "#000000"
+																		};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 ${transform}
 ${
@@ -11031,15 +11710,15 @@ ${
 				styles.shadow === "sm"
 					? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
 					: styles.shadow === "md"
-						? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-						: styles.shadow === "lg"
-							? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-							: styles.shadow === "xl"
-								? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-								: styles.shadow === "2xl"
-									? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-									: "none"
-			};`
+					? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+					: styles.shadow === "lg"
+					? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+					: styles.shadow === "xl"
+					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+					: styles.shadow === "2xl"
+					? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+					: "none"
+		  };`
 		: ""
 }`;
 																		copyToClipboard(css, "text-css");
@@ -11064,7 +11743,9 @@ ${
 																			skewY !== 0
 																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
 																				: "";
-																		return `font-size: ${styles.fontSize || 24}px;
+																		return `font-size: ${
+																			styles.fontSize || 24
+																		}px;
 font-weight: ${styles.fontWeight || "normal"};
 font-style: ${styles.fontStyle || "normal"};
 color: ${styles.color || "#000000"};
@@ -11072,8 +11753,14 @@ text-align: ${styles.textAlign || "left"};
 font-family: ${styles.fontFamily || "Arial"};
 background-color: ${styles.backgroundColor || "transparent"};
 padding: ${styles.padding || 0}px;
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
+border-radius: ${
+																			styles.borderRadius === 100
+																				? "50%"
+																				: `${styles.borderRadius || 0}px`
+																		};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																			styles.borderColor || "#000000"
+																		};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 ${transform}
 ${
@@ -11082,15 +11769,15 @@ ${
 				styles.shadow === "sm"
 					? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
 					: styles.shadow === "md"
-						? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-						: styles.shadow === "lg"
-							? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-							: styles.shadow === "xl"
-								? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-								: styles.shadow === "2xl"
-									? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-									: "none"
-			};`
+					? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+					: styles.shadow === "lg"
+					? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+					: styles.shadow === "xl"
+					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+					: styles.shadow === "2xl"
+					? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+					: "none"
+		  };`
 		: ""
 }`;
 																	})()}
@@ -11621,9 +12308,17 @@ ${
 																			skewY !== 0
 																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
 																				: "";
-																		const css = `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
+																		const css = `object-fit: ${
+																			styles.objectFit || "contain"
+																		};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																			styles.borderColor || "#000000"
+																		};
+border-radius: ${
+																			styles.borderRadius === 100
+																				? "50%"
+																				: `${styles.borderRadius || 0}px`
+																		};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 z-index: ${styles.zIndex || 1};
 ${transform}
@@ -11633,7 +12328,11 @@ ${
 		: ""
 }${
 																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
+																				? `\noutline: ${
+																						styles.ringWidth
+																				  }px solid ${
+																						styles.ringColor || "#3b82f6"
+																				  };
 outline-offset: 2px;`
 																				: ""
 																		}`;
@@ -11659,9 +12358,17 @@ outline-offset: 2px;`
 																			skewY !== 0
 																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
 																				: "";
-																		return `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
+																		return `object-fit: ${
+																			styles.objectFit || "contain"
+																		};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																			styles.borderColor || "#000000"
+																		};
+border-radius: ${
+																			styles.borderRadius === 100
+																				? "50%"
+																				: `${styles.borderRadius || 0}px`
+																		};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 z-index: ${styles.zIndex || 1};
 ${transform}
@@ -11671,7 +12378,11 @@ ${
 		: ""
 }${
 																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
+																				? `\noutline: ${
+																						styles.ringWidth
+																				  }px solid ${
+																						styles.ringColor || "#3b82f6"
+																				  };
 outline-offset: 2px;`
 																				: ""
 																		}`;
@@ -12061,9 +12772,17 @@ outline-offset: 2px;`
 																</h4>
 																<button
 																	onClick={() => {
-																		const css = `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
+																		const css = `object-fit: ${
+																			styles.objectFit || "contain"
+																		};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																			styles.borderColor || "#000000"
+																		};
+border-radius: ${
+																			styles.borderRadius === 100
+																				? "50%"
+																				: `${styles.borderRadius || 0}px`
+																		};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 z-index: ${styles.zIndex || 1};
 ${
@@ -12072,7 +12791,11 @@ ${
 		: ""
 }${
 																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
+																				? `\noutline: ${
+																						styles.ringWidth
+																				  }px solid ${
+																						styles.ringColor || "#3b82f6"
+																				  };
 outline-offset: 2px;`
 																				: ""
 																		}`;
@@ -12087,9 +12810,17 @@ outline-offset: 2px;`
 																</button>
 															</div>
 															<pre className="bg-zinc-50 text-zinc-900 p-2 rounded text-xs overflow-x-auto max-h-24 overflow-y-auto">
-																<code>{`object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
+																<code>{`object-fit: ${
+																	styles.objectFit || "contain"
+																};
+border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${
+																	styles.borderColor || "#000000"
+																};
+border-radius: ${
+																	styles.borderRadius === 100
+																		? "50%"
+																		: `${styles.borderRadius || 0}px`
+																};
 opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 z-index: ${styles.zIndex || 1};
 ${
@@ -12098,7 +12829,9 @@ ${
 		: ""
 }${
 																	styles.ringWidth > 0
-																		? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
+																		? `\noutline: ${styles.ringWidth}px solid ${
+																				styles.ringColor || "#3b82f6"
+																		  };
 outline-offset: 2px;`
 																		: ""
 																}`}</code>
@@ -12510,7 +13243,7 @@ outline-offset: 2px;`
 																																			.value
 																																	),
 																																},
-																															}
+																														  }
 																														: s
 																											);
 																										updateShape(selectedShape, {
@@ -12943,9 +13676,9 @@ outline-offset: 2px;`
 											};
 
 											return (
-												<div className="border-t p-3 mt-4">
-													<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-														<Sparkles className="w-5 h-5" />
+												<div className="px-3">
+													<h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+														<Sparkles className="w-3 h-3" />
 														Icon Styling
 													</h3>
 
@@ -13452,14 +14185,14 @@ outline-offset: 2px;`
 														backgroundSize: "cover",
 														backgroundPosition: "center",
 														backgroundRepeat: "no-repeat",
-													}
+												  }
 												: {
 														background: generateGradientCSS(),
 														...(isPlaying &&
 															gradient.backgroundAnimation.enabled && {
 																backgroundSize: "200% 200%",
 															}),
-													}),
+												  }),
 											...(isPlaying &&
 												!backgroundImage &&
 												backgroundAnimation && {
@@ -13510,7 +14243,11 @@ outline-offset: 2px;`
 														top: `${rect.y}%`,
 														width: `${rect.width * scaleX}px`,
 														height: `${rect.height * scaleY}px`,
-														transform: `translate(-50%, -50%) rotate(${rect.styles?.rotation || 0}deg) skew(${rect.styles?.skewX || 0}deg, ${rect.styles?.skewY || 0}deg)`,
+														transform: `translate(-50%, -50%) rotate(${
+															rect.styles?.rotation || 0
+														}deg) skew(${rect.styles?.skewX || 0}deg, ${
+															rect.styles?.skewY || 0
+														}deg)`,
 														zIndex: rect.styles?.zIndex || 0,
 														opacity: rect.styles?.opacity || 1,
 													}}
@@ -13574,7 +14311,9 @@ outline-offset: 2px;`
 															styles.borderRadius === 100
 																? "50%"
 																: `${(styles.borderRadius || 0) * scaleY}px`,
-														borderWidth: `${(styles.borderWidth || 0) * scaleY}px`,
+														borderWidth: `${
+															(styles.borderWidth || 0) * scaleY
+														}px`,
 														borderColor: styles.borderColor || "#000000",
 														borderStyle: styles.borderStyle || "solid",
 														opacity:
@@ -13584,14 +14323,14 @@ outline-offset: 2px;`
 																? styles.shadow === "sm"
 																	? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
 																	: styles.shadow === "md"
-																		? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																		: styles.shadow === "lg"
-																			? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																			: styles.shadow === "xl"
-																				? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																				: styles.shadow === "2xl"
-																					? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																					: "none"
+																	? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																	: styles.shadow === "lg"
+																	? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																	: styles.shadow === "xl"
+																	? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																	: styles.shadow === "2xl"
+																	? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																	: "none"
 																: "none",
 														zIndex: styles.zIndex || 2,
 														whiteSpace:
@@ -13653,9 +14392,13 @@ outline-offset: 2px;`
 															borderRadius:
 																image.styles?.borderRadius === 100
 																	? "50%"
-																	: `${(image.styles?.borderRadius || 0) * scaleY}px`,
+																	: `${
+																			(image.styles?.borderRadius || 0) * scaleY
+																	  }px`,
 															overflow: "hidden",
-															borderWidth: `${(image.styles?.borderWidth || 0) * scaleY}px`,
+															borderWidth: `${
+																(image.styles?.borderWidth || 0) * scaleY
+															}px`,
 															borderColor:
 																image.styles?.borderColor || "#000000",
 															borderStyle: image.styles?.borderStyle || "solid",
@@ -13668,18 +14411,20 @@ outline-offset: 2px;`
 																!image.styles?.shadow
 																	? "none"
 																	: image.styles.shadow === "sm"
-																		? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-																		: image.styles.shadow === "md"
-																			? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																			: image.styles.shadow === "lg"
-																				? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																				: image.styles.shadow === "xl"
-																					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																					: image.styles.shadow === "2xl"
-																						? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																						: "none",
+																	? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+																	: image.styles.shadow === "md"
+																	? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																	: image.styles.shadow === "lg"
+																	? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																	: image.styles.shadow === "xl"
+																	? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																	: image.styles.shadow === "2xl"
+																	? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																	: "none",
 															...(image.styles?.ringWidth > 0 && {
-																outline: `${image.styles.ringWidth * scaleY}px solid ${image.styles.ringColor}`,
+																outline: `${
+																	image.styles.ringWidth * scaleY
+																}px solid ${image.styles.ringColor}`,
 																outlineOffset: `${2 * scaleY}px`,
 															}),
 														}}
@@ -13713,7 +14458,10 @@ outline-offset: 2px;`
 																borderRadius:
 																	image.styles?.borderRadius === 100
 																		? "50%"
-																		: `${(image.styles?.borderRadius || 0) * scaleY}px`,
+																		: `${
+																				(image.styles?.borderRadius || 0) *
+																				scaleY
+																		  }px`,
 															}}
 														/>
 													)}
@@ -13772,9 +14520,13 @@ outline-offset: 2px;`
 															borderRadius:
 																video.styles?.borderRadius === 100
 																	? "50%"
-																	: `${(video.styles?.borderRadius || 0) * scaleY}px`,
+																	: `${
+																			(video.styles?.borderRadius || 0) * scaleY
+																	  }px`,
 															overflow: "hidden",
-															borderWidth: `${(video.styles?.borderWidth || 0) * scaleY}px`,
+															borderWidth: `${
+																(video.styles?.borderWidth || 0) * scaleY
+															}px`,
 															borderColor:
 																video.styles?.borderColor || "#000000",
 															borderStyle: video.styles?.borderStyle || "solid",
@@ -13787,18 +14539,20 @@ outline-offset: 2px;`
 																!video.styles?.shadow
 																	? "none"
 																	: video.styles.shadow === "sm"
-																		? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-																		: video.styles.shadow === "md"
-																			? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																			: video.styles.shadow === "lg"
-																				? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																				: video.styles.shadow === "xl"
-																					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																					: video.styles.shadow === "2xl"
-																						? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																						: "none",
+																	? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+																	: video.styles.shadow === "md"
+																	? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																	: video.styles.shadow === "lg"
+																	? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																	: video.styles.shadow === "xl"
+																	? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																	: video.styles.shadow === "2xl"
+																	? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																	: "none",
 															...(video.styles?.ringWidth > 0 && {
-																outline: `${video.styles.ringWidth * scaleY}px solid ${video.styles.ringColor}`,
+																outline: `${
+																	video.styles.ringWidth * scaleY
+																}px solid ${video.styles.ringColor}`,
 																outlineOffset: `${2 * scaleY}px`,
 															}),
 														}}
@@ -13828,7 +14582,7 @@ outline-offset: 2px;`
 
 										{/* Icon Elements - Modal */}
 										{icons.map((icon) => {
-											const IconComponent = LucideIcons[icon.iconName];
+											const IconComponent = AllIcons[icon.iconName];
 											if (!IconComponent) return null;
 
 											// Calculate scaling based on actual rendered dimensions
@@ -14091,10 +14845,10 @@ outline-offset: 2px;`
 											{mp4Progress < 20
 												? "Initializing..."
 												: mp4Progress < 70
-													? "Recording frames..."
-													: mp4Progress < 90
-														? "Converting to MP4..."
-														: "Finalizing..."}
+												? "Recording frames..."
+												: mp4Progress < 90
+												? "Converting to MP4..."
+												: "Finalizing..."}
 										</p>
 										<div className="w-full bg-zinc-200 rounded-full h-2.5 mb-2">
 											<div
