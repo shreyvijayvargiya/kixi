@@ -131,4 +131,3 @@ const ChangelogPage = () => {
 };
 
 export default ChangelogPage;
-

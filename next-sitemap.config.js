@@ -11,7 +11,7 @@ module.exports = {
 			// Read blogs file
 			const blogsPath = path.join(__dirname, "content/blogs/blogs.js");
 			if (!fs.existsSync(blogsPath)) return [];
-			
+
 			const fileContent = fs.readFileSync(blogsPath, "utf8");
 
 			// Extract titles using regex
@@ -25,7 +25,7 @@ module.exports = {
 					.toLowerCase()
 					.replace(/[^a-z0-9]+/g, "-")
 					.replace(/^-+|-+$/g, "");
-					
+
 				paths.push({
 					loc: `/blog/${slug}`,
 					changefreq: "weekly",
@@ -40,4 +40,3 @@ module.exports = {
 		}
 	},
 };
-
