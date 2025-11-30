@@ -69,7 +69,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 			<div className="relative" ref={dropdownRef}>
 				<button
 					onClick={() => setShowDropdown(!showDropdown)}
-					className="group flex items-center gap-2 hover:bg-zinc-100 shadow border border-zinc-200 text-black px-2 py-1 rounded-xl transition-colors"
+					className="group flex items-center gap-2 hover:bg-zinc-100 border border-zinc-200 text-black px-2 py-1 rounded-xl transition-colors"
 				>
 					{user?.photoURL ? (
 						<img
@@ -100,7 +100,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							exit={{ opacity: 0, y: -10, scale: 0.95 }}
 							transition={{ duration: 0.2 }}
-							className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-zinc-200 shadow-xl z-50 overflow-hidden"
+							className="absolute right-0 mt-2 w-56 bg-white rounded-xl border border-zinc-200 z-50 overflow-hidden"
 						>
 							{/* User Info Section */}
 							<div className="p-4 border-b border-zinc-100">
@@ -162,7 +162,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 		<>
 			<button
 				onClick={() => setShowModal(true)}
-				className="flex items-center justify-center gap-2 hover:bg-zinc-900 bg-white shadow border border-zinc-200 hover:border-zinc-900 hover:shadow-xl hover:text-white text-black px-3 py-2 transition-all duration-200 rounded-xl text-xs group"
+				className="flex items-center justify-center gap-2 hover:bg-zinc-900 bg-white border border-zinc-200 hover:border-zinc-900 hover:shadow-xl hover:text-white text-black px-3 py-2 transition-all duration-200 rounded-xl text-xs group"
 			>
 				<SlSocialGoogle className="group-hover:rotate-180 transition-all duration-200 ease-in" />
 				Get Started
@@ -269,7 +269,7 @@ const GoogleLoginButton = ({ callBack, show, hideUserName }) => {
 													})
 												}
 												disabled={isLoading}
-												className="w-full flex items-center rounded-xl justify-center bg-stone-100 gap-2 border border-zinc-900 hover:bg-zinc-800 hover:text-white text-black px-4 py-3 shadow hover:shadow-xl  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+												className="w-full flex items-center rounded-xl justify-center bg-stone-100 gap-2 border border-zinc-900 hover:bg-zinc-800 hover:text-white text-black px-4 py-3 hover:shadow-xl  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
 											>
 												{isLoading ? (
 													<Loader2 className="w-5 h-5 animate-spin" />

@@ -256,33 +256,27 @@ const SearchModal = ({
 												transition={{ delay: index * 0.02 }}
 												onClick={() => handleItemClick(item)}
 												onMouseEnter={() => setSelectedIndex(index)}
-												className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+												className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors ${
 													isSelected
 														? `${colors.hover} ${colors.text}`
 														: `${colors.text} hover:${colors.hover}`
 												}`}
 											>
 												<div
-													className={`p-2 rounded-lg ${
-														isSelected
-															? "bg-zinc-200"
-															: "bg-zinc-100"
+													className={`p-2 rounded-xl ${
+														isSelected ? "bg-zinc-200" : "bg-zinc-100"
 													}`}
 												>
 													<IconComponent
 														className={`w-5 h-5 ${
-															isSelected
-																? colors.text
-																: colors.textMuted
+															isSelected ? colors.text : colors.textMuted
 														}`}
 													/>
 												</div>
 												<div className="flex-1">
 													<div
 														className={`font-medium ${
-															isSelected
-																? colors.text
-																: colors.text
+															isSelected ? colors.text : colors.text
 														}`}
 													>
 														{item.name}
@@ -305,14 +299,10 @@ const SearchModal = ({
 									})}
 								</div>
 							) : (
-								<div
-									className={`p-8 text-center ${colors.textMuted}`}
-								>
+								<div className={`p-8 text-center ${colors.textMuted}`}>
 									<Search className="w-12 h-12 mx-auto mb-3 opacity-50" />
 									<p className="text-sm">No items found</p>
-									<p className="text-xs mt-1">
-										Try a different search term
-									</p>
+									<p className="text-xs mt-1">Try a different search term</p>
 								</div>
 							)}
 						</div>
@@ -406,4 +396,3 @@ export const useSearchModal = (
 };
 
 export default SearchModal;
-

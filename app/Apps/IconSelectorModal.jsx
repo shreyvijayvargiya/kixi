@@ -3324,7 +3324,7 @@ const IconSelector = ({
 					<button
 						onClick={() => setActiveTab("icons")}
 						onMouseDown={(e) => e.stopPropagation()}
-						className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
+						className={`px-3 py-1 text-sm font-medium rounded-xl transition-colors ${
 							activeTab === "icons"
 								? "bg-zinc-900 text-white"
 								: `${colors.textMuted} hover:bg-zinc-100`
@@ -3335,7 +3335,7 @@ const IconSelector = ({
 					<button
 						onClick={() => setActiveTab("shapes")}
 						onMouseDown={(e) => e.stopPropagation()}
-						className={`px-3 py-1 text-sm font-medium rounded-lg transition-colors ${
+						className={`px-3 py-1 text-sm font-medium rounded-xl transition-colors ${
 							activeTab === "shapes"
 								? "bg-zinc-900 text-white"
 								: `${colors.textMuted} hover:bg-zinc-100`
