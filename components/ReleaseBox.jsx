@@ -2,7 +2,7 @@ import React from "react";
 import { X, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const releases = [
+export const releases = [
 	{
 		id: 1,
 		image:

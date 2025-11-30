@@ -1,8 +1,9 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Trash2, Loader2, Rocket, Command, Info } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Trash2, Loader2, Rocket, Command, Info, MessageSquareWarning, Send } from "lucide-react";
 import { Folder01Icon, Add01Icon, NewTwitterIcon } from "hugeicons-react";
 import LayerList from "../../../lib/utils/LayerList";
+import useOutsideClick from "../../../lib/hooks/useOutsideClick";
 
 const Sidebar = ({
 	isSidebarDrawerOpen,
@@ -44,6 +45,39 @@ const Sidebar = ({
 	isReleasesModalOpen,
 	setIsReleasesModalOpen,
 }) => {
+	const [isReportIssueOpen, setIsReportIssueOpen] = useState(false);
+	const [issueMessage, setIssueMessage] = useState("");
+	const [isSendingIssue, setIsSendingIssue] = useState(false);
+	const reportIssueRef = useRef(null);
+
+	useOutsideClick(reportIssueRef, () => {
+		if (isReportIssueOpen) setIsReportIssueOpen(false);
+	});
+
+	const handleReportIssue = async () => {
+		if (!issueMessage.trim()) return;
+		setIsSendingIssue(true);
+		try {
+			await fetch("/api/send-email", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					subject: "Issue Report from App",
+					message: issueMessage,
+					name: "App User",
+					email: "user@kixi.app",
+				}),
+			});
+			setIssueMessage("");
+			setIsReportIssueOpen(false);
+			// Optional: Show success toast
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setIsSendingIssue(false);
+		}
+	};
+
 	return (
 		<motion.aside
 			initial={{ opacity: 0 }}
@@ -192,7 +226,7 @@ const Sidebar = ({
 						)
 					)}
 				</div>
-				<div className="space-y-2 flex flex-col p-2 w-full">
+				<div className="space-y-2 flex flex-col px-2 w-full">
 					{/* Keyboard Shortcuts Info Button */}
 					<div ref={keyboardShortcutsRef} className="">
 						<motion.button
@@ -233,6 +267,51 @@ const Sidebar = ({
 						<NewTwitterIcon className="w-3.5 h-3.5" />
 						Twitter
 					</a>
+
+					<div className="relative w-full pt-2 border-t border-zinc-100" ref={reportIssueRef}>
+						<AnimatePresence>
+							{isReportIssueOpen && (
+								<motion.div
+									initial={{ opacity: 0, y: 10, scale: 0.95 }}
+									animate={{ opacity: 1, y: 0, scale: 1 }}
+									exit={{ opacity: 0, y: 10, scale: 0.95 }}
+									className="absolute bottom-full mb-2 left-0 w-full bg-white border border-zinc-200 rounded-xl shadow-xl p-3 z-50"
+								>
+									<div className="flex flex-col gap-2">
+										<textarea
+											value={issueMessage}
+											onChange={(e) => setIssueMessage(e.target.value)}
+											placeholder="What's the issue?"
+											className="w-full text-sm p-2 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-500 min-h-[80px] resize-none text-zinc-800"
+											autoFocus
+										/>
+										<button
+											onClick={handleReportIssue}
+											disabled={isSendingIssue || !issueMessage.trim()}
+											className="w-full py-1.5 bg-zinc-900 text-white rounded-xl text-xs font-medium hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+										>
+											{isSendingIssue ? (
+												<Loader2 className="w-3 h-3 animate-spin" />
+											) : (
+												<>
+													Send Report <Send className="w-3 h-3" />
+												</>
+											)}
+										</button>
+									</div>
+								</motion.div>
+							)}
+						</AnimatePresence>
+						<button
+							onClick={() => setIsReportIssueOpen(!isReportIssueOpen)}
+							className={`w-full hover:text-black text-zinc-500 text-sm transition-all duration-100 ease-in flex gap-2 items-center p-2 rounded-xl ${
+								isReportIssueOpen ? "bg-zinc-100 text-black" : ""
+							}`}
+						>
+							<MessageSquareWarning className="w-3 h-3" />
+							Report Issue
+						</button>
+					</div>
 				</div>
 			</div>
 		</motion.aside>
