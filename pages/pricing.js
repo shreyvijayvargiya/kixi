@@ -22,7 +22,10 @@ const SubscriptionMeta = () => (
 		/>
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content="https://kixi.app/subscription" />
-		<meta property="og:image" content="https://kixi.app/kixi-logo" />
+		<meta
+			property="og:image"
+			content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
+		/>
 		<meta property="og:image:width" content="32" />
 		<meta property="og:image:height" content="32" />
 		<meta property="og:image:type" content="image/svg+xml" />
@@ -34,7 +37,10 @@ const SubscriptionMeta = () => (
 			name="twitter:description"
 			content="Upgrade to PRO and get access to all premium templates, priority support, unlimited downloads, and unlimited projects."
 		/>
-		<meta name="twitter:image" content="https://kixi.app/kixi-logo" />
+		<meta
+			name="twitter:image"
+			content="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
+		/>
 	</Head>
 );
 

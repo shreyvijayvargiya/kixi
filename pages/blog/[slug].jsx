@@ -103,7 +103,7 @@ export default function BlogPage({ data, contentHtml, blogData, slug }) {
 								name: "kixi",
 								logo: {
 									"@type": "ImageObject",
-									url: "https://kixi.app/kixi-logo",
+									url: "https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 								},
 							},
 							datePublished: date,

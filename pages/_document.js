@@ -34,30 +34,30 @@ export default class MyDocument extends Document {
 						rel="icon"
 						type="image/png"
 						sizes="32x32"
-						href="https://kixi.app/kixi-logo"
+						href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="16x16"
-						href="https://kixi.app/kixi-logo"
+						href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
 					/>
 					<link
 						rel="apple-touch-icon"
 						sizes="180x180"
-						href="https://kixi.app/kixi-logo"
+						href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="192x192"
-						href="https://kixi.app/kixi-logo"
+						href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
 					/>
 					<link
 						rel="icon"
 						type="image/png"
 						sizes="512x512"
-						href="https://kixi.app/kixi-logo"
+						href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
 					/>
 
 					{/* Manifest */}
@@ -184,34 +184,47 @@ MyDocument.getInitialProps = async (ctx) => {
 			title: "kixi - React & Next.js Templates",
 			description:
 				"kixi is the advance creative design tool to create designs and creatives with ease",
-			bannerImage: "https://kixi.app/kixi-logo",
-			bannerImageUrl: "https://kixi.app/kixi-logo",
-			thumbnail: "https://kixi.app/kixi-logo",
+			bannerImage:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			bannerImageUrl:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			thumbnail:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 		};
 	} else if (ctx.pathname === "/templates") {
 		logData = {
 			title: "kixi Templates",
 			description:
 				"kixi is the advance creative design tool to create designs and creatives with ease",
-			bannerImage: "https://kixi.app/kixi-logo",
-			bannerImageUrl: "https://kixi.app/kixi-logo",
-			thumbnail: "https://kixi.app/kixi-logo",
+			bannerImage:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			bannerImageUrl:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			thumbnail:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 		};
 	} else if (ctx.pathname.startsWith("/template/")) {
 		logData = {
 			title: "kixi - creative design app",
-			description: "kixi is the advance creative design tool to create designs and creatives with ease",
-			bannerImage: "https://kixi.app/kixi-logo",
-			bannerImageUrl: "https://kixi.app/kixi-logo",
-			thumbnail: "https://kixi.app/kixi-logo",
+			description:
+				"kixi is the advance creative design tool to create designs and creatives with ease",
+			bannerImage:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			bannerImageUrl:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			thumbnail:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 		};
 	} else if (ctx.pathname === "/account") {
 		logData = {
 			title: "Account - kixi",
 			description: "Manage your kixi account and subscriptions",
-			bannerImage: "https://kixi.app/kixi-logo",
-			bannerImageUrl: "https://kixi.app/kixi-logo",
-			thumbnail: "https://kixi.app/kixi-logo",
+			bannerImage:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			bannerImageUrl:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+			thumbnail:
+				"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 		};
 	}
 

@@ -24,7 +24,7 @@ const ConnectPage = () => {
 				siteName: "kixi.app",
 				images: [
 					{
-						url: "https://kixi.app/kixi-logo",
+						url: "https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
 						width: 1200,
 						height: 630,
 						alt: `kixi premium templates`,
@@ -38,7 +38,9 @@ const ConnectPage = () => {
 				title: `Premium Templates - kixi`,
 				description:
 					"Discover our collection of professionally designed, production-ready premium templates",
-				images: ["https://kixi.app/kixi-logo"],
+				images: [
+					"https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k",
+				],
 				creator: "@treyvijay",
 				site: "@treyvijay",
 			},
@@ -221,7 +223,11 @@ const ConnectPage = () => {
 				<link rel="canonical" href={metadata.openGraph.url} />
 
 				{/* Favicon */}
-				<link rel="icon" type="image/png" href="https://kixi.app/kixi-logo" />
+				<link
+					rel="icon"
+					type="image/png"
+					href="https://b4fcijccdw.ufs.sh/f/mVUSE925dTRYXsV5GymbVd2Mtl4Hmexp9KNSOJIvg1WqDs0k"
+				/>
 			</Head>
 			<div>
 				<Navbar />
