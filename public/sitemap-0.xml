@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://kixi.app</loc><lastmod>2025-11-30T03:29:12.295Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/about</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/blogs</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/changelog</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/connect</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/login</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/pricing</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/blog/15-landing-pages-code-and-designs</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/blog/20-portfolio-website-templates-for-developers-and-designers</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/blog/cool-dev-mode-on-website</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://kixi.app/blog/welcome-to-kixi-creative-design-app</loc><lastmod>2025-11-30T03:29:12.296Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+</urlset>

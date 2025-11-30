@@ -1,18 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
-import { getCookie, setCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 
-// Helper function to safely parse dates
 const safeParseDate = (dateString) => {
 	if (!dateString) return null;
 	try {
-		// If it's a Firestore Timestamp object
 		if (dateString.seconds && dateString.nanoseconds) {
 			return new Date(
 				dateString.seconds * 1000 + dateString.nanoseconds / 1000000
 			).toISOString();
 		}
-		// If it's already an ISO string
 		const date = new Date(dateString);
 		return isNaN(date.getTime()) ? null : date.toISOString();
 	} catch (error) {
@@ -21,7 +18,6 @@ const safeParseDate = (dateString) => {
 	}
 };
 
-// Get initial state from cookies if available
 const getInitialState = () => {
 	const userId = getCookie("userId");
 	const userData = getCookie("userData");

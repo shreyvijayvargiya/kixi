@@ -379,13 +379,25 @@ const patternTemplates = {
 function getActionDescription(action, stepNumber, patternName = "") {
 	const actionNames = {
 		change_background_color: "Change background color",
-		change_gradient_type: `Change gradient type to ${action.gradientType || "radial"}`,
-		add_color_stop: `Add color stop${action.color ? ` with color ${action.color}` : ""}`,
-		modify_color_stop: `Modify color stop${action.color ? ` to ${action.color}` : ""}${action.colorStopPosition ? ` at position ${action.colorStopPosition.x}%, ${action.colorStopPosition.y}%` : ""}`,
+		change_gradient_type: `Change gradient type to ${
+			action.gradientType || "radial"
+		}`,
+		add_color_stop: `Add color stop${
+			action.color ? ` with color ${action.color}` : ""
+		}`,
+		modify_color_stop: `Modify color stop${
+			action.color ? ` to ${action.color}` : ""
+		}${
+			action.colorStopPosition
+				? ` at position ${action.colorStopPosition.x}%, ${action.colorStopPosition.y}%`
+				: ""
+		}`,
 		remove_color_stop: "Remove color stop",
 		add_image: "Add image",
 		add_video: "Add video",
-		add_text: `Add text${action.textContent ? `: "${action.textContent}"` : ""}`,
+		add_text: `Add text${
+			action.textContent ? `: "${action.textContent}"` : ""
+		}`,
 		modify_text: "Modify text properties",
 		delete_text: "Delete text",
 		modify_image: "Modify image properties",
@@ -401,10 +413,25 @@ function getActionDescription(action, stepNumber, patternName = "") {
 		modify_element_size: "Resize element",
 		modify_element_style: "Modify element style",
 		select_element: "Select element",
-		apply_pattern: `Apply ${patternName || action.patternName || "pattern"} template`,
-		add_shape: `Add ${action.shapeType || "shape"}${action.fillColor ? ` with color ${action.fillColor}` : ""}${action.x !== undefined && action.y !== undefined ? ` at position ${action.x}%, ${action.y}%` : ""}`,
+		apply_pattern: `Apply ${
+			patternName || action.patternName || "pattern"
+		} template`,
+		add_shape: `Add ${action.shapeType || "shape"}${
+			action.fillColor ? ` with color ${action.fillColor}` : ""
+		}${
+			action.x !== undefined && action.y !== undefined
+				? ` at position ${action.x}%, ${action.y}%`
+				: ""
+		}`,
 		modify_shape: "Modify shape properties",
 		delete_shape: "Delete shape",
+		add_icon: `Add icon ${action.iconName}`,
+		modify_icon: "Modify icon properties",
+		delete_icon: "Delete icon",
+		capture_url_screenshot: `Capture screenshot of ${action.url}`,
+		add_frame: "Add new frame",
+		delete_frame: "Delete frame",
+		switch_frame: "Switch frame",
 	};
 
 	return actionNames[action.type] || `Step ${stepNumber}: ${action.type}`;
@@ -440,6 +467,13 @@ const actionSchema = z.object({
 		"add_shape",
 		"modify_shape",
 		"delete_shape",
+		"add_icon",
+		"modify_icon",
+		"delete_icon",
+		"capture_url_screenshot",
+		"add_frame",
+		"delete_frame",
+		"switch_frame",
 		"unknown",
 	]),
 	// Gradient actions
@@ -470,7 +504,7 @@ const actionSchema = z.object({
 		})
 		.optional(),
 	// Element actions
-	elementType: z.enum(["image", "video", "text"]).optional(),
+	elementType: z.enum(["image", "video", "text", "shape", "icon"]).optional(),
 	elementId: z
 		.number()
 		.optional()
@@ -520,7 +554,7 @@ const actionSchema = z.object({
 		.optional(),
 	size: z
 		.object({
-			width: z.number().min(30).max(800),
+			width: z.number().min(20).max(800),
 			height: z.number().min(20).max(800),
 		})
 		.optional(),
@@ -561,9 +595,26 @@ const actionSchema = z.object({
 		.enum(["none", "sm", "md", "lg", "xl", "2xl"])
 		.optional()
 		.describe("Shadow for shape"),
+	// Icon actions
+	iconName: z
+		.string()
+		.optional()
+		.describe("Name of the icon to add (Lucide icon name)"),
+	iconId: z.number().optional(),
+	iconSize: z.number().optional(),
+	iconColor: z.string().optional(),
+	// URL Screenshot
+	url: z.string().optional().describe("URL to capture screenshot of"),
+	// Frame actions
+	frameId: z.string().optional().describe("ID of frame to switch to or delete"),
 });
 
 const outputSchema = z.object({
+	design_reasoning: z
+		.string()
+		.describe(
+			"Explain the design thinking, React/CSS structure, and composition choices made to achieve the user's goal."
+		),
 	action: actionSchema.optional(),
 	actions: z
 		.array(actionSchema)
@@ -619,108 +670,90 @@ export default async function handler(req, res) {
 					stepNumber: index + 1,
 					description: getActionDescription(action, index + 1, pattern.name),
 				})),
-				response: `I'll create a ${pattern.name.toLowerCase()} background for you! This will take ${pattern.actions.length} steps. Review the steps below and click 'Execute All' to proceed.`,
+				response: `I'll create a ${pattern.name.toLowerCase()} background for you! This will take ${
+					pattern.actions.length
+				} steps. Review the steps below and click 'Execute All' to proceed.`,
 				stepByStep: true,
 			});
 		}
 
-		const systemPrompt = `You are an AI assistant for an creative design app tool. Users can ask you to edit their gradient designs using natural language.
+		// Pre-process current state string to ensure it's safe for the prompt
+		const currentStateString = JSON.stringify(currentState, null, 2);
 
-AVAILABLE ACTIONS:
-1. change_background_color - Change gradient colors (use color or colorName like "dark", "light", "blue", "red")
-2. change_gradient_type - Change gradient type: linear, radial, conic, rectangle, ellipse, polygon, mesh
-3. add_color_stop - Add new color stop (can specify color)
-4. remove_color_stop - Remove color stop (need colorStopId)
-5. modify_color_stop - Change color stop color or position (need colorStopId)
-6. add_image - Trigger image upload dialog
-7. add_video - Trigger video upload dialog
-8. add_text - Add text element (can include textContent)
-9. modify_text - Modify text properties (need textId, can modify: fontSize, textColor, textContent, fontWeight, fontStyle, fontFamily, textAlign, backgroundColor, padding, borderRadius, borderWidth, borderColor)
-10. delete_text - Delete text element (need textId)
-11. modify_image - Modify image properties (need elementId, can modify: objectFit, opacity, shadow, ringWidth, ringColor, borderRadius, borderWidth, borderColor, position, size)
-12. delete_image - Delete image (need elementId)
-13. modify_video - Modify video properties (same as modify_image)
-14. delete_video - Delete video (need elementId)
-15. change_animation - Modify animation (animationType: rotate/pulse/shift, animationEnabled, animationDuration)
-16. change_background_animation - Modify background animation (backgroundAnimationType: slide/wave, backgroundAnimationDirection: right/left/up/down, backgroundAnimationSpeed, backgroundAnimationEnabled)
-17. toggle_animation - Toggle animation on/off
-18. change_frame_size - Change frame size (frameSize: mobile/tablet/desktop/laptop/ultrawide/custom)
-19. change_noise - Modify noise settings (noiseEnabled, noiseIntensity 0-1)
-20. modify_element_position - Move element (need elementId, elementType, position: {x, y})
-21. modify_element_size - Resize element (need elementId, elementType, size: {width, height})
-22. modify_element_style - Modify element styles (need elementId, elementType, and style properties)
-23. select_element - Select an element (need elementId, elementType)
-24. apply_pattern - Apply a pattern template (sun, sunset, ocean, forest, night_sky, clouds, mountains, landscape)
-25. add_shape - Add a shape (shapeType: rectangle/square/triangle/line, can specify x, y, width, height, fillColor, strokeColor, strokeWidth, borderRadius, opacity, zIndex, shadow)
-26. modify_shape - Modify shape properties (need shapeId, can modify all shape properties)
-27. delete_shape - Delete a shape (need shapeId)
+		const systemPrompt = `You are a world-class AI Design Agent for Kixi.
+You have a unique dual-process brain:
+1.  **THE DESIGNER (React/CSS Expert)**: First, you mentally design the requested output as a high-quality, modern, responsive React component using Tailwind CSS or standard CSS. You think about composition, spacing (padding/margin), typography (font size, weight), color theory, shadows, and layout.
+2.  **THE COMPILER (Kixi AST Expert)**: Then, you accurately translate this mental React component into a sequence of Kixi AST Actions (add_text, add_shape, add_icon, etc.) to recreate that exact design on the canvas.
 
-AVAILABLE PATTERNS:
-- sun: Creates a radial gradient sun with yellow center, orange middle, and sky blue outer
-- sunset: Creates a beautiful sunset gradient
-- ocean: Creates an ocean-themed gradient
-- forest: Creates a forest-themed gradient
-- night_sky: Creates a dark night sky with stars effect
-- clouds: Creates fluffy clouds using rounded rectangles
-- mountains: Creates a mountain range using triangles
-- landscape: Creates a complete landscape with sky, mountains, and clouds
+TOOLS & CAPABILITIES:
+1.  **Gradient Control**: Change type, colors, stops, animation.
+2.  **Element Management**: Add/Modify/Delete Images, Videos, Text, Shapes, Icons.
+3.  **Icon Selector**: Add icons by name (e.g., "Home", "User", "Twitter") using 'add_icon'.
+4.  **URL Screenshot**: Capture websites by URL using 'capture_url_screenshot'. This is useful when user wants to add a website preview.
+5.  **Frames**: Create multi-page designs (books, decks, carousels) using 'add_frame'. Switch between frames with 'switch_frame'.
+6.  **Web Knowledge**: You have internal knowledge of the web. If a user asks for "Elon Musk", you cannot download his photo directly, but you can suggest adding an image placeholder or asking for a URL. OR, if the user provides a URL, use 'capture_url_screenshot'.
 
-CURRENT STATE:
-- Gradient type: ${currentState?.gradient?.type || "linear"}
-- Color stops: ${currentState?.gradient?.stops?.length || 0}
-- Images: ${currentState?.images || 0}
-- Texts: ${currentState?.texts || 0}
-- Videos: ${currentState?.videos || 0}
-- Shapes: ${currentState?.shapes || 0}
-- Selected image: ${currentState?.selectedImage || "none"}
-- Selected text: ${currentState?.selectedText || "none"}
-- Selected video: ${currentState?.selectedVideo || "none"}
-- Selected shape: ${currentState?.selectedShape || "none"}
-- Animation enabled: ${currentState?.gradient?.animation?.enabled || false}
-- Background animation enabled: ${currentState?.gradient?.backgroundAnimation?.enabled || false}
-- Frame size: ${currentState?.previewFrameSize || "mobile"}
+AST / STATE STRUCTURE:
+The 'currentState' provided to you acts as the AST. It contains:
+- gradient: { type, stops, animation, ... }
+- images: Array of image objects { id, x, y, width, height, styles... }
+- texts: Array of text objects
+- videos: Array of video objects
+- shapes: Array of shape objects
+- icons: Array of icon objects
+- frames: List of frames (if multiple)
+- activeFrameId: Current frame ID
+
+YOUR GOAL:
+Interpret the user's design intent, generate a mental React/CSS design, and output the Kixi actions to build it.
+
+DESIGN PROCESS (Mental Steps):
+1.  **Analyze Request**: "Create a YouTube Thumbnail for a Podcast with Elon Musk".
+2.  **React Design Concept**:
+    *   *Container*: 1280x720px, dark gradient background (slate-900 to slate-800).
+    *   *Layout*: Flex row. Left side: Text. Right side: Image.
+    *   *Typography*: Title "The Future of AI" (text-6xl, bold, white). Subtitle "ft. Elon Musk" (text-3xl, gray-300).
+    *   *Image*: Large image of Elon on the right, object-cover, maybe a glow effect.
+    *   *Decorations*: A subtle circle shape behind the text for contrast. YouTube logo in corner.
+3.  **Kixi Translation**:
+    *   Action 1: Set Frame to 'custom' or 'desktop'.
+    *   Action 2: change_background_color (gradient dark slate).
+    *   Action 3: add_shape (circle) at x=25%, y=50% with low opacity.
+    *   Action 4: add_text "The Future of AI" at x=10%, y=40%, fontSize=60, bold, white.
+    *   Action 5: add_text "ft. Elon Musk" at x=10%, y=55%, fontSize=30, gray.
+    *   Action 6: add_image (placeholder) at x=60%, y=20%, width=400px.
+    *   Action 7: add_icon "Youtube" at x=90%, y=90%, color=red.
+
+ACTIONS LIST:
+- change_background_color, change_gradient_type, add/remove/modify_color_stop
+- add_image, add_video, add_text, add_shape, add_icon
+- modify_text (fontSize, color, content, etc.)
+- modify_image (objectFit, opacity, shadow, radius, etc.)
+- modify_shape (color, border, etc.)
+- modify_icon (color, size, etc.)
+- modify_element_position (x, y in %)
+- modify_element_size (width, height in px)
+- capture_url_screenshot (url)
+- add_frame, switch_frame, delete_frame
+- apply_pattern (sun, sunset, etc.)
 
 RULES:
-- If user requests a complex multi-step operation (like "create a sun background", "make a sunset", "build a custom gradient with multiple stops", etc.), break it down into multiple actions in the "actions" array
-- For simple single-step operations, use the "action" field
-- Always set "stepByStep: true" when returning multiple actions
-- For each action in the array, provide a clear description of what it does
-- Parse user intent accurately and map to the most appropriate action or actions
-- For color names, convert to hex: dark/black -> #1a1a1a, light/white -> #f5f5f5, blue -> #3b82f6, red -> #ef4444, green -> #10b981, etc.
-- When modifying elements, use elementId from currentState if available (selectedImage, selectedText, selectedVideo)
-- For size modifications, ensure reasonable values (width: 30-800px, height: 20-800px)
-- For position, use percentages (0-100 for both x and y)
-- When user says "bigger" or "smaller", infer appropriate size changes
-- When user says "move left/right/up/down", calculate position changes
-- Always provide a friendly, natural response message
-- If unsure about specific values, use reasonable defaults
+- **Always provide 'design_reasoning'**: Explain your design choices briefly.
+- **Precision**: Convert CSS properties (px, %, hex) to Kixi properties accurately.
+- **Composition**: Don't just dump elements. Place them thoughtfully (x, y coordinates).
+- **Style**: Use good defaults. Avoid "default blue" unless requested. Use gradients, shadows, and proper sizing.
+- **Global Changes**: If user says "Make all text white", iterate and generate modify actions for ALL elements.
 
-EXAMPLES:
-- "change background to dark" -> {action: {type: "change_background_color", colorName: "dark"}, response: "Changed background to dark"}
-- "create a sun background" or "make a sun" -> {actions: [{type: "change_gradient_type", gradientType: "radial"}, {type: "modify_color_stop", ...}, ...], stepByStep: true, response: "I'll create a sun background for you!"}
-- "make a sunset" -> {actions: [{type: "change_gradient_type", gradientType: "linear", angle: 90}, {type: "modify_color_stop", ...}, ...], stepByStep: true, response: "Creating a beautiful sunset gradient..."}
-- "add clouds" or "create clouds" -> Use clouds pattern template
-- "add mountains" or "create mountains" -> Use mountains pattern template
-- "create a landscape" or "make a landscape" -> Use landscape pattern template
-- "add a triangle" -> {action: {type: "add_shape", shapeType: "triangle", x: 50, y: 50, width: 200, height: 150, fillColor: "#3b82f6"}, response: "Added triangle shape"}
-- "add a rectangle at top left" -> {action: {type: "add_shape", shapeType: "rectangle", x: 25, y: 25, width: 150, height: 100, fillColor: "#ef4444"}, response: "Added rectangle at top left"}
-- "add a video" -> {action: {type: "add_video"}, response: "Opening video upload dialog"}
-- "make text bigger" -> {action: {type: "modify_text", fontSize: 36}, response: "Made text bigger"} (use selectedText as textId)
-- "add red color stop" -> {action: {type: "add_color_stop", color: "#ff0000"}, response: "Added red color stop"}
-- "change to radial gradient" -> {action: {type: "change_gradient_type", gradientType: "radial"}, response: "Changed gradient to radial"}
-
-IMPORTANT:
-- ALWAYS include elementId when modifying images/videos/texts (use selectedImage, selectedText, selectedVideo from currentState)
-- For "radius" or "border radius", use borderRadius property in modify_image action
-- For "big", "full screen", "entire screen", use large size values (width: 600-800, height: 600-800) and objectFit: "cover" or "fill"
-- When user mentions "fix" or "cover", use objectFit: "cover"`;
+CURRENT STATE AST:
+${currentStateString}
+`;
 
 		const { object } = await generateObject({
 			model: google("gemini-2.0-flash"),
 			schema: outputSchema,
 			system: systemPrompt,
 			prompt: prompt,
-			temperature: 0.3,
+			temperature: 0.4, // Slightly higher creativity for design
 		});
 
 		// If actions array is returned, add step numbers and descriptions
@@ -731,11 +764,21 @@ IMPORTANT:
 				description: getActionDescription(action, index + 1),
 			}));
 			object.stepByStep = true;
+		} else if (object.action) {
+			// Single action wrap
+			object.actions = [
+				{
+					...object.action,
+					stepNumber: 1,
+					description: getActionDescription(object.action, 1),
+				},
+			];
+			object.stepByStep = true; // Uniform handling
 		}
 
 		return res.status(200).json(object);
 	} catch (err) {
-		console.error("/api/gradient-ai-assistant error", err);
+		console.error("/api/ai-assistant error", err);
 		return res.status(500).json({
 			error: "Failed to process AI request",
 			action: { type: "unknown" },

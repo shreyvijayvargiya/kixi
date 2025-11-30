@@ -92,7 +92,7 @@ const TopCenterToolbar = ({
 		() =>
 			framesList.map((frame) => ({
 				value: frame.id,
-				label: `Frame ${frame.frameNumber}`,
+				label: frame.name || `Frame ${frame.frameNumber}`,
 			})),
 		[framesList]
 	);
@@ -124,7 +124,7 @@ const TopCenterToolbar = ({
 		}
 
 		const nextQuery = { ...router.query, projectId: firstProjectId };
-		router.replace({ pathname: router.pathname, query: nextQuery }, undefined, {
+		router.replace({ pathname: "/app", query: nextQuery }, undefined, {
 			shallow: true,
 		});
 	}, [isAuthenticated, projects, router]);
@@ -390,6 +390,7 @@ const TopCenterToolbar = ({
 							isOpen={isIconSelectorOpen}
 							onClose={() => setIsIconSelectorOpen(false)}
 							onSelectIcon={addIcon}
+							onSelectShape={addShape}
 						/>
 					)}
 				</AnimatePresence>

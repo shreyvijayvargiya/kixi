@@ -13,42 +13,50 @@ export default async function handler(req, res) {
 		const { name, email, subject, message } = req.body;
 
 		// Validate required fields
-		if (!name || !email || !subject || !message) {
-			return res.status(400).json({ error: "Missing required fields" });
+		if (!message) {
+			return res.status(400).json({ error: "Missing message field" });
 		}
 
-		// Validate email format
+		const finalName = name || "Anonymous User";
+		const finalEmail = email || "anonymous@kixi.app";
+		const finalSubject = subject || "New Issue Report";
+
+		// Validate email format if provided
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
+		if (email && !emailRegex.test(email)) {
 			return res.status(400).json({ error: "Invalid email format" });
 		}
 
-		console.log("Sending email with data:", { name, email, subject });
+		console.log("Sending email with data:", {
+			name: finalName,
+			email: finalEmail,
+			subject: finalSubject,
+		});
 
 		const emailData = await resend.emails.send({
 			from: "connect@ihatereading.in",
-			to: ["shreyvijayvargiya@gmail.com"],
-			subject: `New message from the client for project ${name}`,
+			to: ["shreyvijayvargiya26@gmail.com"],
+			subject: finalSubject,
 			html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #1f2937, #374151); padding: 30px; border-radius: 10px; margin-bottom: 20px;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">New Custom Template Request</h1>
-            <p style="color: #d1d5db; margin: 10px 0 0 0;">Someone wants a custom template built!</p>
+            <h1 style="color: white; margin: 0; font-size: 24px;">${finalSubject}</h1>
+            <p style="color: #d1d5db; margin: 10px 0 0 0;">New message received</p>
           </div>
           
           <div style="background: #f9fafb; padding: 25px; border-radius: 8px; border-left: 4px solid #3b82f6;">
             <h2 style="color: #1f2937; margin-top: 0; font-size: 18px;">Contact Information</h2>
             <div style="margin-bottom: 15px;">
               <strong style="color: #374151;">Name:</strong> 
-              <span style="color: #6b7280; margin-left: 8px;">${name}</span>
+              <span style="color: #6b7280; margin-left: 8px;">${finalName}</span>
             </div>
             <div style="margin-bottom: 15px;">
               <strong style="color: #374151;">Email:</strong> 
-              <span style="color: #6b7280; margin-left: 8px;">${email}</span>
+              <span style="color: #6b7280; margin-left: 8px;">${finalEmail}</span>
             </div>
             <div style="margin-bottom: 15px;">
               <strong style="color: #374151;">Subject:</strong> 
-              <span style="color: #6b7280; margin-left: 8px;">${subject}</span>
+              <span style="color: #6b7280; margin-left: 8px;">${finalSubject}</span>
             </div>
           </div>
           
@@ -61,7 +69,7 @@ export default async function handler(req, res) {
           
           <div style="background: #fef3c7; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #f59e0b;">
             <p style="color: #92400e; margin: 0; font-weight: 500;">
-              💡 <strong>Next Steps:</strong> Review this request and reach out to ${name} at ${email} to discuss the custom template requirements.
+              💡 <strong>Next Steps:</strong> Review this request and reach out to ${finalName} at ${finalEmail}.
             </p>
           </div>
           

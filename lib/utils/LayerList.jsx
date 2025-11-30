@@ -11,6 +11,7 @@ import {
 	Minus,
 	GripVertical,
 	Layers,
+	Trash2,
 } from "lucide-react";
 
 const LayerList = ({
@@ -28,6 +29,7 @@ const LayerList = ({
 	selectedIcon,
 	selectedBackgroundShapeRect,
 	onSelect,
+	onDelete,
 }) => {
 	const [draggedItem, setDraggedItem] = useState(null);
 	const [dragOverIndex, setDragOverIndex] = useState(null);
@@ -98,8 +100,8 @@ const LayerList = ({
 			})),
 		];
 
-		// Sort by z-index
-		return elements.sort((a, b) => a.zIndex - b.zIndex);
+		// Sort by z-index descending (Highest Z at top)
+		return elements.sort((a, b) => b.zIndex - a.zIndex);
 	};
 
 	const elements = getAllElements();
@@ -134,10 +136,14 @@ const LayerList = ({
 		newElements.splice(dropIndex, 0, draggedElement);
 
 		// Update z-indexes for all elements based on their new position
-		// Start from 0 and increment
+		// Start from max Z and decrement for visual top-to-bottom
+		const maxZ = newElements.length;
 		newElements.forEach((element, index) => {
-			if (onUpdateZIndex && element.zIndex !== index) {
-				onUpdateZIndex(element.type, element.id, index);
+			// Calculate new Z index: Top of list (index 0) gets highest Z
+			const newZ = maxZ - index;
+
+			if (onUpdateZIndex && element.zIndex !== newZ) {
+				onUpdateZIndex(element.type, element.id, newZ);
 			}
 		});
 
@@ -191,14 +197,14 @@ const LayerList = ({
 								onDragEnd={handleDragEnd}
 								onClick={() => handleClick(element)}
 								className={`
-                  flex items-center gap-2 px-2 py-1 rounded-xl cursor-move
+                  group flex items-center gap-2 px-2 py-1 rounded-xl cursor-move
                   transition-colors
                   ${
 										dragOverIndex === index
 											? "bg-blue-50 border-2 border-blue-300"
 											: selected
-												? "bg-orange-50"
-												: "bg-zinc-50/10 hover:bg-zinc-100 border border-transparent"
+											? "bg-orange-50"
+											: "bg-zinc-50/10 hover:bg-zinc-100 border border-transparent"
 									}
                   ${draggedItem === index ? "opacity-50" : ""}
                 `}
@@ -227,14 +233,28 @@ const LayerList = ({
 
 								{/* Z-Index Badge */}
 								<span
-									className={`text-xs rounded ${
+									className={`text-xs rounded px-1.5 py-0.5 ${
 										selected
-											? "bg-orange-100 text-zinc-600"
-											: "text-zinc-600"
+											? "bg-orange-100 text-orange-600"
+											: "bg-zinc-100 text-zinc-500"
 									}`}
 								>
 									{element.zIndex}
 								</span>
+
+								{/* Delete Button */}
+								<button
+									onClick={(e) => {
+										e.stopPropagation();
+										if (onDelete) onDelete(element.type, element.id);
+									}}
+									className={`p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-red-50 hover:text-red-500 transition-all ${
+										selected ? "opacity-100" : ""
+									}`}
+									title="Delete layer"
+								>
+									<Trash2 className="w-3 h-3" />
+								</button>
 							</motion.div>
 						);
 					})}

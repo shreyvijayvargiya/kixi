@@ -18,107 +18,24 @@ import {
 	Image as ImageIcon,
 	Type,
 	Video,
-	MessageCircle,
 	Sparkles,
-	Send,
 	Square,
 	RectangleHorizontal,
-	Info,
-	Wand2,
 	Loader2,
 	Globe,
 	Save,
-	Settings,
 	Search,
-	Bell,
-	Mail,
-	Phone,
-	MapPin,
-	Calendar,
-	Clock,
-	Check,
-	List,
-	Layout,
-	Layers,
 	Zap,
-	Battery,
-	Wifi,
-	Bluetooth,
-	Volume2,
-	VolumeX,
-	Play,
-	Pause,
-	SkipForward,
-	SkipBack,
-	Repeat,
-	File,
-	Folder,
-	FolderOpen,
-	FileText,
-	FileImage,
-	FileVideo,
-	FileAudio,
-	Archive,
-	Bookmark,
-	Tag,
-	Tags,
-	Link,
 	ExternalLink,
-	Printer,
-	Scissors,
-	Clipboard,
-	ClipboardCheck,
-	RefreshCw,
-	RotateCw,
-	RotateCcw,
-	FlipHorizontal,
-	FlipVertical,
-	Maximize,
-	Minimize2,
-	Move,
-	Target,
-	Shield,
-	ShieldCheck,
-	Key,
-	Fingerprint,
-	QrCode,
-	CreditCard,
-	Wallet,
-	Coins,
-	DollarSign,
-	TrendingUp,
-	TrendingDown,
-	BarChart,
-	BarChart2,
-	LineChart,
-	PieChart,
-	Activity,
-	Pulse,
-	Code,
-	Code2,
-	Terminal,
-	Hexagon,
-	Octagon,
-	Pentagon,
-	Radial,
-	Rectangle,
-	RectangleVertical,
-	CircleDot,
-	Dot,
-	Ellipsis,
-	EllipsisVertical,
-	Laptop2Icon,
-	Icon,
-	SquareDashed,
-	GripVertical,
-	PanelLeft,
-	SlidersHorizontal,
 	AlertTriangle,
-	SquareActivity,
+	Shapes,
+	Minus,
+	Folder,
 } from "lucide-react";
+import ProjectsModal from "./ProjectsModal";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { LucideIcons } from "./lucideIcons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { LucideIcons, AllIcons } from "./lucideIcons";
 import { useSelector, useDispatch } from "react-redux";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 
@@ -141,19 +58,33 @@ import { useRouter } from "next/router";
 import {
 	Add01Icon,
 	Cancel01Icon,
-	IconjarIcon,
-	InformationCircleIcon,
-	Money01Icon,
+	Folder01Icon,
+	PenTool01Icon,
 	PlayIcon,
-	Search01Icon,
-	Square01Icon,
-	ToolsIcon,
 } from "hugeicons-react";
 import SubscriptionModal from "../../components/SubscriptionModal";
 import FeaturesSectionModal from "./FeaturesSectionModal";
 import { BackgroundShape, getShapeOptions } from "../../lib/utils/bgShapes";
 import TopCenterToolbar from "./TopCenterToolbar";
 import { toast } from "react-toastify";
+import { useVariantGenerator } from "./hooks/useVariantGenerator";
+import VariantSelectionModal from "./components/VariantSelectionModal";
+import ControlPanel from "./components/ControlPanel";
+import Sidebar from "./components/Sidebar";
+import ReleaseBox from "../../components/ReleaseBox";
+import {
+	ColorPicker,
+	Dropdown,
+	gradientPresets,
+	generatePresetGradientCSS,
+} from "./components/SharedComponents";
+import {
+	formatShadowCSS,
+	formatTextContent,
+	formatDropShadowCSS,
+	copyToClipboard,
+} from "./components/utils";
+import { EditorProvider } from "./context/EditorContext";
 
 // Tailwind CSS Colors
 const tailwindColors = {
@@ -256,402 +187,6 @@ const tailwindColors = {
 };
 
 // ColorPicker Component with Tabs
-const ColorPicker = ({ value, onChange, label }) => {
-	const [activeTab, setActiveTab] = useState("colors");
-	const [searchQuery, setSearchQuery] = useState("");
-
-	const colorShades = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
-
-	// Filter colors based on search
-	const filteredColorGroups = Object.entries(tailwindColors).filter(
-		([colorName]) => colorName.toLowerCase().includes(searchQuery.toLowerCase())
-	);
-
-	return (
-		<div className="space-y-2">
-			{label && (
-				<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-					{label}
-				</label>
-			)}
-			{/* Tabs */}
-			<div className="flex gap-1 border-b border-zinc-200">
-				<button
-					type="button"
-					onClick={() => setActiveTab("colors")}
-					className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-						activeTab === "colors"
-							? "text-zinc-900 border-b-2 border-zinc-900"
-							: "text-zinc-500 hover:text-zinc-700"
-					}`}
-				>
-					Colors
-				</button>
-				<button
-					type="button"
-					onClick={() => setActiveTab("tailwind")}
-					className={`px-3 py-1.5 text-xs font-medium transition-colors ${
-						activeTab === "tailwind"
-							? "text-zinc-900 border-b-2 border-zinc-900"
-							: "text-zinc-500 hover:text-zinc-700"
-					}`}
-				>
-					Tailwind
-				</button>
-			</div>
-
-			{/* Colors Tab */}
-			{activeTab === "colors" && (
-				<div className="flex items-center gap-2">
-					<input
-						type="color"
-						value={value || "#000000"}
-						onChange={(e) => onChange(e.target.value)}
-						className="w-10 h-6 rounded border border-zinc-300 cursor-pointer"
-					/>
-					<input
-						type="text"
-						value={value || "#000000"}
-						onChange={(e) => onChange(e.target.value)}
-						className="flex-1 h-8 rounded-xl border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-900 shadow-sm transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-zinc-300"
-						placeholder="#000000"
-					/>
-				</div>
-			)}
-
-			{/* Tailwind Tab */}
-			{activeTab === "tailwind" && (
-				<div className="space-y-3">
-					{/* Search */}
-					<div className="flex items-center gap-2 bg-zinc-50 rounded-xl px-3 py-2 border border-zinc-200">
-						<Search className="w-4 h-4 text-zinc-500" />
-						<input
-							type="text"
-							value={searchQuery}
-							onChange={(e) => setSearchQuery(e.target.value)}
-							placeholder="Search colors..."
-							className="flex-1 bg-transparent text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
-						/>
-					</div>
-
-					{/* Color Groups */}
-					<div className="max-h-64 overflow-y-auto space-y-4">
-						{filteredColorGroups.map(([colorName, shades]) => (
-							<div key={colorName} className="space-y-2">
-								<div className="text-xs font-semibold text-zinc-700 capitalize">
-									{colorName}
-								</div>
-								<div className="grid grid-cols-10 gap-1">
-									{colorShades.map((shade) => (
-										<button
-											key={shade}
-											type="button"
-											onClick={() => onChange(shades[shade])}
-											className="w-8 h-8 rounded border border-zinc-200 hover:border-zinc-400 hover:scale-110 transition-all cursor-pointer"
-											style={{ backgroundColor: shades[shade] }}
-											title={`${colorName}-${shade}`}
-										/>
-									))}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-			)}
-		</div>
-	);
-};
-
-// Gradient Presets - 20 presets with 2 color stops each
-const gradientPresets = [
-	{
-		id: 1,
-		name: "Sunset",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#FF6B6B", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FFE66D", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 2,
-		name: "Ocean",
-		type: "linear",
-		angle: 135,
-		stops: [
-			{ id: 1, color: "#4ECDC4", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#44A08D", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 3,
-		name: "zinc Dream",
-		type: "linear",
-		angle: 90,
-		stops: [
-			{ id: 1, color: "#667EEA", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#764BA2", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 4,
-		name: "Forest",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#11998E", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#38EF7D", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 5,
-		name: "Coral",
-		type: "linear",
-		angle: 120,
-		stops: [
-			{ id: 1, color: "#FF9A9E", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FECFEF", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 6,
-		name: "Blue Sky",
-		type: "linear",
-		angle: 180,
-		stops: [
-			{ id: 1, color: "#3494E6", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#EC6EAD", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 7,
-		name: "Peach",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#FFECD2", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FCB69F", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 8,
-		name: "Midnight",
-		type: "linear",
-		angle: 135,
-		stops: [
-			{ id: 1, color: "#0F2027", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#203A43", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 9,
-		name: "Rose Gold",
-		type: "linear",
-		angle: 90,
-		stops: [
-			{ id: 1, color: "#F093FB", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#F5576C", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 10,
-		name: "Mint",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#A8EDEA", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FED6E3", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 11,
-		name: "Fire",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#FF416C", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FF4B2B", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 12,
-		name: "Lavender",
-		type: "linear",
-		angle: 135,
-		stops: [
-			{ id: 1, color: "#E0C3FC", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#8EC5FC", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 13,
-		name: "zinc Tea",
-		type: "linear",
-		angle: 90,
-		stops: [
-			{ id: 1, color: "#D4FC79", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#96E6A1", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 14,
-		name: "Cherry",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#EB3349", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#F45C43", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 15,
-		name: "Sky Blue",
-		type: "linear",
-		angle: 180,
-		stops: [
-			{ id: 1, color: "#89F7FE", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#66A6FF", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 16,
-		name: "Orange",
-		type: "linear",
-		angle: 120,
-		stops: [
-			{ id: 1, color: "#FFB347", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FFCC33", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 17,
-		name: "Violet",
-		type: "linear",
-		angle: 135,
-		stops: [
-			{ id: 1, color: "#8360C3", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#2EBF91", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 18,
-		name: "Pink",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#FF6B95", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FFC796", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 19,
-		name: "Cyan",
-		type: "linear",
-		angle: 90,
-		stops: [
-			{ id: 1, color: "#00F5FF", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#00D4FF", position: { x: 100, y: 100 } },
-		],
-	},
-	{
-		id: 20,
-		name: "Golden",
-		type: "linear",
-		angle: 45,
-		stops: [
-			{ id: 1, color: "#F6D365", position: { x: 0, y: 0 } },
-			{ id: 2, color: "#FDA085", position: { x: 100, y: 100 } },
-		],
-	},
-];
-
-// Helper function to generate gradient CSS from preset
-const generatePresetGradientCSS = (preset) => {
-	if (preset.type === "linear") {
-		return `linear-gradient(${preset.angle || 45}deg, ${preset.stops[0].color}, ${preset.stops[1].color})`;
-	} else if (preset.type === "radial") {
-		return `radial-gradient(circle, ${preset.stops[0].color}, ${preset.stops[1].color})`;
-	} else if (preset.type === "conic") {
-		return `conic-gradient(${preset.stops[0].color}, ${preset.stops[1].color})`;
-	}
-	return `linear-gradient(45deg, ${preset.stops[0].color}, ${preset.stops[1].color})`;
-};
-
-// Custom Dropdown Component
-const Dropdown = ({
-	value,
-	onChange,
-	options,
-	placeholder,
-	icon,
-	className = "",
-}) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const dropdownRef = useRef(null);
-
-	const handleClickOutside = useCallback((event) => {
-		if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-			setIsOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		document.addEventListener("mousedown", handleClickOutside);
-		return () => document.removeEventListener("mousedown", handleClickOutside);
-	}, [handleClickOutside]);
-
-	const selectedOption = options.find((option) => option.value === value);
-
-	return (
-		<div ref={dropdownRef} className={`relative ${className}`}>
-			<button
-				type="button"
-				onClick={() => setIsOpen(!isOpen)}
-				className="w-full px-2 py-1 text-sm border border-zinc-200 hover:bg-zinc-100 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-100 focus:border-zinc-100 transition-all duration-100 ease-in flex items-center justify-between"
-			>
-				<span className="text-left">
-					{selectedOption?.label || placeholder || icon}
-				</span>
-				<ChevronDown
-					className={`w-4 h-4 transition-transform ${
-						isOpen ? "rotate-180" : ""
-					}`}
-				/>
-			</button>
-
-			<AnimatePresence>
-				{isOpen && (
-					<motion.div
-						initial={{ opacity: 0, y: -10 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -10 }}
-						transition={{ duration: 0.15 }}
-						className="absolute z-50 w-full mt-1 bg-white border border-zinc-200 rounded-xl shadow overflow-hidden"
-					>
-						{options.map((option) => (
-							<button
-								key={option.value}
-								type="button"
-								onClick={() => {
-									onChange(option.value);
-									setIsOpen(false);
-								}}
-								className={`w-full px-2 py-1 text-sm text-left hover:bg-zinc-50 transition-colors ${
-									value === option.value
-										? "bg-zinc-100 text-zinc-900"
-										: "text-zinc-700"
-								}`}
-							>
-								{option.label}
-							</button>
-						))}
-					</motion.div>
-				)}
-			</AnimatePresence>
-		</div>
-	);
-};
 
 const createInitialGradient = () => ({
 	type: "linear",
@@ -684,6 +219,12 @@ const createInitialGradient = () => ({
 });
 
 const AnimatedGradientGenerator = () => {
+	const {
+		generateVariantsMutation,
+		generatedVariants,
+		isVariantsModalOpen,
+		setIsVariantsModalOpen,
+	} = useVariantGenerator();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isOpenAboutModal, setIsOpenAboutModal] = useState(false);
 	const [isPublishing, setIsPublishing] = useState(false);
@@ -721,17 +262,17 @@ const AnimatedGradientGenerator = () => {
 	const [isIconSelectorOpen, setIsIconSelectorOpen] = useState(false);
 	const iconSelectorDropdownRef = useRef(null);
 	const [iconSearchQuery, setIconSearchQuery] = useState("");
-	const [iconResizing, setIconResizing] = useState(null);
-	const [imageResizing, setImageResizing] = useState(null);
-	const [textResizing, setTextResizing] = useState(null);
-	const [videoResizing, setVideoResizing] = useState(null);
-	const [shapeResizing, setShapeResizing] = useState(null);
 	const [isShapeDropdownOpen, setIsShapeDropdownOpen] = useState(false);
 	const shapeDropdownRef = useRef(null);
 	const [isBackgroundImageDropdownOpen, setIsBackgroundImageDropdownOpen] =
 		useState(false);
 	const backgroundImageDropdownRef = useRef(null);
 	const backgroundImageInputRef = useRef(null);
+	const [iconResizing, setIconResizing] = useState(null);
+	const [imageResizing, setImageResizing] = useState(null);
+	const [textResizing, setTextResizing] = useState(null);
+	const [videoResizing, setVideoResizing] = useState(null);
+	const [shapeResizing, setShapeResizing] = useState(null);
 	const [isSidebarDrawerOpen, setIsSidebarDrawerOpen] = useState(false);
 	const [isControlPanelDrawerOpen, setIsControlPanelDrawerOpen] =
 		useState(false);
@@ -775,7 +316,6 @@ const AnimatedGradientGenerator = () => {
 	}, [isSidebarDrawerOpen, isControlPanelDrawerOpen, isSmallDeviceModalOpen]);
 	const [captionEditing, setCaptionEditing] = useState(null);
 	const [textEditing, setTextEditing] = useState(null);
-	const [isDownloadDropdownOpen, setIsDownloadDropdownOpen] = useState(false);
 	const [isGeneratingMP4, setIsGeneratingMP4] = useState(false);
 	const [mp4Progress, setMp4Progress] = useState(0);
 	const [isAIChatOpen, setIsAIChatOpen] = useState(false);
@@ -793,16 +333,18 @@ const AnimatedGradientGenerator = () => {
 	const [aiCompletedSteps, setAiCompletedSteps] = useState(new Set());
 	const [isExecutingSteps, setIsExecutingSteps] = useState(false);
 	const [isKeyboardShortcutsOpen, setIsKeyboardShortcutsOpen] = useState(false);
+	const [isReleasesModalOpen, setIsReleasesModalOpen] = useState(false);
+	const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 	const keyboardShortcutsRef = useRef(null);
 	const fileInputRef = useRef(null);
 	const videoInputRef = useRef(null);
-	const [isGradientPresetsOpen, setIsGradientPresetsOpen] = useState(false);
-	const gradientPresetsRef = useRef(null);
 	const imageReuploadRefs = useRef({});
 	const videoReuploadRefs = useRef({});
 	const previewRef = useRef(null);
 	const modalPreviewRef = useRef(null);
-	const downloadDropdownRef = useRef(null);
+	const previewCodeDropdownRef = useRef(null);
+	const [generatedReactCode, setGeneratedReactCode] = useState("");
+	const [codeCopied, setCodeCopied] = useState(false);
 	const aiChatInputRef = useRef(null);
 	const [isImageImprovementOpen, setIsImageImprovementOpen] = useState(false);
 	const [improvementPrompt, setImprovementPrompt] = useState("");
@@ -818,11 +360,19 @@ const AnimatedGradientGenerator = () => {
 	const [isReactConvertOpen, setIsReactConvertOpen] = useState(false);
 	const [reactCode, setReactCode] = useState("");
 	const [isConvertingToReact, setIsConvertingToReact] = useState(false);
-	const [projects, setProjects] = useState([]);
+	// projects state moved to useQuery below
 	const [currentProjectId, setCurrentProjectId] = useState(null);
 	const [activeFrameId, setActiveFrameId] = useState(null);
 	const [isSaving, setIsSaving] = useState(false);
-	const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+	const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+	const lastSavedStateRef = useRef(null);
+	const autoSaveTimeoutRef = useRef(null);
+	const handleSaveProjectRef = useRef(null);
+	// isLoadingProjects state moved to useQuery below
+	const [editingProjectId, setEditingProjectId] = useState(null);
+	const [editingProjectName, setEditingProjectName] = useState("");
+	const [isEditingFrameName, setIsEditingFrameName] = useState(false);
+	const [editingFrameNameValue, setEditingFrameNameValue] = useState("");
 	const [isFrameActionLoading, setIsFrameActionLoading] = useState(false);
 	const [projectName, setProjectName] = useState("Untitled Project");
 	const [backgroundImage, setBackgroundImage] = useState(null);
@@ -848,6 +398,27 @@ const AnimatedGradientGenerator = () => {
 	const { user, isAuthenticated, subscriptionStatus, subscriptionId } =
 		useSelector((state) => state.auth);
 	const router = useRouter();
+
+	const queryClient = useQueryClient();
+
+	const { data: projects = [], isLoading: isLoadingProjects } = useQuery({
+		queryKey: ["projects", user?.uid],
+		queryFn: async () => {
+			if (!user?.uid) return [];
+			const projectsRef = collection(db, "users", user.uid, "kixi-projects");
+			const q = query(projectsRef, orderBy("updatedAt", "desc"));
+			const querySnapshot = await getDocs(q);
+			const projectsList = [];
+			querySnapshot.forEach((doc) => {
+				projectsList.push({
+					id: doc.id,
+					...doc.data(),
+				});
+			});
+			return projectsList;
+		},
+		enabled: !!isAuthenticated && !!user?.uid,
+	});
 
 	const dimensionPresets = {
 		mobile: { width: 1080, height: 1920, label: "Mobile (1080×1920)" },
@@ -1809,20 +1380,27 @@ const AnimatedGradientGenerator = () => {
 	};
 
 	// Shape handling functions
-	const addShape = (shapeType) => {
+	const addShape = (shapeType, svgString = null, shapeName = null) => {
+		// Check if this is an SVG shape from the icon selector
+		const isSvgShape = svgString !== null;
+
 		const newShape = {
 			id: Date.now() + Math.random(),
-			type: shapeType, // "rectangle", "square", "line", "triangle", "circle"
+			type: isSvgShape ? "svg" : shapeType, // "rectangle", "square", "line", "triangle", "circle", "svg"
+			svgString: svgString, // Store SVG string for SVG shapes
+			shapeName: shapeName || shapeType, // Store shape name for display
 			x: 50,
 			y: 50,
-			width:
-				shapeType === "line"
+			width: isSvgShape
+				? 100
+				: shapeType === "line"
 					? 200
 					: shapeType === "square" || shapeType === "circle"
 						? 150
 						: 200,
-			height:
-				shapeType === "line"
+			height: isSvgShape
+				? 100
+				: shapeType === "line"
 					? 2
 					: shapeType === "square" || shapeType === "circle"
 						? 150
@@ -1843,6 +1421,7 @@ const AnimatedGradientGenerator = () => {
 		setShapes((prev) => [...prev, newShape]);
 		setSelectedShape(newShape.id);
 		setIsShapeDropdownOpen(false);
+		setIsIconSelectorOpen(false);
 	};
 
 	const removeShape = (id) => {
@@ -1900,6 +1479,23 @@ const AnimatedGradientGenerator = () => {
 					zIndex: newZIndex,
 				},
 			});
+		}
+	};
+
+	// Handle delete from layer list
+	const handleDeleteLayer = (type, id) => {
+		if (type === "image") {
+			removeImage(id);
+		} else if (type === "video") {
+			removeVideo(id);
+		} else if (type === "text") {
+			removeText(id);
+		} else if (type === "shape") {
+			removeShape(id);
+		} else if (type === "icon") {
+			removeIcon(id);
+		} else if (type === "backgroundShape") {
+			removeBackgroundShapeRect(id);
 		}
 	};
 
@@ -2307,52 +1903,8 @@ const AnimatedGradientGenerator = () => {
 	};
 
 	// Handle click outside shape dropdown
-	const handleShapeDropdownClickOutside = useCallback((event) => {
-		if (
-			shapeDropdownRef.current &&
-			!shapeDropdownRef.current.contains(event.target)
-		) {
-			setIsShapeDropdownOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isShapeDropdownOpen) {
-			document.addEventListener("mousedown", handleShapeDropdownClickOutside);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleShapeDropdownClickOutside
-				);
-		}
-	}, [isShapeDropdownOpen, handleShapeDropdownClickOutside]);
 
 	// Handle click outside background image dropdown
-	const handleBackgroundImageDropdownClickOutside = useCallback((event) => {
-		if (
-			backgroundImageDropdownRef.current &&
-			!backgroundImageDropdownRef.current.contains(event.target)
-		) {
-			setIsBackgroundImageDropdownOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isBackgroundImageDropdownOpen) {
-			document.addEventListener(
-				"mousedown",
-				handleBackgroundImageDropdownClickOutside
-			);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleBackgroundImageDropdownClickOutside
-				);
-		}
-	}, [
-		isBackgroundImageDropdownOpen,
-		handleBackgroundImageDropdownClickOutside,
-	]);
 
 	// Handle background image upload
 	const handleBackgroundImageUpload = (e) => {
@@ -2373,105 +1925,26 @@ const AnimatedGradientGenerator = () => {
 	};
 
 	// Handle click outside gradient presets dropdown
-	const handleGradientPresetsClickOutside = useCallback((event) => {
-		if (
-			gradientPresetsRef.current &&
-			!gradientPresetsRef.current.contains(event.target)
-		) {
-			setIsGradientPresetsOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isGradientPresetsOpen) {
-			document.addEventListener("mousedown", handleGradientPresetsClickOutside);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleGradientPresetsClickOutside
-				);
-		}
-	}, [isGradientPresetsOpen, handleGradientPresetsClickOutside]);
 
 	// Handle click outside icon selector dropdown
-	const handleIconSelectorDropdownClickOutside = useCallback((event) => {
-		if (
-			iconSelectorDropdownRef.current &&
-			!iconSelectorDropdownRef.current.contains(event.target)
-		) {
-			setIsIconSelectorOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isIconSelectorOpen) {
-			document.addEventListener(
-				"mousedown",
-				handleIconSelectorDropdownClickOutside
-			);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleIconSelectorDropdownClickOutside
-				);
-		}
-	}, [isIconSelectorOpen, handleIconSelectorDropdownClickOutside]);
 
 	// Handle click outside URL screenshot dropdown
-	const handleUrlScreenshotDropdownClickOutside = useCallback((event) => {
-		if (
-			urlScreenshotDropdownRef.current &&
-			!urlScreenshotDropdownRef.current.contains(event.target)
-		) {
-			setIsUrlScreenshotOpen(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		if (isUrlScreenshotOpen) {
-			document.addEventListener(
-				"mousedown",
-				handleUrlScreenshotDropdownClickOutside
-			);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleUrlScreenshotDropdownClickOutside
-				);
-		}
-	}, [isUrlScreenshotOpen, handleUrlScreenshotDropdownClickOutside]);
 
 	// Text handling functions
 	// Icon handling functions
 	// Get all available icon names from LucideIcons
-	const availableIcons = useMemo(() => {
-		if (!LucideIcons || typeof LucideIcons !== "object") {
-			return [];
-		}
-		return Object.keys(LucideIcons).sort();
-	}, []);
 
-	// Filter icons based on search query
-	const filteredIcons = useMemo(() => {
-		if (!availableIcons || availableIcons.length === 0) {
-			return [];
-		}
-		if (!iconSearchQuery || !iconSearchQuery.trim()) {
-			return availableIcons;
-		}
-		const query = iconSearchQuery.toLowerCase();
-		return availableIcons.filter(
-			(iconName) => iconName && iconName.toLowerCase().includes(query)
-		);
-	}, [iconSearchQuery, availableIcons]);
+	const addIcon = (iconName, IconComponent) => {
+		// Look up from AllIcons (combined Lucide + Huge icons) if no component passed
+		const ResolvedComponent = IconComponent || AllIcons[iconName];
+		if (!ResolvedComponent) return;
 
-	const addIcon = (iconName) => {
-		const IconComponent = LucideIcons[iconName];
-		if (!IconComponent) return;
+		// Determine the icon key for storage (try to find the display name)
+		const iconKey = IconComponent?.displayName || iconName;
 
 		const newIcon = {
 			id: Date.now() + Math.random(),
-			iconName: iconName,
+			iconName: iconKey,
 			x: 50,
 			y: 50,
 			width: 48,
@@ -3376,7 +2849,9 @@ const AnimatedGradientGenerator = () => {
 			const b = parseInt(color.slice(5, 7), 16);
 			rgbaColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
 		}
-		return `${shadow.x || 0}px ${shadow.y || 0}px ${shadow.blur || 0}px ${rgbaColor}`;
+		return `${shadow.x || 0}px ${shadow.y || 0}px ${
+			shadow.blur || 0
+		}px ${rgbaColor}`;
 	};
 
 	// Helper function to format drop-shadow CSS (for filter)
@@ -3493,7 +2968,9 @@ const AnimatedGradientGenerator = () => {
 			const b = parseInt(color.slice(5, 7), 16);
 			rgbaColor = `rgba(${r}, ${g}, ${b}, 0.5)`;
 		}
-		return `drop-shadow(${shadow.x || 0}px ${shadow.y || 0}px ${shadow.blur || 0}px ${rgbaColor})`;
+		return `drop-shadow(${shadow.x || 0}px ${shadow.y || 0}px ${
+			shadow.blur || 0
+		}px ${rgbaColor})`;
 	};
 
 	const copyToClipboard = async (text, type) => {
@@ -3531,7 +3008,9 @@ const AnimatedGradientGenerator = () => {
 			}
 			if (element.styles?.skewX || element.styles?.skewY) {
 				transforms.push(
-					`skew(${element.styles.skewX || 0}deg, ${element.styles.skewY || 0}deg)`
+					`skew(${element.styles.skewX || 0}deg, ${
+						element.styles.skewY || 0
+					}deg)`
 				);
 			}
 			return transforms.join(" ");
@@ -3545,8 +3024,12 @@ const AnimatedGradientGenerator = () => {
 			// Basic pattern generation - you may want to expand this based on actual shape patterns
 			return `<svg width="100%" height="100%" style="position: absolute; inset: 0; pointer-events: none;">
                 <defs>
-                    <pattern id="${uniqueId}-pattern" x="0" y="0" width="${20 * scale}" height="${20 * scale}" patternUnits="userSpaceOnUse">
-                        <circle cx="${10 * scale}" cy="${10 * scale}" r="${2 * scale}" fill="currentColor" opacity="0.3" />
+                    <pattern id="${uniqueId}-pattern" x="0" y="0" width="${
+											20 * scale
+										}" height="${20 * scale}" patternUnits="userSpaceOnUse">
+                        <circle cx="${10 * scale}" cy="${10 * scale}" r="${
+													2 * scale
+												}" fill="currentColor" opacity="0.3" />
                     </pattern>
                 </defs>
                 <rect width="100%" height="100%" fill="url(#${uniqueId}-pattern)" />
@@ -3613,7 +3096,9 @@ const AnimatedGradientGenerator = () => {
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${style}">${generateBackgroundShapePattern(rect)}</div>`;
+					return `<div style="${style}">${generateBackgroundShapePattern(
+						rect
+					)}</div>`;
 				}
 
 				if (type === "image") {
@@ -3639,7 +3124,13 @@ const AnimatedGradientGenerator = () => {
 						border-style: ${styles.borderStyle || "solid"};
 						opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 						box-shadow: ${formatShadowCSS(styles.shadow)};
-						${styles.ringWidth > 0 ? `outline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"}; outline-offset: 2px;` : ""}
+						${
+							styles.ringWidth > 0
+								? `outline: ${styles.ringWidth}px solid ${
+										styles.ringColor || "#3b82f6"
+									}; outline-offset: 2px;`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
@@ -3647,11 +3138,22 @@ const AnimatedGradientGenerator = () => {
 						width: 100%;
 						height: 100%;
 						object-fit: ${styles.objectFit || "contain"};
-						${styles.noise?.enabled ? `filter: contrast(${1 + (styles.noise.intensity || 0.3) * 0.2}) brightness(${1 + (styles.noise.intensity || 0.3) * 0.1});` : ""}
+						${
+							styles.noise?.enabled
+								? `filter: contrast(${
+										1 + (styles.noise.intensity || 0.3) * 0.2
+									}) brightness(${1 + (styles.noise.intensity || 0.3) * 0.1});`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${wrapperStyle}"><img src="${image.src}" style="${imgStyle}" alt="${(image.caption || "").replace(/"/g, "&quot;")}" /></div>`;
+					return `<div style="${wrapperStyle}"><img src="${
+						image.src
+					}" style="${imgStyle}" alt="${(image.caption || "").replace(
+						/"/g,
+						"&quot;"
+					)}" /></div>`;
 				}
 
 				if (type === "video") {
@@ -3677,7 +3179,13 @@ const AnimatedGradientGenerator = () => {
 						border-style: ${styles.borderStyle || "solid"};
 						opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
 						box-shadow: ${formatShadowCSS(styles.shadow)};
-						${styles.ringWidth > 0 ? `outline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"}; outline-offset: 2px;` : ""}
+						${
+							styles.ringWidth > 0
+								? `outline: ${styles.ringWidth}px solid ${
+										styles.ringColor || "#3b82f6"
+									}; outline-offset: 2px;`
+								: ""
+						}
 					`
 						.trim()
 						.replace(/\s+/g, " ");
@@ -3688,7 +3196,11 @@ const AnimatedGradientGenerator = () => {
 					`
 						.trim()
 						.replace(/\s+/g, " ");
-					return `<div style="${wrapperStyle}"><video src="${video.src}" style="${videoStyle}" ${styles.autoplay !== false ? "autoplay loop muted playsinline" : ""} controls></video></div>`;
+					return `<div style="${wrapperStyle}"><video src="${
+						video.src
+					}" style="${videoStyle}" ${
+						styles.autoplay !== false ? "autoplay loop muted playsinline" : ""
+					} controls></video></div>`;
 				}
 
 				if (type === "text") {
@@ -3755,20 +3267,36 @@ const AnimatedGradientGenerator = () => {
 					const borderRadius = shape.borderRadius || styles.borderRadius || 0;
 
 					if (shapeType === "rectangle" || shapeType === "square") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <rect x="0" y="0" width="100%" height="100%" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" rx="${borderRadius}" ry="${borderRadius}" />
                         </svg>`;
 					} else if (shapeType === "circle") {
 						const radius = Math.min(shape.width, shape.height) / 2;
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <circle cx="50%" cy="50%" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					} else if (shapeType === "triangle") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <polygon points="50%,0 0,100% 100%,100%" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					} else if (shapeType === "line") {
-						return `<svg width="${shape.width}" height="${shape.height}" style="${shapeStyle} filter: ${formatDropShadowCSS(styles.shadow)};">
+						return `<svg width="${shape.width}" height="${
+							shape.height
+						}" style="${shapeStyle} filter: ${formatDropShadowCSS(
+							styles.shadow
+						)};">
                             <line x1="0" y1="50%" x2="100%" y2="50%" stroke="${strokeColor}" stroke-width="${strokeWidth}" />
                         </svg>`;
 					}
@@ -3818,7 +3346,12 @@ const AnimatedGradientGenerator = () => {
 				position: absolute;
 				inset: 0;
 				background: ${gradientCSS};
-				${frameGradient.backgroundAnimation?.enabled && frameGradient.backgroundAnimation.type === "slide" ? `background-size: 200% 200%;` : ""}
+				${
+					frameGradient.backgroundAnimation?.enabled &&
+					frameGradient.backgroundAnimation.type === "slide"
+						? `background-size: 200% 200%;`
+						: ""
+				}
 				${backgroundAnimation ? `animation: ${backgroundAnimation};` : ""}
 			`;
 
@@ -4212,7 +3745,11 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Image element with clip-path and filter
-				let imageElement = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${clipPathId ? ` clip-path="url(#${clipPathId})"` : ""}${transformAttr}>`;
+				let imageElement = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${
+					clipPathId ? ` clip-path="url(#${clipPathId})"` : ""
+				}${transformAttr}>`;
 
 				// Border if exists
 				if (styles.borderWidth && styles.borderWidth > 0) {
@@ -4232,7 +3769,15 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Image itself
-				imageElement += `\n      <image href="${image.src}" x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" preserveAspectRatio="${styles.objectFit === "cover" ? "xMidYMid slice" : styles.objectFit === "fill" ? "none" : "xMidYMid meet"}"${styleAttr} />`;
+				imageElement += `\n      <image href="${
+					image.src
+				}" x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" preserveAspectRatio="${
+					styles.objectFit === "cover"
+						? "xMidYMid slice"
+						: styles.objectFit === "fill"
+							? "none"
+							: "xMidYMid meet"
+				}"${styleAttr} />`;
 
 				// Ring if exists
 				if (styles.ringWidth && styles.ringWidth > 0) {
@@ -4240,7 +3785,15 @@ const AnimatedGradientGenerator = () => {
 					const ringColor = styles.ringColor || "#3b82f6";
 					const ringOffset = 2 * scaleY;
 					const ringRadius = (styles.borderRadius || 0) * scaleY;
-					imageElement += `\n      <rect x="${scaledX - ringOffset - ringWidth}" y="${scaledY - ringOffset - ringWidth}" width="${scaledWidth + (ringOffset + ringWidth) * 2}" height="${scaledHeight + (ringOffset + ringWidth) * 2}" rx="${ringRadius + ringOffset + ringWidth}" ry="${ringRadius + ringOffset + ringWidth}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" />`;
+					imageElement += `\n      <rect x="${
+						scaledX - ringOffset - ringWidth
+					}" y="${scaledY - ringOffset - ringWidth}" width="${
+						scaledWidth + (ringOffset + ringWidth) * 2
+					}" height="${scaledHeight + (ringOffset + ringWidth) * 2}" rx="${
+						ringRadius + ringOffset + ringWidth
+					}" ry="${
+						ringRadius + ringOffset + ringWidth
+					}" fill="none" stroke="${ringColor}" stroke-width="${ringWidth}" />`;
 				}
 
 				imageElement += `\n    </g>`;
@@ -4249,7 +3802,12 @@ const AnimatedGradientGenerator = () => {
 				if (image.caption) {
 					const captionX = scaledX + scaledWidth / 2;
 					const captionY = scaledY + scaledHeight + 20 * scaleY;
-					imageElement += `\n    <text x="${captionX}" y="${captionY}" text-anchor="middle" fill="black" font-size="${16 * scaleY}" font-family="Arial">${image.caption.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</text>`;
+					imageElement += `\n    <text x="${captionX}" y="${captionY}" text-anchor="middle" fill="black" font-size="${
+						16 * scaleY
+					}" font-family="Arial">${image.caption
+						.replace(/&/g, "&amp;")
+						.replace(/</g, "&lt;")
+						.replace(/>/g, "&gt;")}</text>`;
 				}
 
 				return (shadowFilterDef || clipPathDef) + imageElement;
@@ -4403,7 +3961,9 @@ const AnimatedGradientGenerator = () => {
 				}
 
 				// Build text group with background, border, and text
-				let textGroup = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${transformAttr} opacity="${opacity}">`;
+				let textGroup = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${transformAttr} opacity="${opacity}">`;
 
 				// Background rectangle
 				if (backgroundColor !== "transparent") {
@@ -4573,26 +4133,50 @@ const AnimatedGradientGenerator = () => {
 						)
 						.join("");
 					gradientDef = `\n      <defs>
-        <linearGradient id="shape-gradient-${shape.id}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${styles.fillGradient.angle || 45} ${scaledX + scaledWidth / 2} ${scaledY + scaledHeight / 2})">${stopsString}
+        <linearGradient id="shape-gradient-${
+					shape.id
+				}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(${
+					styles.fillGradient.angle || 45
+				} ${scaledX + scaledWidth / 2} ${
+					scaledY + scaledHeight / 2
+				})">${stopsString}
         </linearGradient>
       </defs>`;
 				}
 
-				let shapeElement = `<g${shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""}${transformAttr} opacity="${styles.opacity !== undefined ? styles.opacity : 1}">${gradientDef}`;
+				let shapeElement = `<g${
+					shadowFilterId ? ` filter="url(#${shadowFilterId})"` : ""
+				}${transformAttr} opacity="${
+					styles.opacity !== undefined ? styles.opacity : 1
+				}">${gradientDef}`;
 
 				if (shape.type === "rectangle" || shape.type === "square") {
-					shapeElement += `\n      <rect x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" rx="${(styles.borderRadius || 0) * scaleY}" ry="${(styles.borderRadius || 0) * scaleY}" />`;
+					shapeElement += `\n      <rect x="${scaledX}" y="${scaledY}" width="${scaledWidth}" height="${scaledHeight}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" rx="${
+						(styles.borderRadius || 0) * scaleY
+					}" ry="${(styles.borderRadius || 0) * scaleY}" />`;
 				} else if (shape.type === "line") {
 					const lineY = scaledY + scaledHeight / 2;
-					shapeElement += `\n      <line x1="${scaledX}" y1="${lineY}" x2="${scaledX + scaledWidth}" y2="${lineY}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					shapeElement += `\n      <line x1="${scaledX}" y1="${lineY}" x2="${
+						scaledX + scaledWidth
+					}" y2="${lineY}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				} else if (shape.type === "triangle") {
-					const points = `${scaledX + scaledWidth / 2},${scaledY} ${scaledX},${scaledY + scaledHeight} ${scaledX + scaledWidth},${scaledY + scaledHeight}`;
-					shapeElement += `\n      <polygon points="${points}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					const points = `${scaledX + scaledWidth / 2},${scaledY} ${scaledX},${
+						scaledY + scaledHeight
+					} ${scaledX + scaledWidth},${scaledY + scaledHeight}`;
+					shapeElement += `\n      <polygon points="${points}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				} else if (shape.type === "circle") {
 					const radius = Math.min(scaledWidth, scaledHeight) / 2;
 					const centerX = scaledX + scaledWidth / 2;
 					const centerY = scaledY + scaledHeight / 2;
-					shapeElement += `\n      <circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="${fillValue}" stroke="${styles.strokeColor || "#1e40af"}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
+					shapeElement += `\n      <circle cx="${centerX}" cy="${centerY}" r="${radius}" fill="${fillValue}" stroke="${
+						styles.strokeColor || "#1e40af"
+					}" stroke-width="${(styles.strokeWidth || 2) * scaleY}" />`;
 				}
 
 				shapeElement += `\n    </g>`;
@@ -4619,7 +4203,11 @@ const AnimatedGradientGenerator = () => {
 		const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>${gradientElement}${defsContent}
   </defs>
-  ${backgroundImage ? backgroundElement : `<rect width="100%" height="100%" fill="url(#gradientFill)" />`}
+  ${
+		backgroundImage
+			? backgroundElement
+			: `<rect width="100%" height="100%" fill="url(#gradientFill)" />`
+	}
   ${imageContent}
   ${textContent}
   ${shapeContent}
@@ -5042,7 +4630,9 @@ const AnimatedGradientGenerator = () => {
 						// Draw text
 						const fontSize = (styles.fontSize || 24) * scaleY;
 						const fontFamily = styles.fontFamily || "Arial";
-						ctx.font = `${styles.fontStyle || "normal"} ${styles.fontWeight || "normal"} ${fontSize}px ${fontFamily}`;
+						ctx.font = `${styles.fontStyle || "normal"} ${
+							styles.fontWeight || "normal"
+						} ${fontSize}px ${fontFamily}`;
 						ctx.fillStyle = styles.color || "#000000";
 						ctx.textAlign = styles.textAlign || "left";
 						ctx.textBaseline = "middle";
@@ -6207,371 +5797,7 @@ const AnimatedGradientGenerator = () => {
 		});
 	};
 
-	// Export current gradient as base64 PNG for AI processing
-	const exportGradientAsBase64 = async (dimensionType = previewFrameSize) => {
-		return new Promise(async (resolve, reject) => {
-			const dimensions =
-				previewFramePresets[dimensionType] || previewFramePresets.mobile;
-			const canvas = document.createElement("canvas");
-			const width = dimensions.width;
-			const height = dimensions.height;
-			canvas.width = width;
-			canvas.height = height;
-			const ctx = canvas.getContext("2d");
-
-			// Draw background image or gradient
-			if (backgroundImage) {
-				const bgImg = new Image();
-				bgImg.crossOrigin = "anonymous";
-				try {
-					await new Promise((imgResolve, imgReject) => {
-						bgImg.onload = () => {
-							ctx.drawImage(bgImg, 0, 0, width, height);
-							imgResolve();
-						};
-						bgImg.onerror = imgReject;
-						bgImg.src = backgroundImage;
-					});
-				} catch (error) {
-					reject(error);
-					return;
-				}
-			} else {
-				// Create gradient based on type
-				let gradientObj;
-				const sortedStops = [...gradient.stops].sort((a, b) => {
-					const distA = Math.sqrt(
-						a.position.x * a.position.x + a.position.y * a.position.y
-					);
-					const distB = Math.sqrt(
-						b.position.x * b.position.x + b.position.y * b.position.y
-					);
-					return distA - distB;
-				});
-
-				if (gradient.type === "linear") {
-					const firstStop = sortedStops[0];
-					const lastStop = sortedStops[sortedStops.length - 1];
-					const angle =
-						Math.atan2(
-							lastStop.position.y - firstStop.position.y,
-							lastStop.position.x - firstStop.position.x
-						) *
-						(180 / Math.PI);
-
-					const radians = (angle * Math.PI) / 180;
-					const x1 = width / 2 - (width / 2) * Math.cos(radians);
-					const y1 = height / 2 - (width / 2) * Math.sin(radians);
-					const x2 = width / 2 + (width / 2) * Math.cos(radians);
-					const y2 = height / 2 + (width / 2) * Math.sin(radians);
-
-					gradientObj = ctx.createLinearGradient(x1, y1, x2, y2);
-					sortedStops.forEach((stop) => {
-						const position = Math.round(stop.position.x) / 100;
-						gradientObj.addColorStop(position, stop.color);
-					});
-				} else {
-					gradientObj = ctx.createRadialGradient(
-						width / 2,
-						height / 2,
-						0,
-						width / 2,
-						height / 2,
-						Math.max(width, height) / 2
-					);
-					sortedStops.forEach((stop) => {
-						const distance = Math.sqrt(
-							Math.pow(stop.position.x - 50, 2) +
-								Math.pow(stop.position.y - 50, 2)
-						);
-						const position = Math.round(distance) / 100;
-						gradientObj.addColorStop(position, stop.color);
-					});
-				}
-
-				ctx.fillStyle = gradientObj;
-				ctx.fillRect(0, 0, width, height);
-			}
-
-			// Draw all elements (reuse logic from downloadRaster)
-			const drawAllElements = async () => {
-				if (!previewRef.current) return;
-
-				const previewActualHeight = previewRef.current.offsetHeight;
-				const previewActualWidth = previewRef.current.offsetWidth;
-				const scaleX = width / previewActualWidth;
-				const scaleY = height / previewActualHeight;
-
-				// Load all images
-				const imageDrawFunctions = await Promise.all(
-					images.map((image) => {
-						return new Promise((resolve) => {
-							const img = new Image();
-							img.crossOrigin = "anonymous";
-							img.onload = () => {
-								resolve({ image, img, ready: true });
-							};
-							img.onerror = () => resolve({ image, img: null, ready: false });
-							img.src = image.src;
-						});
-					})
-				);
-
-				// Combine all drawable elements and sort by z-index
-				const allDrawableElements = [
-					...imageDrawFunctions
-						.filter((item) => item.ready)
-						.map(({ image, img }) => ({
-							type: "image",
-							element: image,
-							img,
-							zIndex: image.styles?.zIndex || 1,
-						})),
-					...shapes.map((shape) => ({
-						type: "shape",
-						element: shape,
-						zIndex: shape.styles?.zIndex || 1,
-					})),
-					...icons.map((icon) => ({
-						type: "icon",
-						element: icon,
-						zIndex: icon.styles?.zIndex || 1,
-					})),
-				].sort((a, b) => (a.zIndex || 1) - (b.zIndex || 1));
-
-				// Draw elements
-				allDrawableElements.forEach(({ type, element, img }) => {
-					if (type === "image" && img) {
-						const image = element;
-						const scaledX =
-							(image.x / 100) * width - (image.width * scaleX) / 2;
-						const scaledY =
-							(image.y / 100) * height - (image.height * scaleY) / 2;
-						const scaledWidth = image.width * scaleX;
-						const scaledHeight = image.height * scaleY;
-						const styles = image.styles || {};
-
-						// Calculate center point for transforms
-						const centerX = scaledX + scaledWidth / 2;
-						const centerY = scaledY + scaledHeight / 2;
-
-						// Apply styles
-						ctx.save();
-
-						// Apply transforms (rotation and skew)
-						const rotation = (styles.rotation || 0) * (Math.PI / 180);
-						const skewX = (styles.skewX || 0) * (Math.PI / 180);
-						const skewY = (styles.skewY || 0) * (Math.PI / 180);
-
-						ctx.translate(centerX, centerY);
-						if (rotation !== 0) {
-							ctx.rotate(rotation);
-						}
-						if (skewX !== 0 || skewY !== 0) {
-							ctx.transform(1, Math.tan(skewY), Math.tan(skewX), 1, 0, 0);
-						}
-						ctx.translate(-centerX, -centerY);
-
-						if (styles.opacity !== undefined) {
-							ctx.globalAlpha = styles.opacity;
-						}
-
-						// Handle object-fit
-						let drawWidth = scaledWidth;
-						let drawHeight = scaledHeight;
-						let drawX = scaledX;
-						let drawY = scaledY;
-
-						if (image.styles?.objectFit === "cover") {
-							const imgAspect = img.width / img.height;
-							const targetAspect = scaledWidth / scaledHeight;
-							if (imgAspect > targetAspect) {
-								drawHeight = scaledWidth / imgAspect;
-								drawY = scaledY + (scaledHeight - drawHeight) / 2;
-							} else {
-								drawWidth = scaledHeight * imgAspect;
-								drawX = scaledX + (scaledWidth - drawWidth) / 2;
-							}
-						} else if (image.styles?.objectFit === "contain") {
-							const imgAspect = img.width / img.height;
-							const targetAspect = scaledWidth / scaledHeight;
-							if (imgAspect > targetAspect) {
-								drawHeight = scaledWidth / imgAspect;
-								drawY = scaledY + (scaledHeight - drawHeight) / 2;
-							} else {
-								drawWidth = scaledHeight * imgAspect;
-								drawX = scaledX + (scaledWidth - drawWidth) / 2;
-							}
-						}
-
-						// Draw rounded rectangle if needed
-						if (image.styles?.borderRadius > 0) {
-							ctx.beginPath();
-							drawRoundedRect(
-								ctx,
-								drawX,
-								drawY,
-								drawWidth,
-								drawHeight,
-								image.styles.borderRadius * scaleX
-							);
-							ctx.clip();
-						}
-
-						ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-						ctx.restore();
-					} else if (type === "shape") {
-						const shape = element;
-						const scaledX =
-							(shape.x / 100) * width - (shape.width * scaleX) / 2;
-						const scaledY =
-							(shape.y / 100) * height - (shape.height * scaleY) / 2;
-						const scaledWidth = shape.width * scaleX;
-						const scaledHeight = shape.height * scaleY;
-						const styles = shape.styles || {};
-
-						// Calculate center point for transforms
-						const centerX = scaledX + scaledWidth / 2;
-						const centerY = scaledY + scaledHeight / 2;
-
-						ctx.save();
-
-						// Apply transforms (rotation and skew)
-						const rotation = (styles.rotation || 0) * (Math.PI / 180);
-						const skewX = (styles.skewX || 0) * (Math.PI / 180);
-						const skewY = (styles.skewY || 0) * (Math.PI / 180);
-
-						ctx.translate(centerX, centerY);
-						if (rotation !== 0) {
-							ctx.rotate(rotation);
-						}
-						if (skewX !== 0 || skewY !== 0) {
-							ctx.transform(1, Math.tan(skewY), Math.tan(skewX), 1, 0, 0);
-						}
-						ctx.translate(-centerX, -centerY);
-
-						if (styles.opacity !== undefined) {
-							ctx.globalAlpha = styles.opacity;
-						}
-
-						// Setup fill style (gradient or solid color)
-						let fillStyle;
-						if (styles.fillGradient) {
-							const sortedStops = [...styles.fillGradient.stops].sort(
-								(a, b) => a.position.x - b.position.x
-							);
-							const angle = (styles.fillGradient.angle || 45) * (Math.PI / 180);
-							const length = Math.sqrt(
-								scaledWidth * scaledWidth + scaledHeight * scaledHeight
-							);
-							const x1 = centerX - (length / 2) * Math.cos(angle);
-							const y1 = centerY - (length / 2) * Math.sin(angle);
-							const x2 = centerX + (length / 2) * Math.cos(angle);
-							const y2 = centerY + (length / 2) * Math.sin(angle);
-
-							const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-							sortedStops.forEach((stop) => {
-								gradient.addColorStop(stop.position.x / 100, stop.color);
-							});
-							fillStyle = gradient;
-						} else {
-							fillStyle = styles.fillColor || "#3b82f6";
-						}
-
-						if (shape.type === "rectangle" || shape.type === "square") {
-							ctx.fillStyle = fillStyle;
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							const radius = (styles.borderRadius || 0) * scaleX;
-							drawRoundedRect(
-								ctx,
-								scaledX,
-								scaledY,
-								scaledWidth,
-								scaledHeight,
-								radius
-							);
-							ctx.fill();
-							if (styles.strokeWidth > 0) {
-								ctx.stroke();
-							}
-						} else if (shape.type === "triangle") {
-							ctx.fillStyle = fillStyle;
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							ctx.beginPath();
-							ctx.moveTo(scaledX + scaledWidth / 2, scaledY);
-							ctx.lineTo(scaledX, scaledY + scaledHeight);
-							ctx.lineTo(scaledX + scaledWidth, scaledY + scaledHeight);
-							ctx.closePath();
-							ctx.fill();
-							if (styles.strokeWidth > 0) {
-								ctx.stroke();
-							}
-						} else if (shape.type === "circle") {
-							const radius = Math.min(scaledWidth, scaledHeight) / 2;
-
-							ctx.fillStyle = fillStyle;
-							ctx.beginPath();
-							ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-							ctx.fill();
-
-							if (styles.strokeWidth > 0) {
-								ctx.strokeStyle = styles.strokeColor || "#1e40af";
-								ctx.lineWidth = styles.strokeWidth || 2;
-								ctx.stroke();
-							}
-						} else if (shape.type === "line") {
-							ctx.strokeStyle = styles.strokeColor || "#1e40af";
-							ctx.lineWidth = styles.strokeWidth || 2;
-							ctx.beginPath();
-							ctx.moveTo(scaledX, scaledY);
-							ctx.lineTo(scaledX + scaledWidth, scaledY);
-							ctx.stroke();
-						}
-						ctx.restore();
-					}
-				});
-			};
-
-			drawAllElements()
-				.then(() => {
-					// Convert to base64
-					const base64 = canvas.toDataURL("image/png");
-					resolve(base64);
-				})
-				.catch(reject);
-		});
-	};
-
-	// Load user projects from Firestore
-	const loadProjects = useCallback(async () => {
-		if (!isAuthenticated || !user?.uid) return;
-
-		setIsLoadingProjects(true);
-		try {
-			const projectsRef = collection(db, "users", user.uid, "kixi-projects");
-			const q = query(projectsRef, orderBy("updatedAt", "desc"));
-			const querySnapshot = await getDocs(q);
-			const projectsList = [];
-			querySnapshot.forEach((doc) => {
-				projectsList.push({
-					id: doc.id,
-					...doc.data(),
-				});
-			});
-			setProjects(projectsList);
-		} catch (error) {
-			console.error("Error loading projects:", error);
-		} finally {
-			setIsLoadingProjects(false);
-		}
-	}, [isAuthenticated, user]);
-
-	// Load projects on mount and when auth changes
-	useEffect(() => {
-		loadProjects();
-	}, [loadProjects]);
+	// Load projects using react-query above
 
 	// Get projectId or docId from URL
 	const projectIdFromUrl = router.query.projectId || router.query.docId;
@@ -6747,6 +5973,8 @@ const AnimatedGradientGenerator = () => {
 
 	const updateFrameQueryParam = useCallback(
 		(frameId) => {
+			if (!router.isReady) return;
+
 			const currentQuery = router.query || {};
 			const nextQuery = { ...currentQuery };
 
@@ -6756,12 +5984,16 @@ const AnimatedGradientGenerator = () => {
 				delete nextQuery.frame;
 			}
 
-			router.replace({
-				pathname: router.pathname,
-				query: nextQuery,
-			});
+			router.replace(
+				{
+					pathname: "/app",
+					query: nextQuery,
+				},
+				undefined,
+				{ shallow: true }
+			);
 		},
-		[router]
+		[router.isReady, router.query]
 	);
 
 	const handleFrameSelect = useCallback(
@@ -6779,12 +6011,13 @@ const AnimatedGradientGenerator = () => {
 	);
 
 	useEffect(() => {
+		if (!router.isReady) return;
+
 		if (!framesList.length) {
 			if (activeFrameId) {
 				setActiveFrameId(null);
 			}
 			lastFrameQueryRef.current = null;
-			updateFrameQueryParam(null);
 			return;
 		}
 
@@ -6798,20 +6031,32 @@ const AnimatedGradientGenerator = () => {
 			lastFrameQueryRef.current = normalizedFrameQuery;
 			if (normalizedFrameQuery && frameExistsInList) {
 				if (normalizedFrameQuery !== activeFrameId) {
-					handleFrameSelect(normalizedFrameQuery);
+					const targetFrame = framesList.find(
+						(f) => f.id === normalizedFrameQuery
+					);
+					if (targetFrame) {
+						setActiveFrameId(normalizedFrameQuery);
+						applyFrameState(targetFrame);
+					}
 				}
 				return;
 			}
 
-			if (normalizedFrameQuery && !frameExistsInList) {
-				handleFrameSelect(framesList[0].id);
+			if (normalizedFrameQuery && !frameExistsInList && framesList[0]) {
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 				return;
 			}
 		}
 
-		if (!normalizedFrameQuery) {
+		if (!normalizedFrameQuery && framesList[0]) {
 			if (!activeFrameId) {
-				handleFrameSelect(framesList[0].id);
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 				return;
 			}
 
@@ -6819,16 +6064,14 @@ const AnimatedGradientGenerator = () => {
 				(frame) => frame.id === activeFrameId
 			);
 			if (!activeExists) {
-				handleFrameSelect(framesList[0].id);
+				const firstFrame = framesList[0];
+				setActiveFrameId(firstFrame.id);
+				applyFrameState(firstFrame);
+				updateFrameQueryParam(firstFrame.id);
 			}
 		}
-	}, [
-		framesList,
-		activeFrameId,
-		handleFrameSelect,
-		frameIdFromUrl,
-		updateFrameQueryParam,
-	]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [framesList, frameIdFromUrl, router.isReady]);
 
 	// Update states when project data is loaded
 	useEffect(() => {
@@ -7042,7 +6285,7 @@ const AnimatedGradientGenerator = () => {
 			const projectsRef = collection(db, "users", user.uid, "kixi-projects");
 			const docRef = await addDoc(projectsRef, projectData);
 			setCurrentProjectId(docRef.id);
-			await loadProjects();
+			await queryClient.invalidateQueries(["projects", user?.uid]);
 			router.push(`/app?projectId=${docRef.id}`, undefined, {
 				shallow: true,
 			});
@@ -7061,12 +6304,112 @@ const AnimatedGradientGenerator = () => {
 			if (currentProjectId === projectId) {
 				handleNewProject();
 			}
-			await loadProjects();
+			await queryClient.invalidateQueries(["projects", user?.uid]);
 		} catch (error) {
 			console.error("Error deleting project:", error);
 			toast.error("Failed to delete project. Please try again.");
 		}
 	};
+
+	// Rename project
+	const handleRenameProject = async (projectId, newName) => {
+		if (!newName.trim()) {
+			setEditingProjectId(null);
+			setEditingProjectName("");
+			return;
+		}
+
+		try {
+			// Find the project to get its publicDocId
+			const project = projects.find((p) => p.id === projectId);
+			const trimmedName = newName.trim();
+
+			// Update in users/kixi-projects
+			const projectRef = doc(db, "users", user.uid, "kixi-projects", projectId);
+			await updateDoc(projectRef, {
+				name: trimmedName,
+				updatedAt: new Date().toISOString(),
+			});
+
+			// If project is published, also update in published-projects
+			if (project?.publicDocId) {
+				const publishedDocRef = doc(
+					db,
+					"published-projects",
+					project.publicDocId
+				);
+				await updateDoc(publishedDocRef, {
+					projectName: trimmedName,
+					updatedAt: new Date().toISOString(),
+				});
+			}
+
+			// Update local state
+			queryClient.setQueryData(["projects", user?.uid], (oldProjects) =>
+				oldProjects
+					? oldProjects.map((p) =>
+							p.id === projectId ? { ...p, name: trimmedName } : p
+						)
+					: []
+			);
+
+			// If this is the current project, update the projectName state too
+			if (currentProjectId === projectId) {
+				setProjectName(trimmedName);
+			}
+
+			toast.success("Project renamed successfully");
+		} catch (error) {
+			console.error("Error renaming project:", error);
+			toast.error("Failed to rename project. Please try again.");
+		} finally {
+			setEditingProjectId(null);
+			setEditingProjectName("");
+		}
+	};
+
+	// Rename frame
+	const handleRenameFrame = async (newName) => {
+		const trimmedName = newName?.trim();
+
+		// Reset editing state regardless
+		setIsEditingFrameName(false);
+		setEditingFrameNameValue("");
+
+		if (!trimmedName || !activeFrameId || !currentProjectId || !user?.uid) {
+			return;
+		}
+
+		try {
+			// Update frame name in Firestore
+			const frameRef = doc(
+				db,
+				"users",
+				user.uid,
+				"kixi-projects",
+				currentProjectId,
+				"frames",
+				activeFrameId
+			);
+			await updateDoc(frameRef, {
+				name: trimmedName,
+				updatedAt: new Date().toISOString(),
+			});
+
+			// Refetch frames to update local state
+			refetchFrames();
+
+			toast.success("Frame renamed successfully");
+		} catch (error) {
+			console.error("Error renaming frame:", error);
+			toast.error("Failed to rename frame. Please try again.");
+		}
+	};
+
+	// Get current active frame data
+	const activeFrame = useMemo(() => {
+		return framesList.find((frame) => frame.id === activeFrameId) || null;
+	}, [framesList, activeFrameId]);
 
 	// Image improvement mutation
 	const generateImprovedImages = useMutation({
@@ -7104,6 +6447,170 @@ const AnimatedGradientGenerator = () => {
 			);
 		},
 	});
+
+	const handleGenerateVariants = (prompt = null) => {
+		const state = {
+			gradient: {
+				type: gradient.type,
+				angle: gradient.angle,
+				stops: gradient.stops,
+				noise: gradient.noise,
+				animation: gradient.animation,
+				backgroundAnimation: gradient.backgroundAnimation,
+				dimensions: gradient.dimensions,
+			},
+			images: images.map((img) => ({
+				x: img.x,
+				y: img.y,
+				width: img.width,
+				height: img.height,
+				src: img.src,
+				caption: img.caption,
+				styles: img.styles,
+			})),
+			videos: videos.map((vid) => ({
+				x: vid.x,
+				y: vid.y,
+				width: vid.width,
+				height: vid.height,
+				src: vid.src,
+				caption: vid.caption,
+				styles: vid.styles,
+			})),
+			texts: texts.map((text) => ({
+				content: text.content,
+				x: text.x,
+				y: text.y,
+				width: text.width,
+				height: text.height,
+				styles: text.styles,
+			})),
+			shapes: shapes.map((shape) => ({
+				shapeType: shape.shapeType,
+				x: shape.x,
+				y: shape.y,
+				width: shape.width,
+				height: shape.height,
+				fillColor: shape.fillColor,
+				strokeColor: shape.strokeColor,
+				strokeWidth: shape.strokeWidth,
+				borderRadius: shape.borderRadius,
+				opacity: shape.opacity,
+				zIndex: shape.zIndex,
+			})),
+			icons: icons.map((icon) => ({
+				iconName: icon.iconName,
+				x: icon.x,
+				y: icon.y,
+				width: icon.width,
+				height: icon.height,
+				styles: icon.styles,
+			})),
+		};
+		generateVariantsMutation.mutate({ state, prompt });
+	};
+
+	// Generate React Code mutation
+	const generateReactCodeMutation = useMutation({
+		mutationFn: async () => {
+			const state = {
+				gradient: {
+					type: gradient.type,
+					angle: gradient.angle,
+					stops: gradient.stops,
+					noise: gradient.noise,
+					animation: gradient.animation,
+					backgroundAnimation: gradient.backgroundAnimation,
+					dimensions: gradient.dimensions,
+				},
+				images: images.map((img) => ({
+					x: img.x,
+					y: img.y,
+					width: img.width,
+					height: img.height,
+					src: img.src,
+					caption: img.caption,
+					styles: img.styles,
+				})),
+				videos: videos.map((vid) => ({
+					x: vid.x,
+					y: vid.y,
+					width: vid.width,
+					height: vid.height,
+					src: vid.src,
+					caption: vid.caption,
+					styles: vid.styles,
+				})),
+				texts: texts.map((text) => ({
+					content: text.content,
+					x: text.x,
+					y: text.y,
+					width: text.width,
+					height: text.height,
+					styles: text.styles,
+				})),
+				shapes: shapes.map((shape) => ({
+					shapeType: shape.shapeType,
+					x: shape.x,
+					y: shape.y,
+					width: shape.width,
+					height: shape.height,
+					fillColor: shape.fillColor,
+					strokeColor: shape.strokeColor,
+					strokeWidth: shape.strokeWidth,
+					borderRadius: shape.borderRadius,
+					opacity: shape.opacity,
+					zIndex: shape.zIndex,
+				})),
+				icons: icons.map((icon) => ({
+					iconName: icon.iconName,
+					x: icon.x,
+					y: icon.y,
+					width: icon.width,
+					height: icon.height,
+					styles: icon.styles,
+				})),
+			};
+
+			const response = await fetch("/api/convert-to-react", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ state }),
+			});
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.error || "Failed to generate React code");
+			}
+
+			return response.json();
+		},
+		onSuccess: (data) => {
+			setGeneratedReactCode(data.code || "");
+			setIsGenerateCodeDropdownOpen(true);
+			toast.success("React code generated successfully!");
+		},
+		onError: (error) => {
+			console.error("Error generating React code:", error);
+			toast.error(
+				error.message || "Failed to generate code. Please try again."
+			);
+		},
+	});
+
+	// Copy generated code to clipboard
+	const handleCopyGeneratedCode = async () => {
+		try {
+			await navigator.clipboard.writeText(generatedReactCode);
+			setCodeCopied(true);
+			toast.success("Code copied to clipboard!");
+			setTimeout(() => setCodeCopied(false), 2000);
+		} catch (err) {
+			toast.error("Failed to copy code");
+		}
+	};
 
 	// Auto-focus improvement prompt when modal opens
 	useEffect(() => {
@@ -7339,7 +6846,9 @@ const AnimatedGradientGenerator = () => {
 	const saveHistoryToCookie = useCallback((historyData) => {
 		try {
 			const cookieValue = JSON.stringify(historyData);
-			document.cookie = `gradientHistory=${encodeURIComponent(cookieValue)}; path=/; max-age=86400`; // 24 hours
+			document.cookie = `gradientHistory=${encodeURIComponent(
+				cookieValue
+			)}; path=/; max-age=86400`; // 24 hours
 		} catch (error) {
 			console.error("Failed to save history to cookie:", error);
 		}
@@ -7701,7 +7210,27 @@ const AnimatedGradientGenerator = () => {
 				}
 			}
 
-			await loadProjects();
+			await queryClient.invalidateQueries(["projects", user?.uid]);
+
+			// Reset unsaved changes tracking
+			lastSavedStateRef.current = JSON.stringify({
+				gradient,
+				images,
+				videos,
+				texts,
+				icons,
+				shapes,
+				backgroundImage,
+				backgroundShapeRects,
+			});
+			setHasUnsavedChanges(false);
+
+			// Clear auto-save timeout since we just saved
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+				autoSaveTimeoutRef.current = null;
+			}
+
 			setCopied("saved");
 			setTimeout(() => setCopied(""), 2000);
 		} catch (error) {
@@ -7711,6 +7240,9 @@ const AnimatedGradientGenerator = () => {
 			setIsSaving(false);
 		}
 	};
+
+	// Keep ref updated for auto-save
+	handleSaveProjectRef.current = handleSaveProject;
 
 	// Load history from cookies on mount
 	useEffect(() => {
@@ -7953,6 +7485,94 @@ const AnimatedGradientGenerator = () => {
 		saveToHistory,
 	]);
 
+	// Track unsaved changes and auto-save with debouncing
+	const getCanvasState = useCallback(() => {
+		return JSON.stringify({
+			gradient,
+			images,
+			videos,
+			texts,
+			icons,
+			shapes,
+			backgroundImage,
+			backgroundShapeRects,
+		});
+	}, [
+		gradient,
+		images,
+		videos,
+		texts,
+		icons,
+		shapes,
+		backgroundImage,
+		backgroundShapeRects,
+	]);
+
+	// Detect changes and mark as unsaved
+	useEffect(() => {
+		// Skip if not authenticated or no project
+		if (!isAuthenticated || !currentProjectId) return;
+
+		const currentState = getCanvasState();
+
+		// Initialize last saved state if not set
+		if (lastSavedStateRef.current === null) {
+			lastSavedStateRef.current = currentState;
+			return;
+		}
+
+		// Compare current state with last saved state
+		if (currentState !== lastSavedStateRef.current) {
+			setHasUnsavedChanges(true);
+
+			// Clear existing auto-save timeout
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+
+			// Set new auto-save timeout (45 seconds of inactivity)
+			autoSaveTimeoutRef.current = setTimeout(() => {
+				// Only auto-save if there are unsaved changes and user is authenticated
+				if (handleSaveProjectRef.current) {
+					handleSaveProjectRef.current();
+				}
+			}, 45000); // 45 seconds
+		}
+
+		return () => {
+			if (autoSaveTimeoutRef.current) {
+				clearTimeout(autoSaveTimeoutRef.current);
+			}
+		};
+	}, [getCanvasState, isAuthenticated, currentProjectId]);
+
+	// Reset unsaved changes when project changes (loading a different project)
+	useEffect(() => {
+		if (currentProjectId) {
+			// Give a small delay for state to settle after loading
+			const timer = setTimeout(() => {
+				lastSavedStateRef.current = getCanvasState();
+				setHasUnsavedChanges(false);
+			}, 500);
+			return () => clearTimeout(timer);
+		}
+	}, [currentProjectId]);
+
+	// Warn user before leaving page with unsaved changes
+	useEffect(() => {
+		const handleBeforeUnload = (e) => {
+			if (hasUnsavedChanges && isAuthenticated && currentProjectId) {
+				e.preventDefault();
+				e.returnValue =
+					"You have unsaved changes. Are you sure you want to leave?";
+				return e.returnValue;
+			}
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+	}, [hasUnsavedChanges, isAuthenticated, currentProjectId]);
+
 	const { animation, backgroundAnimation } = useMemo(
 		() => generateAnimationCSS(),
 		[gradient]
@@ -7963,28 +7583,8 @@ const AnimatedGradientGenerator = () => {
 	);
 
 	// Handle click outside download dropdown
-	const handleDownloadDropdownClickOutside = useCallback((event) => {
-		if (
-			downloadDropdownRef.current &&
-			!downloadDropdownRef.current.contains(event.target)
-		) {
-			setIsDownloadDropdownOpen(false);
-		}
-	}, []);
 
-	useEffect(() => {
-		if (isDownloadDropdownOpen) {
-			document.addEventListener(
-				"mousedown",
-				handleDownloadDropdownClickOutside
-			);
-			return () =>
-				document.removeEventListener(
-					"mousedown",
-					handleDownloadDropdownClickOutside
-				);
-		}
-	}, [isDownloadDropdownOpen, handleDownloadDropdownClickOutside]);
+	// Handle click outside generate code dropdown
 
 	// Keyboard shortcuts for adding elements
 	useEffect(() => {
@@ -8312,1671 +7912,1624 @@ const AnimatedGradientGenerator = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-stone-50/50">
-			{isSmallDeviceModalOpen && (
-				<div className="fixed inset-0 z-[20000] flex items-center justify-center p-6 bg-white/95 backdrop-blur-lg">
-					<div className="max-w-sm w-full bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 text-center space-y-4">
-						<div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center">
-							<AlertTriangle className="w-8 h-8 text-amber-500" />
-						</div>
-						<div className="space-y-2">
-							<h2 className="text-xl font-semibold text-zinc-900">
-								Designed for larger screens
-							</h2>
-							<p className="text-sm text-zinc-600">
-								The full Kixi editor needs tablet or desktop resolution to run
-								smoothly. Please switch to a bigger display—we’ll ship a mobile
-								version soon.
-							</p>
+		<EditorProvider
+			value={{
+				isAuthenticated,
+				currentProjectId,
+				publicDocId,
+				isSaving,
+				hasUnsavedChanges,
+				isPublishing,
+			}}
+		>
+			<div className="min-h-screen bg-stone-50/50">
+				{isSmallDeviceModalOpen && (
+					<div className="fixed inset-0 z-[20000] flex items-center justify-center p-6 bg-white/95 backdrop-blur-lg">
+						<div className="max-w-sm w-full bg-white border border-zinc-200 rounded-2xl shadow-2xl p-6 text-center space-y-4">
+							<div className="w-16 h-16 mx-auto rounded-2xl bg-amber-50 flex items-center justify-center">
+								<AlertTriangle className="w-8 h-8 text-amber-500" />
+							</div>
+							<div className="space-y-2">
+								<h2 className="text-xl font-semibold text-zinc-900">
+									Designed for larger screens
+								</h2>
+								<p className="text-sm text-zinc-600">
+									The full Kixi editor needs tablet or desktop resolution to run
+									smoothly. Please switch to a bigger display—we’ll ship a
+									mobile version soon.
+								</p>
+							</div>
 						</div>
 					</div>
-				</div>
-			)}
-			<div
-				className="fixed top-0 left-0 right-0 h-full opacity-20 z-0"
-				style={{
-					backgroundImage:
-						"radial-gradient(circle, #d1d5db 1.5px, transparent 1.5px)",
-					backgroundSize: "20px 20px",
-				}}
-			/>
+				)}
+				<div
+					className="fixed top-0 left-0 right-0 h-full opacity-20 z-0"
+					style={{
+						backgroundImage:
+							"radial-gradient(circle, #d1d5db 1.5px, transparent 1.5px)",
+						backgroundSize: "20px 20px",
+					}}
+				/>
 
-			<div className="flex">
-				{/* Sidebar */}
-				<motion.aside
-					initial={{ opacity: 0 }}
-					animate={{ opacity: 1 }}
-					exit={{ opacity: 0 }}
-					transition={{ duration: 0.2 }}
-					className={`bg-white top-[88px] w-[85vw] max-w-sm space-y-4 z-50 h-[calc(100vh-140px)] overflow-y-auto hidescrollbar border border-zinc-100 rounded-xl fixed left-2 flex flex-col transition-transform duration-300 ease-out -translate-x-full lg:translate-x-0 lg:left-4 lg:top-[20px] lg:w-[280px] lg:h-[calc(100vh-56px)] ${
-						isSidebarDrawerOpen ? "translate-x-0 shadow-2xl lg:shadow-none" : ""
-					} lg:z-40`}
-				>
-					<div className="flex-1 overflow-y-auto p-2 flex flex-col justify-between items-start">
-						<div className="w-full">
-							<img src="./kixi-logo.png" alt="kixi" className="w-10 h-10" />
-							<hr />
+				<div className="flex">
+					{/* Sidebar */}
+					<Sidebar
+						isSidebarDrawerOpen={isSidebarDrawerOpen}
+						setIsProjectModalOpen={setIsProjectModalOpen}
+						isAuthenticated={isAuthenticated}
+						isLoadingProjects={isLoadingProjects}
+						projects={projects}
+						handleNewProject={handleNewProject}
+						currentProjectId={currentProjectId}
+						loadProject={loadProject}
+						router={router}
+						editingProjectId={editingProjectId}
+						editingProjectName={editingProjectName}
+						setEditingProjectName={setEditingProjectName}
+						handleRenameProject={handleRenameProject}
+						setEditingProjectId={setEditingProjectId}
+						handleDeleteProject={handleDeleteProject}
+						images={images}
+						videos={videos}
+						texts={texts}
+						shapes={shapes}
+						icons={icons}
+						backgroundShapeRects={backgroundShapeRects}
+						handleUpdateZIndex={handleUpdateZIndex}
+						selectedImage={selectedImage}
+						selectedVideo={selectedVideo}
+						selectedText={selectedText}
+						selectedShape={selectedShape}
+						selectedIcon={selectedIcon}
+						selectedBackgroundShapeRect={selectedBackgroundShapeRect}
+						handleLayerSelect={handleLayerSelect}
+						handleDeleteLayer={handleDeleteLayer}
+						keyboardShortcutsRef={keyboardShortcutsRef}
+						isKeyboardShortcutsOpen={isKeyboardShortcutsOpen}
+						setIsKeyboardShortcutsOpen={setIsKeyboardShortcutsOpen}
+						setIsOpenAboutModal={setIsOpenAboutModal}
+						isReleasesModalOpen={isReleasesModalOpen}
+						setIsReleasesModalOpen={setIsReleasesModalOpen}
+					/>
 
-							{isAuthenticated && (
-								<div className="flex justify-between items-center ">
-									<h3 className="text-sm text-black">My Kixi's</h3>
-									<div className="p-2">
-										<button
-											onClick={handleNewProject}
-											className="w-fit flex items-center justify-center gap-1 p-1.5 text-xs bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-800 rounded transition-all"
-										>
-											<Add01Icon className="w-3 h-3" />
-										</button>
-									</div>
-								</div>
-							)}
-							{isAuthenticated && isLoadingProjects ? (
-								<div className="flex items-center justify-center py-8">
-									<Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
-								</div>
-							) : projects.length === 0 ? (
-								<div className="text-left py-2 space-y-2 text-zinc-500 text-sm">
-									{isAuthenticated
-										? "No projects yet. Create your first one!"
-										: "Sign in to save and manage your projects"}
-									{/* <GoogleLoginButton /> */}
-								</div>
-							) : (
-								isAuthenticated && (
-									<div className="space-y-2">
-										{projects.map((project) => (
-											<div
-												key={project.id}
-												className={`group relative p-1 hover:ring hover:ring-zinc-100 rounded-xl cursor-pointer transition-all ${
-													currentProjectId === project.id
-														? "bg-zinc-50 ring ring-zinc-50 border border-zinc-100"
-														: "hover:bg-zinc-50"
-												}`}
-												onClick={() => {
-													if (project.id !== currentProjectId) {
-														loadProject(project.id);
-														router.push(
-															`/app?projectId=${project.id}`,
-															undefined,
-															{
-																shallow: true,
-															}
-														);
+					{/* Main Content */}
+					<div className="flex-1 p-4">
+						<style jsx>{`
+							.slider::-webkit-slider-thumb {
+								appearance: none;
+								height: 16px;
+								width: 16px;
+								border-radius: 50%;
+								background: #71717a;
+								cursor: pointer;
+								border: 2px solid #ffffff;
+								box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+							}
+							.slider::-moz-range-thumb {
+								height: 16px;
+								width: 16px;
+								border-radius: 50%;
+								background: #71717a;
+								cursor: pointer;
+								border: 2px solid #ffffff;
+								box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+							}
+
+							/* Simple animations for modal */
+							@keyframes slideRight {
+								0% {
+									background-position: 0% 0%;
+								}
+								100% {
+									background-position: 100% 0%;
+								}
+							}
+							@keyframes slideLeft {
+								0% {
+									background-position: 100% 0%;
+								}
+								100% {
+									background-position: 0% 0%;
+								}
+							}
+							@keyframes slideUp {
+								0% {
+									background-position: 0% 100%;
+								}
+								100% {
+									background-position: 0% 0%;
+								}
+							}
+							@keyframes slideDown {
+								0% {
+									background-position: 0% 0%;
+								}
+								100% {
+									background-position: 0% 100%;
+								}
+							}
+							@keyframes wave {
+								0% {
+									background-position: 0% 0%;
+								}
+								25% {
+									background-position: 100% 0%;
+								}
+								50% {
+									background-position: 100% 100%;
+								}
+								75% {
+									background-position: 0% 100%;
+								}
+								100% {
+									background-position: 0% 0%;
+								}
+							}
+						`}</style>
+						<div className="max-w-7xl mx-auto relative">
+							<div className="space-y-1 lg:pr-[100px] mt-16">
+								{/* Frame Name Input */}
+								{isAuthenticated && activeFrameId && (
+									<div className="relative z-30 mb-2 flex justify-start items-center">
+										{isEditingFrameName ? (
+											<input
+												type="text"
+												value={editingFrameNameValue}
+												onChange={(e) =>
+													setEditingFrameNameValue(e.target.value)
+												}
+												onKeyDown={(e) => {
+													if (e.key === "Enter") {
+														e.preventDefault();
+														handleRenameFrame(editingFrameNameValue);
+													} else if (e.key === "Escape") {
+														setIsEditingFrameName(false);
+														setEditingFrameNameValue("");
 													}
 												}}
+												autoFocus
+												placeholder="Frame name..."
+												className="px-3 py-1.5 text-xs bg-white border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400 min-w-[160px]"
+											/>
+										) : (
+											<button
+												onClick={() => {
+													setIsEditingFrameName(true);
+													setEditingFrameNameValue(
+														activeFrame?.name ||
+															`Frame ${activeFrame?.frameNumber || 1}`
+													);
+												}}
+												className="px-3 py-1.5 text-xs font-medium bg-white border border-zinc-200 rounded-xl hover:bg-zinc-50 hover:border-zinc-300 transition-all flex items-center gap-2"
+												title="Click to rename frame"
 											>
-												<div className="flex items-center justify-between gap-2 mb-1 p-1 relative z-10">
-													<div className="flex-1 min-w-0">
-														<h4 className="text-sm text-zinc-800 truncate">
-															{project.name || "Untitled Project"}
-														</h4>
-													</div>
-													<button
-														onClick={(e) => {
-															e.stopPropagation();
-															e.preventDefault();
-															handleDeleteProject(project.id);
-														}}
-														className="p-1 hover:bg-red-100 rounded-xl transition-all relative z-20 flex-shrink-0"
-													>
-														<Trash2 className="w-4 h-4 text-red-400" />
-													</button>
-												</div>
-												{/* Layer List - Fixed on Left Side */}
-												{currentProjectId === project.id && (
-													<LayerList
-														images={images}
-														videos={videos}
-														texts={texts}
-														shapes={shapes}
-														icons={icons}
-														backgroundShapeRects={backgroundShapeRects}
-														onUpdateZIndex={handleUpdateZIndex}
-														selectedImage={selectedImage}
-														selectedVideo={selectedVideo}
-														selectedText={selectedText}
-														selectedShape={selectedShape}
-														selectedIcon={selectedIcon}
-														selectedBackgroundShapeRect={
-															selectedBackgroundShapeRect
-														}
-														onSelect={handleLayerSelect}
-													/>
-												)}
-											</div>
-										))}
+												<span className="text-zinc-700 truncate max-w-[200px]">
+													{activeFrame?.name ||
+														`Frame ${activeFrame?.frameNumber || 1}`}
+												</span>
+												<PenTool01Icon className="w-3.5 h-3.5 text-zinc-400" />
+											</button>
+										)}
 									</div>
-								)
-							)}
-						</div>
-						<div className="space-y-2 flex flex-col p-2 w-full">
-							{/* Keyboard Shortcuts Info Button */}
-							<div ref={keyboardShortcutsRef} className="">
-								<motion.button
-									initial={{ scale: 0 }}
-									animate={{ scale: 1 }}
-									onClick={() =>
-										setIsKeyboardShortcutsOpen(!isKeyboardShortcutsOpen)
-									}
-									className="text-sm cursor-pointer flex gap-1 justify-start hover:text-black text-zinc-500 rounded-xl transition-colors"
-									title="Keyboard Shortcuts"
-								>
-									Keyboard Shortcuts
-								</motion.button>
-							</div>
-							<button
-								className="hover:text-black text-zinc-500 text-sm w-fit transition-all duration-100 ease-in"
-								onClick={() => setIsOpenAboutModal(true)}
-							>
-								About
-							</button>
-							<a
-								href="https://x.com/@treyvijay"
-								target="_blank"
-								rel="noopener noreferrer"
-								className="hover:text-black text-zinc-500 text-sm w-full transition-all duration-100 ease-in"
-							>
-								Twitter
-							</a>
-							{/* <button
-								onClick={() => {
-									setShowSubscriptionModal(!showSubscriptionModal);
-								}}
-								className="p-1 text-md rounded-xl justify-center transition-all duration-100 ease-in flex gap-2 w-full items-center text-white bg-zinc-900 hover:bg-black hover:shadow-xl transition-all duration-100 ease-in"
-							>
-								<Money01Icon className="w-4 h-4" />
-								Buy PRO
-							</button> */}
-						</div>
-					</div>
-				</motion.aside>
-
-				{/* Main Content */}
-				<div className="flex-1 p-4">
-					<style jsx>{`
-						.slider::-webkit-slider-thumb {
-							appearance: none;
-							height: 16px;
-							width: 16px;
-							border-radius: 50%;
-							background: #71717a;
-							cursor: pointer;
-							border: 2px solid #ffffff;
-							box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-						}
-						.slider::-moz-range-thumb {
-							height: 16px;
-							width: 16px;
-							border-radius: 50%;
-							background: #71717a;
-							cursor: pointer;
-							border: 2px solid #ffffff;
-							box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-						}
-
-						/* Simple animations for modal */
-						@keyframes slideRight {
-							0% {
-								background-position: 0% 0%;
-							}
-							100% {
-								background-position: 100% 0%;
-							}
-						}
-						@keyframes slideLeft {
-							0% {
-								background-position: 100% 0%;
-							}
-							100% {
-								background-position: 0% 0%;
-							}
-						}
-						@keyframes slideUp {
-							0% {
-								background-position: 0% 100%;
-							}
-							100% {
-								background-position: 0% 0%;
-							}
-						}
-						@keyframes slideDown {
-							0% {
-								background-position: 0% 0%;
-							}
-							100% {
-								background-position: 0% 100%;
-							}
-						}
-						@keyframes wave {
-							0% {
-								background-position: 0% 0%;
-							}
-							25% {
-								background-position: 100% 0%;
-							}
-							50% {
-								background-position: 100% 100%;
-							}
-							75% {
-								background-position: 0% 100%;
-							}
-							100% {
-								background-position: 0% 0%;
-							}
-						}
-					`}</style>
-					<div className="max-w-7xl mx-auto relative">
-						<div className="space-y-1 lg:pr-[100px] mt-16">
-							<div className="bg-white rounded-xl relative">
-								{/* Immediate parent container of previewRef with zoom transform */}
-								<div
-									className="flex justify-center items-center w-full overflow-hidden"
-									style={{
-										transform: `scale(${previewZoom})`,
-										transformOrigin: "center center",
-									}}
-								>
+								)}
+								<div className="bg-white rounded-xl relative">
+									{/* Immediate parent container of previewRef with zoom transform */}
 									<div
-										ref={previewRef}
-										className="relative rounded-xl overflow-hidden cursor-crosshair border border-zinc-100"
+										className="flex justify-center items-center w-full overflow-hidden"
 										style={{
-											...(gradient.dimensions.width <= 500 &&
-											gradient.dimensions.height <= 500
-												? {
-														width: `${gradient.dimensions.width}px`,
-														height: `${gradient.dimensions.height}px`,
-													}
-												: {
-														aspectRatio: `${gradient.dimensions.width} / ${gradient.dimensions.height}`,
-														width: "100%",
-														maxWidth: "100%",
-													}),
-											// Calculate maxHeight based on aspect ratio: for portrait frames, allow more height
-											maxHeight:
-												gradient.dimensions.height > gradient.dimensions.width
-													? "90vh" // Portrait frames get more vertical space
-													: "600px", // Landscape frames limited to 600px
-											// Always show gradient background (not image unless explicitly set)
-											...(backgroundImage
-												? {
-														backgroundImage: `url(${backgroundImage})`,
-														backgroundSize: "cover",
-														backgroundPosition: "center",
-														backgroundRepeat: "no-repeat",
-													}
-												: {
-														background: generateGradientCSS(),
-														...(isPlaying &&
-															gradient.backgroundAnimation.enabled && {
-																backgroundSize: "200% 200%",
-															}),
-													}),
-											...(isPlaying &&
-												!backgroundImage &&
-												backgroundAnimation && {
-													animation: backgroundAnimation,
-												}),
-										}}
-										onClick={(e) => {
-											// Deselect images, texts, videos, shapes, icons, background shape rects, and gradient stops when clicking on canvas
-											if (
-												e.target === previewRef.current ||
-												e.target.parentElement === previewRef.current
-											) {
-												setSelectedImage(null);
-												setSelectedText(null);
-												setSelectedVideo(null);
-												setSelectedShape(null);
-												setSelectedIcon(null);
-												setSelectedBackgroundShapeRect(null);
-												setSelectedStop(null);
-												setAlignmentGuides({ horizontal: [], vertical: [] });
-											}
+											transform: `scale(${previewZoom})`,
+											transformOrigin: "center center",
 										}}
 									>
-										{/* Element Animation Overlay */}
 										<div
-											className="absolute inset-0"
+											ref={previewRef}
+											className="relative rounded-xl overflow-hidden cursor-crosshair border border-zinc-100"
 											style={{
-												...(isPlaying && animation && { animation }),
+												...(gradient.dimensions.width <= 500 &&
+												gradient.dimensions.height <= 500
+													? {
+															width: `${gradient.dimensions.width}px`,
+															height: `${gradient.dimensions.height}px`,
+														}
+													: {
+															aspectRatio: `${gradient.dimensions.width} / ${gradient.dimensions.height}`,
+															width: "100%",
+															maxWidth: "100%",
+														}),
+												// Calculate maxHeight based on aspect ratio: for portrait frames, allow more height
+												maxHeight:
+													gradient.dimensions.height > gradient.dimensions.width
+														? "90vh" // Portrait frames get more vertical space
+														: "600px", // Landscape frames limited to 600px
+												// Always show gradient background (not image unless explicitly set)
+												...(backgroundImage
+													? {
+															backgroundImage: `url(${backgroundImage})`,
+															backgroundSize: "cover",
+															backgroundPosition: "center",
+															backgroundRepeat: "no-repeat",
+														}
+													: {
+															background: generateGradientCSS(),
+															...(isPlaying &&
+																gradient.backgroundAnimation.enabled && {
+																	backgroundSize: "200% 200%",
+																}),
+														}),
+												...(isPlaying &&
+													!backgroundImage &&
+													backgroundAnimation && {
+														animation: backgroundAnimation,
+													}),
 											}}
-										/>
-
-										{/* Alignment Guides */}
-										{(alignmentGuides.horizontal.length > 0 ||
-											alignmentGuides.vertical.length > 0) && (
-											<div
-												className="absolute inset-0 pointer-events-none"
-												style={{ zIndex: 9999 }}
-											>
-												{/* Horizontal Guides */}
-												{alignmentGuides?.horizontal?.map((guide, index) => (
-													<div
-														key={`h-${index}`}
-														className="absolute left-0 right-0"
-														style={{
-															top: `${guide.position}px`,
-															height: "1px",
-															backgroundColor: "#3b82f6",
-															opacity: 1,
-															boxShadow:
-																"0 0 4px rgba(59, 130, 246, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)",
-														}}
-													/>
-												))}
-												{/* Vertical Guides */}
-												{alignmentGuides?.vertical?.map((guide, index) => (
-													<div
-														key={`v-${index}`}
-														className="absolute top-0 bottom-0"
-														style={{
-															left: `${guide.position}px`,
-															width: "1px",
-															backgroundColor: "#3b82f6",
-															opacity: 1,
-															boxShadow:
-																"0 0 4px rgba(59, 130, 246, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)",
-														}}
-													/>
-												))}
-											</div>
-										)}
-
-										{/* Background Shape Rectangles Layer */}
-										{backgroundShapeRects.map((rect) => (
-											<div
-												key={rect.id}
-												className={`absolute cursor-move ${
-													selectedBackgroundShapeRect === rect.id
-														? "ring-2 ring-orange-500"
-														: "ring-2 ring-transparent"
-												}`}
-												style={{
-													left: `${rect.x}%`,
-													top: `${rect.y}%`,
-													width: `${rect.width}px`,
-													height: `${rect.height}px`,
-													transform: `translate(-50%, -50%) rotate(${rect.styles?.rotation || 0}deg) skew(${rect.styles?.skewX || 0}deg, ${rect.styles?.skewY || 0}deg)`,
-													zIndex: rect.styles?.zIndex || 1,
-													opacity: rect.styles?.opacity || 1,
-												}}
-												onMouseDown={(e) => {
-													e.stopPropagation();
-													handleBackgroundShapeRectMouseDown(e, rect.id);
-												}}
-												onClick={(e) => {
-													e.stopPropagation();
-													setSelectedBackgroundShapeRect(rect.id);
+											onClick={(e) => {
+												// Deselect images, texts, videos, shapes, icons, background shape rects, and gradient stops when clicking on canvas
+												if (
+													e.target === previewRef.current ||
+													e.target.parentElement === previewRef.current
+												) {
 													setSelectedImage(null);
 													setSelectedText(null);
 													setSelectedVideo(null);
 													setSelectedShape(null);
 													setSelectedIcon(null);
+													setSelectedBackgroundShapeRect(null);
 													setSelectedStop(null);
-												}}
-											>
-												{/* Background Shape */}
-												<BackgroundShape
-													shapeId={rect.shapeId}
-													scale={rect.scale}
-													color="#000000"
-												/>
-
-												{/* Delete Button */}
-												<div className="absolute -top-2 -right-2 flex gap-1">
-													<button
-														onClick={(e) => {
-															e.stopPropagation();
-															removeBackgroundShapeRect(rect.id);
-														}}
-														className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-														title="Delete background shape"
-													>
-														<X className="w-3 h-3" />
-													</button>
-												</div>
-
-												{/* Resize Handles */}
-												{selectedBackgroundShapeRect === rect.id && (
-													<>
-														{/* Corner handles */}
-														<div
-															className="absolute top-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"nw"
-																)
-															}
-														/>
-														<div
-															className="absolute top-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"ne"
-																)
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"sw"
-																)
-															}
-														/>
-														<div
-															className="absolute bottom-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"se"
-																)
-															}
-														/>
-														{/* Edge handles */}
-														<div
-															className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"n"
-																)
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"s"
-																)
-															}
-														/>
-														<div
-															className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"w"
-																)
-															}
-														/>
-														<div
-															className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleBackgroundShapeRectResizeStart(
-																	e,
-																	rect.id,
-																	"e"
-																)
-															}
-														/>
-													</>
-												)}
-											</div>
-										))}
-
-										{/* Text Layer */}
-										{texts.map((text) => (
+													setAlignmentGuides({ horizontal: [], vertical: [] });
+												}
+											}}
+										>
+											{/* Element Animation Overlay */}
 											<div
-												key={text.id}
-												className={`absolute ${
-													selectedText === text.id
-														? "ring-2 ring-zinc-500"
-														: "ring-2 ring-transparent"
-												}`}
+												className="absolute inset-0"
 												style={{
-													left: `${text.x}%`,
-													top: `${text.y}%`,
-													width: `${text.width}px`,
-													minHeight: `${text.height}px`,
-													transform: `translate(-50%, -50%) rotate(${text.styles?.rotation || 0}deg) skew(${text.styles?.skewX || 0}deg, ${text.styles?.skewY || 0}deg)`,
-													zIndex: text.styles?.zIndex || 2,
+													...(isPlaying && animation && { animation }),
 												}}
-												onMouseDown={(e) => handleTextMouseDown(e, text.id)}
-											>
-												{/* Text Content */}
-												{textEditing === text.id ? (
-													<textarea
-														value={text.content}
-														onChange={(e) =>
-															updateText(text.id, { content: e.target.value })
-														}
-														onBlur={() => setTextEditing(null)}
-														onKeyDown={(e) => {
-															if (e.key === "Enter" && e.shiftKey === false) {
-																e.preventDefault();
-																setTextEditing(null);
-															}
-														}}
-														className="w-full resize-none outline-none bg-transparent text-center"
-														style={{
-															fontSize: `${text.styles?.fontSize || 24}px`,
-															fontWeight: text.styles?.fontWeight || "normal",
-															fontStyle: text.styles?.fontStyle || "normal",
-															color: text.styles?.color || "#000000",
-															textAlign: text.styles?.textAlign || "left",
-															fontFamily: text.styles?.fontFamily || "Arial",
-															backgroundColor:
-																text.styles?.backgroundColor === "transparent"
-																	? "rgba(255, 255, 255, 0.8)"
-																	: text.styles?.backgroundColor ||
-																		"transparent",
-															padding: `${text.styles?.padding || 0}px`,
-															borderRadius:
-																text.styles?.borderRadius === 100
-																	? "50%"
-																	: `${text.styles?.borderRadius || 0}px`,
-															borderWidth: `${text.styles?.borderWidth || 0}px`,
-															borderColor:
-																text.styles?.borderColor || "#000000",
-															borderStyle: text.styles?.borderStyle || "solid",
-															opacity:
-																text.styles?.opacity !== undefined
-																	? text.styles.opacity
-																	: 1,
-															boxShadow: formatShadowCSS(text.styles?.shadow),
-														}}
-														autoFocus
-													/>
-												) : (
-													<div
-														className="cursor-move select-none [&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
-														onDoubleClick={() => setTextEditing(text.id)}
-														style={{
-															fontSize: `${text.styles?.fontSize || 24}px`,
-															fontWeight: text.styles?.fontWeight || "normal",
-															fontStyle: text.styles?.fontStyle || "normal",
-															color: text.styles?.color || "#000000",
-															textAlign: text.styles?.textAlign || "left",
-															fontFamily: text.styles?.fontFamily || "Arial",
-															backgroundColor:
-																text.styles?.backgroundColor || "transparent",
-															padding: `${text.styles?.padding || 0}px`,
-															borderRadius:
-																text.styles?.borderRadius === 100
-																	? "50%"
-																	: `${text.styles?.borderRadius || 0}px`,
-															borderWidth: `${text.styles?.borderWidth || 0}px`,
-															borderColor:
-																text.styles?.borderColor || "#000000",
-															borderStyle: text.styles?.borderStyle || "solid",
-															opacity:
-																text.styles?.opacity !== undefined
-																	? text.styles.opacity
-																	: 1,
-															boxShadow: formatShadowCSS(text.styles?.shadow),
-															whiteSpace:
-																text.styles?.listStyle !== "none"
-																	? "normal"
-																	: "pre-wrap",
-															wordWrap: "break-word",
-														}}
-														dangerouslySetInnerHTML={{
-															__html: formatTextContent(
-																text.content,
-																text.styles
-															),
-														}}
-													/>
-												)}
+											/>
 
-												{/* Text Controls */}
-												{textEditing !== text.id && (
-													<div className="absolute -top-2 -right-2 flex gap-1">
-														{/* Delete Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																removeText(text.id);
-															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Delete text"
-														>
-															<X className="w-3 h-3" />
-														</button>
-													</div>
-												)}
-
-												{/* Resize Handles */}
-												{selectedText === text.id &&
-													textEditing !== text.id && (
-														<>
-															{/* Corner handles */}
-															<div
-																className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "nw")
-																}
-															/>
-															<div
-																className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "ne")
-																}
-															/>
-															<div
-																className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "sw")
-																}
-															/>
-															<div
-																className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "se")
-																}
-															/>
-															{/* Edge handles */}
-															<div
-																className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "n")
-																}
-															/>
-															<div
-																className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "s")
-																}
-															/>
-															<div
-																className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "w")
-																}
-															/>
-															<div
-																className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-																onMouseDown={(e) =>
-																	handleTextResizeStart(e, text.id, "e")
-																}
-															/>
-														</>
-													)}
-											</div>
-										))}
-
-										{/* Uploaded Images Layer */}
-										{images.map((image) => (
-											<div
-												key={image.id}
-												className={`absolute ${
-													selectedImage === image.id
-														? "ring-2 ring-zinc-500"
-														: "ring-2 ring-transparent"
-												}`}
-												style={{
-													left: `${image.x}%`,
-													top: `${image.y}%`,
-													width: `${image.width}px`,
-													height: `${image.height}px`,
-													transform: `translate(-50%, -50%) rotate(${image.styles?.rotation || 0}deg) skew(${image.styles?.skewX || 0}deg, ${image.styles?.skewY || 0}deg)`,
-													zIndex: image.styles?.zIndex || 1,
-												}}
-											>
-												{/* Image Wrapper with overflow-hidden for border radius */}
+											{/* Alignment Guides */}
+											{(alignmentGuides.horizontal.length > 0 ||
+												alignmentGuides.vertical.length > 0) && (
 												<div
-													className="w-full h-full cursor-move"
-													style={{
-														borderRadius:
-															image.styles?.borderRadius === 100
-																? "50%"
-																: `${image.styles?.borderRadius || 0}px`,
-														overflow: "hidden",
-														borderWidth: image.styles?.borderWidth || 0,
-														borderColor: image.styles?.borderColor || "#000000",
-														borderStyle: image.styles?.borderStyle || "solid",
-														opacity:
-															image.styles?.opacity !== undefined
-																? image.styles.opacity
-																: 1,
-														boxShadow: formatShadowCSS(image.styles?.shadow),
-														...(image.styles?.ringWidth > 0 && {
-															outline: `${image.styles.ringWidth}px solid ${image.styles.ringColor}`,
-															outlineOffset: "2px",
-														}),
-													}}
+													className="absolute inset-0 pointer-events-none"
+													style={{ zIndex: 9999 }}
 												>
-													<img
-														src={image.src}
-														alt="Uploaded"
-														className="w-full h-full"
-														style={{
-															objectFit: image.styles?.objectFit || "contain",
-															...(image.styles?.noise?.enabled && {
-																filter: `contrast(${
-																	1 +
-																	(image.styles.noise.intensity || 0.3) * 0.2
-																}) brightness(${
-																	1 +
-																	(image.styles.noise.intensity || 0.3) * 0.1
-																})`,
-															}),
-														}}
-														onMouseDown={(e) =>
-															handleImageMouseDown(e, image.id)
-														}
-														draggable={false}
-													/>
+													{/* Horizontal Guides */}
+													{alignmentGuides?.horizontal?.map((guide, index) => (
+														<div
+															key={`h-${index}`}
+															className="absolute left-0 right-0"
+															style={{
+																top: `${guide.position}px`,
+																height: "1px",
+																backgroundColor: "#3b82f6",
+																opacity: 1,
+																boxShadow:
+																	"0 0 4px rgba(59, 130, 246, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)",
+															}}
+														/>
+													))}
+													{/* Vertical Guides */}
+													{alignmentGuides?.vertical?.map((guide, index) => (
+														<div
+															key={`v-${index}`}
+															className="absolute top-0 bottom-0"
+															style={{
+																left: `${guide.position}px`,
+																width: "1px",
+																backgroundColor: "#3b82f6",
+																opacity: 1,
+																boxShadow:
+																	"0 0 4px rgba(59, 130, 246, 0.8), 0 0 8px rgba(59, 130, 246, 0.4)",
+															}}
+														/>
+													))}
 												</div>
-												{/* Noise texture overlay for image only */}
-												{image.styles?.noise?.enabled && (
-													<div
-														className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
-														style={{
-															backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter-${image.id}'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter-${image.id})'/%3E%3C/svg%3E")`,
-															opacity: image.styles.noise.intensity || 0.3,
-														}}
-													/>
-												)}
-												{/* Image Controls */}
-												{selectedImage === image.id && (
-													<div className="absolute -top-2 -right-2 flex gap-1">
-														{/* Reupload Image Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																if (!imageReuploadRefs.current[image.id]) {
-																	imageReuploadRefs.current[image.id] =
-																		document.createElement("input");
-																	imageReuploadRefs.current[image.id].type =
-																		"file";
-																	imageReuploadRefs.current[image.id].accept =
-																		"image/*";
-																	imageReuploadRefs.current[
-																		image.id
-																	].style.display = "none";
-																	imageReuploadRefs.current[
-																		image.id
-																	].addEventListener("change", (evt) =>
-																		handleImageReupload(evt, image.id)
-																	);
-																	document.body.appendChild(
-																		imageReuploadRefs.current[image.id]
-																	);
-																}
-																imageReuploadRefs.current[image.id].click();
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Replace image"
-														>
-															<Upload className="w-3 h-3" />
-														</button>
-														{/* Object Fit Toggle Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																toggleObjectFit(image.id);
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title={`Object Fit: ${image.styles?.objectFit || "contain"} (click to change)`}
-														>
-															<ImageIcon className="w-3 h-3" />
-														</button>
-														{/* Caption Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																toggleCaption(image.id);
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Add caption"
-														>
-															<Type className="w-3 h-3" />
-														</button>
-														{/* Delete Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																removeImage(image.id);
-															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Delete image"
-														>
-															<X className="w-3 h-3" />
-														</button>
-													</div>
-												)}
-												{/* Resize Handles */}
-												{selectedImage === image.id && (
-													<>
-														{/* Corner handles */}
-														<div
-															className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "nw")
-															}
-														/>
-														<div
-															className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "ne")
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "sw")
-															}
-														/>
-														<div
-															className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "se")
-															}
-														/>
-														{/* Edge handles */}
-														<div
-															className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "n")
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "s")
-															}
-														/>
-														<div
-															className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "w")
-															}
-														/>
-														<div
-															className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleResizeStart(e, image.id, "e")
-															}
-														/>
-													</>
-												)}
-												{/* Caption Input */}
-												{captionEditing === image.id && (
-													<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-														<input
-															type="text"
-															value={image.caption || ""}
-															onChange={(e) =>
-																updateImage(image.id, {
-																	caption: e.target.value,
-																})
-															}
-															onBlur={() => setCaptionEditing(null)}
-															onKeyDown={(e) => {
-																if (e.key === "Enter") {
-																	setCaptionEditing(null);
-																}
-															}}
-															className="px-2 py-1 text-xs bg-white border border-zinc-300 rounded shadow-lg min-w-[100px]"
-															placeholder="Add caption..."
-															autoFocus
-														/>
-													</div>
-												)}
-												{/* Caption Display */}
-												{image.caption && captionEditing !== image.id && (
-													<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
-														{image.caption}
-													</div>
-												)}
-											</div>
-										))}
+											)}
 
-										{/* Uploaded Videos Layer */}
-										{videos.map((video) => (
-											<div
-												key={video.id}
-												className={`absolute ${
-													selectedVideo === video.id
-														? "ring-2 ring-zinc-500"
-														: "ring-2 ring-transparent"
-												}`}
-												style={{
-													left: `${video.x}%`,
-													top: `${video.y}%`,
-													width: `${video.width}px`,
-													height: `${video.height}px`,
-													transform: "translate(-50%, -50%)",
-													zIndex: video.styles?.zIndex || 1,
-												}}
-											>
-												{/* Video Wrapper with overflow-hidden for border radius */}
+											{/* Background Shape Rectangles Layer */}
+											{backgroundShapeRects.map((rect) => (
 												<div
-													className="w-full h-full cursor-move"
-													style={{
-														borderRadius:
-															video.styles?.borderRadius === 100
-																? "50%"
-																: `${video.styles?.borderRadius || 0}px`,
-														overflow: "hidden",
-														borderWidth: video.styles?.borderWidth || 0,
-														borderColor: video.styles?.borderColor || "#000000",
-														borderStyle: video.styles?.borderStyle || "solid",
-														opacity:
-															video.styles?.opacity !== undefined
-																? video.styles.opacity
-																: 1,
-														boxShadow: formatShadowCSS(video.styles?.shadow),
-														...(video.styles?.ringWidth > 0 && {
-															outline: `${video.styles.ringWidth}px solid ${video.styles.ringColor}`,
-															outlineOffset: "2px",
-														}),
-													}}
-												>
-													<video
-														src={video.src}
-														className="w-full h-full"
-														style={{
-															objectFit: video.styles?.objectFit || "contain",
-														}}
-														onMouseDown={(e) =>
-															handleVideoMouseDown(e, video.id)
-														}
-														controls
-														loop
-														muted
-														playsInline
-													/>
-												</div>
-												{/* Video Controls */}
-												{captionEditing === video.id && (
-													<div className="absolute -top-2 -right-2 flex gap-1">
-														{/* Reupload Video Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																if (!videoReuploadRefs.current[video.id]) {
-																	videoReuploadRefs.current[video.id] =
-																		document.createElement("input");
-																	videoReuploadRefs.current[video.id].type =
-																		"file";
-																	videoReuploadRefs.current[video.id].accept =
-																		"video/*";
-																	videoReuploadRefs.current[
-																		video.id
-																	].style.display = "none";
-																	videoReuploadRefs.current[
-																		video.id
-																	].addEventListener("change", (evt) =>
-																		handleVideoReupload(evt, video.id)
-																	);
-																	document.body.appendChild(
-																		videoReuploadRefs.current[video.id]
-																	);
-																}
-																videoReuploadRefs.current[video.id].click();
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Replace video"
-														>
-															<Upload className="w-3 h-3" />
-														</button>
-														{/* Object Fit Toggle Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																toggleVideoObjectFit(video.id);
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title={`Object Fit: ${video.styles?.objectFit || "contain"} (click to change)`}
-														>
-															<Video className="w-3 h-3" />
-														</button>
-														{/* Caption Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																toggleVideoCaption(video.id);
-															}}
-															className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Add caption"
-														>
-															<Type className="w-3 h-3" />
-														</button>
-														{/* Delete Button */}
-														<button
-															onClick={(e) => {
-																e.stopPropagation();
-																removeVideo(video.id);
-															}}
-															className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-															title="Delete video"
-														>
-															<X className="w-3 h-3" />
-														</button>
-													</div>
-												)}
-												{/* Resize Handles */}
-												{selectedVideo === video.id && (
-													<>
-														{/* Corner handles */}
-														<div
-															className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "nw")
-															}
-														/>
-														<div
-															className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "ne")
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "sw")
-															}
-														/>
-														<div
-															className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "se")
-															}
-														/>
-														{/* Edge handles */}
-														<div
-															className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "n")
-															}
-														/>
-														<div
-															className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "s")
-															}
-														/>
-														<div
-															className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "w")
-															}
-														/>
-														<div
-															className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
-															onMouseDown={(e) =>
-																handleVideoResizeStart(e, video.id, "e")
-															}
-														/>
-													</>
-												)}
-												{/* Caption Input */}
-												{captionEditing === video.id && (
-													<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-														<input
-															type="text"
-															value={video.caption || ""}
-															onChange={(e) =>
-																updateVideo(video.id, {
-																	caption: e.target.value,
-																})
-															}
-															onBlur={() => setCaptionEditing(null)}
-															onKeyDown={(e) => {
-																if (e.key === "Enter") {
-																	setCaptionEditing(null);
-																}
-															}}
-															className="px-2 py-1 text-xs bg-white border border-zinc-300 rounded shadow-lg min-w-[100px]"
-															placeholder="Add caption..."
-															autoFocus
-														/>
-													</div>
-												)}
-												{/* Caption Display */}
-												{video.caption && captionEditing !== video.id && (
-													<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
-														{video.caption}
-													</div>
-												)}
-											</div>
-										))}
-
-										{/* Shapes Layer */}
-										{shapes.map((shape) => {
-											const ShapeIcon =
-												shape.type === "rectangle"
-													? RectangleHorizontal
-													: shape.type === "square"
-														? Square
-														: shape.type === "triangle"
-															? Triangle
-															: shape.type === "circle"
-																? Circle
-																: Minus;
-
-											return (
-												<div
-													key={shape.id}
-													className={`absolute ${
-														selectedShape === shape.id
+													key={rect.id}
+													className={`absolute cursor-move ${
+														selectedBackgroundShapeRect === rect.id
 															? "ring-2 ring-orange-500"
 															: "ring-2 ring-transparent"
 													}`}
 													style={{
-														left: `${shape.x}%`,
-														top: `${shape.y}%`,
-														width: `${shape.width}px`,
-														height: `${shape.height}px`,
-														transform: `translate(-50%, -50%) rotate(${shape.styles?.rotation || 0}deg) skew(${shape.styles?.skewX || 0}deg, ${shape.styles?.skewY || 0}deg)`,
-														zIndex: shape.styles?.zIndex || 1,
+														left: `${rect.x}%`,
+														top: `${rect.y}%`,
+														width: `${rect.width}px`,
+														height: `${rect.height}px`,
+														transform: `translate(-50%, -50%) rotate(${
+															rect.styles?.rotation || 0
+														}deg) skew(${rect.styles?.skewX || 0}deg, ${
+															rect.styles?.skewY || 0
+														}deg)`,
+														zIndex: rect.styles?.zIndex || 1,
+														opacity: rect.styles?.opacity || 1,
 													}}
-													onMouseDown={(e) => handleShapeMouseDown(e, shape.id)}
+													onMouseDown={(e) => {
+														e.stopPropagation();
+														handleBackgroundShapeRectMouseDown(e, rect.id);
+													}}
+													onClick={(e) => {
+														e.stopPropagation();
+														setSelectedBackgroundShapeRect(rect.id);
+														setSelectedImage(null);
+														setSelectedText(null);
+														setSelectedVideo(null);
+														setSelectedShape(null);
+														setSelectedIcon(null);
+														setSelectedStop(null);
+													}}
 												>
-													{/* Shape SVG */}
-													<svg
-														width="100%"
-														height="100%"
-														viewBox="0 0 100 100"
-														preserveAspectRatio={
-															shape.type === "circle" ? "xMidYMid meet" : "none"
-														}
-														className="cursor-move"
-														style={{
-															opacity: shape.styles?.opacity || 1,
-															filter: formatDropShadowCSS(shape.styles?.shadow),
-														}}
-													>
-														{/* Gradient Definitions */}
-														{shape.styles?.fillGradient && (
-															<defs>
-																<linearGradient
-																	id={`shape-gradient-${shape.id}`}
-																	x1="0%"
-																	y1="0%"
-																	x2="100%"
-																	y2="0%"
-																	gradientTransform={`rotate(${shape.styles.fillGradient.angle || 45} 50 50)`}
-																>
-																	{shape.styles.fillGradient.stops
-																		?.sort(
-																			(a, b) => a.position.x - b.position.x
-																		)
-																		.map((stop) => (
-																			<stop
-																				key={stop.id}
-																				offset={`${stop.position.x}%`}
-																				stopColor={stop.color}
-																			/>
-																		))}
-																</linearGradient>
-															</defs>
-														)}
-														{shape.type === "rectangle" && (
-															<rect
-																x="0"
-																y="0"
-																width="100"
-																height="100"
-																fill={
-																	shape.styles?.fillGradient
-																		? `url(#shape-gradient-${shape.id})`
-																		: shape.styles?.fillColor || "#3b82f6"
-																}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-																rx={shape.styles?.borderRadius || 0}
-																ry={shape.styles?.borderRadius || 0}
-															/>
-														)}
-														{shape.type === "square" && (
-															<rect
-																x="0"
-																y="0"
-																width="100"
-																height="100"
-																fill={
-																	shape.styles?.fillGradient
-																		? `url(#shape-gradient-${shape.id})`
-																		: shape.styles?.fillColor || "#3b82f6"
-																}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-																rx={shape.styles?.borderRadius || 0}
-																ry={shape.styles?.borderRadius || 0}
-															/>
-														)}
-														{shape.type === "line" && (
-															<line
-																x1="0"
-																y1="50"
-																x2="100"
-																y2="50"
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-														{shape.type === "triangle" && (
-															<polygon
-																points="50,0 0,100 100,100"
-																fill={
-																	shape.styles?.fillGradient
-																		? `url(#shape-gradient-${shape.id})`
-																		: shape.styles?.fillColor || "#3b82f6"
-																}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-														{shape.type === "circle" && (
-															<circle
-																cx="50"
-																cy="50"
-																r="50"
-																fill={
-																	shape.styles?.fillGradient
-																		? `url(#shape-gradient-${shape.id})`
-																		: shape.styles?.fillColor || "#3b82f6"
-																}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-													</svg>
+													{/* Background Shape */}
+													<BackgroundShape
+														shapeId={rect.shapeId}
+														scale={rect.scale}
+														color="#000000"
+													/>
 
-													{/* Shape Controls */}
-													{selectedShape === shape.id && (
-														<div className="absolute -top-2 -right-2 flex gap-1">
-															{/* Delete Button */}
-															<button
-																onClick={(e) => {
-																	e.stopPropagation();
-																	removeShape(shape.id);
-																}}
-																className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-																title="Delete shape"
-															>
-																<X className="w-3 h-3" />
-															</button>
-														</div>
-													)}
+													{/* Delete Button */}
+													<div className="absolute -top-2 -right-2 flex gap-1">
+														<button
+															onClick={(e) => {
+																e.stopPropagation();
+																removeBackgroundShapeRect(rect.id);
+															}}
+															className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+															title="Delete background shape"
+														>
+															<X className="w-3 h-3" />
+														</button>
+													</div>
 
 													{/* Resize Handles */}
-													{selectedShape === shape.id && (
+													{selectedBackgroundShapeRect === rect.id && (
 														<>
 															{/* Corner handles */}
 															<div
 																className="absolute top-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "nw")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"nw"
+																	)
 																}
 															/>
 															<div
 																className="absolute top-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "ne")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"ne"
+																	)
 																}
 															/>
 															<div
 																className="absolute bottom-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "sw")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"sw"
+																	)
 																}
 															/>
 															<div
 																className="absolute bottom-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "se")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"se"
+																	)
 																}
 															/>
 															{/* Edge handles */}
 															<div
 																className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "n")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"n"
+																	)
 																}
 															/>
 															<div
 																className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "s")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"s"
+																	)
 																}
 															/>
 															<div
 																className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "w")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"w"
+																	)
 																}
 															/>
 															<div
 																className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
 																onMouseDown={(e) =>
-																	handleShapeResizeStart(e, shape.id, "e")
+																	handleBackgroundShapeRectResizeStart(
+																		e,
+																		rect.id,
+																		"e"
+																	)
 																}
 															/>
 														</>
 													)}
 												</div>
-											);
-										})}
+											))}
 
-										{/* Icons Layer */}
-										{icons.map((icon) => {
-											const IconComponent = LucideIcons[icon.iconName];
-											if (!IconComponent) return null;
-
-											return (
+											{/* Text Layer */}
+											{texts.map((text) => (
 												<div
-													key={icon.id}
+													key={text.id}
 													className={`absolute ${
-														selectedIcon === icon.id
+														selectedText === text.id
 															? "ring-2 ring-zinc-500"
 															: "ring-2 ring-transparent"
 													}`}
 													style={{
-														left: `${icon.x}%`,
-														top: `${icon.y}%`,
-														width: `${icon.width}px`,
-														height: `${icon.height}px`,
-														transform: `translate(-50%, -50%) rotate(${icon.styles?.rotation || 0}deg) skew(${icon.styles?.skewX || 0}deg, ${icon.styles?.skewY || 0}deg)`,
-														zIndex: icon.styles?.zIndex || 1,
+														left: `${text.x}%`,
+														top: `${text.y}%`,
+														width: `${text.width}px`,
+														minHeight: `${text.height}px`,
+														transform: `translate(-50%, -50%) rotate(${
+															text.styles?.rotation || 0
+														}deg) skew(${text.styles?.skewX || 0}deg, ${
+															text.styles?.skewY || 0
+														}deg)`,
+														zIndex: text.styles?.zIndex || 2,
 													}}
-													onMouseDown={(e) => handleIconMouseDown(e, icon.id)}
+													onMouseDown={(e) => handleTextMouseDown(e, text.id)}
 												>
-													<IconComponent
-														className="w-full h-full"
-														style={{
-															color: icon.styles?.color || "#000000",
-															opacity: icon.styles?.opacity || 1,
-															filter: formatDropShadowCSS(icon.styles?.shadow),
-														}}
-														strokeWidth={icon.styles?.strokeWidth || 2}
-													/>
+													{/* Text Content */}
+													{textEditing === text.id ? (
+														<textarea
+															value={text.content}
+															onChange={(e) =>
+																updateText(text.id, { content: e.target.value })
+															}
+															onBlur={() => setTextEditing(null)}
+															onKeyDown={(e) => {
+																if (e.key === "Enter" && e.shiftKey === false) {
+																	e.preventDefault();
+																	setTextEditing(null);
+																}
+															}}
+															className="w-full resize-none outline-none bg-transparent text-center"
+															style={{
+																fontSize: `${text.styles?.fontSize || 24}px`,
+																fontWeight: text.styles?.fontWeight || "normal",
+																fontStyle: text.styles?.fontStyle || "normal",
+																color: text.styles?.color || "#000000",
+																textAlign: text.styles?.textAlign || "left",
+																fontFamily: text.styles?.fontFamily || "Arial",
+																backgroundColor:
+																	text.styles?.backgroundColor === "transparent"
+																		? "rgba(255, 255, 255, 0.8)"
+																		: text.styles?.backgroundColor ||
+																			"transparent",
+																padding: `${text.styles?.padding || 0}px`,
+																borderRadius:
+																	text.styles?.borderRadius === 100
+																		? "50%"
+																		: `${text.styles?.borderRadius || 0}px`,
+																borderWidth: `${text.styles?.borderWidth || 0}px`,
+																borderColor:
+																	text.styles?.borderColor || "#000000",
+																borderStyle:
+																	text.styles?.borderStyle || "solid",
+																opacity:
+																	text.styles?.opacity !== undefined
+																		? text.styles.opacity
+																		: 1,
+																boxShadow: formatShadowCSS(text.styles?.shadow),
+															}}
+															autoFocus
+														/>
+													) : (
+														<div
+															className="cursor-move select-none [&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
+															onDoubleClick={() => setTextEditing(text.id)}
+															style={{
+																fontSize: `${text.styles?.fontSize || 24}px`,
+																fontWeight: text.styles?.fontWeight || "normal",
+																fontStyle: text.styles?.fontStyle || "normal",
+																color: text.styles?.color || "#000000",
+																textAlign: text.styles?.textAlign || "left",
+																fontFamily: text.styles?.fontFamily || "Arial",
+																backgroundColor:
+																	text.styles?.backgroundColor || "transparent",
+																padding: `${text.styles?.padding || 0}px`,
+																borderRadius:
+																	text.styles?.borderRadius === 100
+																		? "50%"
+																		: `${text.styles?.borderRadius || 0}px`,
+																borderWidth: `${text.styles?.borderWidth || 0}px`,
+																borderColor:
+																	text.styles?.borderColor || "#000000",
+																borderStyle:
+																	text.styles?.borderStyle || "solid",
+																opacity:
+																	text.styles?.opacity !== undefined
+																		? text.styles.opacity
+																		: 1,
+																boxShadow: formatShadowCSS(text.styles?.shadow),
+																whiteSpace:
+																	text.styles?.listStyle !== "none"
+																		? "normal"
+																		: "pre-wrap",
+																wordWrap: "break-word",
+															}}
+															dangerouslySetInnerHTML={{
+																__html: formatTextContent(
+																	text.content,
+																	text.styles
+																),
+															}}
+														/>
+													)}
 
-													{/* Icon Controls */}
-													{selectedIcon === icon.id && (
+													{/* Text Controls */}
+													{selectedText === text.id &&
+														textEditing !== text.id && (
+															<div className="absolute -top-2 -right-2 flex gap-1">
+																{/* Delete Button */}
+																<button
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		removeText(text.id);
+																	}}
+																	className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																	title="Delete text"
+																>
+																	<X className="w-3 h-3" />
+																</button>
+															</div>
+														)}
+
+													{/* Resize Handles */}
+													{selectedText === text.id &&
+														textEditing !== text.id && (
+															<>
+																{/* Corner handles */}
+																<div
+																	className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "nw")
+																	}
+																/>
+																<div
+																	className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "ne")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "sw")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "se")
+																	}
+																/>
+																{/* Edge handles */}
+																<div
+																	className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "n")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "s")
+																	}
+																/>
+																<div
+																	className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "w")
+																	}
+																/>
+																<div
+																	className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleTextResizeStart(e, text.id, "e")
+																	}
+																/>
+															</>
+														)}
+												</div>
+											))}
+
+											{/* Uploaded Images Layer */}
+											{images.map((image) => (
+												<div
+													key={image.id}
+													className={`absolute ${
+														selectedImage === image.id
+															? "ring-2 ring-zinc-500"
+															: "ring-2 ring-transparent"
+													}`}
+													style={{
+														left: `${image.x}%`,
+														top: `${image.y}%`,
+														width: `${image.width}px`,
+														height: `${image.height}px`,
+														transform: `translate(-50%, -50%) rotate(${
+															image.styles?.rotation || 0
+														}deg) skew(${image.styles?.skewX || 0}deg, ${
+															image.styles?.skewY || 0
+														}deg)`,
+														zIndex: image.styles?.zIndex || 1,
+													}}
+												>
+													{/* Image Wrapper with overflow-hidden for border radius */}
+													<div
+														className="w-full h-full cursor-move"
+														style={{
+															borderRadius:
+																image.styles?.borderRadius === 100
+																	? "50%"
+																	: `${image.styles?.borderRadius || 0}px`,
+															overflow: "hidden",
+															borderWidth: image.styles?.borderWidth || 0,
+															borderColor:
+																image.styles?.borderColor || "#000000",
+															borderStyle: image.styles?.borderStyle || "solid",
+															opacity:
+																image.styles?.opacity !== undefined
+																	? image.styles.opacity
+																	: 1,
+															boxShadow: formatShadowCSS(image.styles?.shadow),
+															...(image.styles?.ringWidth > 0 && {
+																outline: `${image.styles.ringWidth}px solid ${image.styles.ringColor}`,
+																outlineOffset: "2px",
+															}),
+														}}
+													>
+														<img
+															src={image.src}
+															alt="Uploaded"
+															className="w-full h-full"
+															style={{
+																objectFit: image.styles?.objectFit || "contain",
+																...(image.styles?.noise?.enabled && {
+																	filter: `contrast(${
+																		1 +
+																		(image.styles.noise.intensity || 0.3) * 0.2
+																	}) brightness(${
+																		1 +
+																		(image.styles.noise.intensity || 0.3) * 0.1
+																	})`,
+																}),
+															}}
+															onMouseDown={(e) =>
+																handleImageMouseDown(e, image.id)
+															}
+															draggable={false}
+														/>
+													</div>
+													{/* Noise texture overlay for image only */}
+													{image.styles?.noise?.enabled && (
+														<div
+															className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+															style={{
+																backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter-${image.id}'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter-${image.id})'/%3E%3C/svg%3E")`,
+																opacity: image.styles.noise.intensity || 0.3,
+															}}
+														/>
+													)}
+													{/* Image Controls */}
+													{selectedImage === image.id && (
 														<div className="absolute -top-2 -right-2 flex gap-1">
+															{/* Reupload Image Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	if (!imageReuploadRefs.current[image.id]) {
+																		imageReuploadRefs.current[image.id] =
+																			document.createElement("input");
+																		imageReuploadRefs.current[image.id].type =
+																			"file";
+																		imageReuploadRefs.current[image.id].accept =
+																			"image/*";
+																		imageReuploadRefs.current[
+																			image.id
+																		].style.display = "none";
+																		imageReuploadRefs.current[
+																			image.id
+																		].addEventListener("change", (evt) =>
+																			handleImageReupload(evt, image.id)
+																		);
+																		document.body.appendChild(
+																			imageReuploadRefs.current[image.id]
+																		);
+																	}
+																	imageReuploadRefs.current[image.id].click();
+																}}
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Replace image"
+															>
+																<Upload className="w-3 h-3" />
+															</button>
+															{/* Object Fit Toggle Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	toggleObjectFit(image.id);
+																}}
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title={`Object Fit: ${
+																	image.styles?.objectFit || "contain"
+																} (click to change)`}
+															>
+																<ImageIcon className="w-3 h-3" />
+															</button>
+															{/* Caption Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	toggleCaption(image.id);
+																}}
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Add caption"
+															>
+																<Type className="w-3 h-3" />
+															</button>
 															{/* Delete Button */}
 															<button
 																onClick={(e) => {
 																	e.stopPropagation();
-																	removeIcon(icon.id);
+																	removeImage(image.id);
 																}}
-																className="w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
-																title="Delete icon"
+																className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Delete image"
 															>
 																<X className="w-3 h-3" />
 															</button>
 														</div>
 													)}
-
 													{/* Resize Handles */}
-													{selectedIcon === icon.id && (
+													{selectedImage === image.id && (
 														<>
 															{/* Corner handles */}
 															<div
 																className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "nw")
+																	handleResizeStart(e, image.id, "nw")
 																}
 															/>
 															<div
 																className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "ne")
+																	handleResizeStart(e, image.id, "ne")
 																}
 															/>
 															<div
 																className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "sw")
+																	handleResizeStart(e, image.id, "sw")
 																}
 															/>
 															<div
 																className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "se")
+																	handleResizeStart(e, image.id, "se")
 																}
 															/>
 															{/* Edge handles */}
 															<div
 																className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "n")
+																	handleResizeStart(e, image.id, "n")
 																}
 															/>
 															<div
 																className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "s")
+																	handleResizeStart(e, image.id, "s")
 																}
 															/>
 															<div
 																className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "w")
+																	handleResizeStart(e, image.id, "w")
 																}
 															/>
 															<div
 																className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
 																onMouseDown={(e) =>
-																	handleIconResizeStart(e, icon.id, "e")
+																	handleResizeStart(e, image.id, "e")
 																}
 															/>
 														</>
 													)}
-												</div>
-											);
-										})}
-
-										{/* Color Stop Handles - Only show when no element is selected */}
-										{selectedImage === null &&
-											selectedVideo === null &&
-											selectedText === null &&
-											selectedShape === null &&
-											selectedIcon === null &&
-											gradient.stops.map((stop) => (
-												<div
-													key={stop.id}
-													className={`absolute w-6 h-6 flex items-center justify-center cursor-pointer group transition-transform ${
-														selectedStop === stop.id
-															? "scale-125"
-															: "hover:scale-110"
-													}`}
-													style={{
-														left: `calc(${stop.position.x}% - 12px)`,
-														top: `calc(${stop.position.y}% - 12px)`,
-													}}
-													onMouseDown={(e) => handleMouseDown(e, stop.id)}
-													onKeyDown={(e) => handleKeyDown(e, stop.id)}
-													tabIndex={0}
-													role="button"
-													aria-label={`Color stop at ${Math.round(
-														stop.position.x
-													)}%, ${Math.round(stop.position.y)}%`}
-												>
-													{/* Handle */}
-													<div
-														className="w-6 h-6 rounded-full border-2 border-white shadow-lg hover:shadow-xl transition-shadow"
-														style={{ backgroundColor: stop.color }}
-													/>
-													{/* Position Indicator */}
-													<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
-														{Math.round(stop.position.x)}%,{" "}
-														{Math.round(stop.position.y)}%
-													</div>
+													{/* Caption Input */}
+													{captionEditing === image.id && (
+														<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+															<input
+																type="text"
+																value={image.caption || ""}
+																onChange={(e) =>
+																	updateImage(image.id, {
+																		caption: e.target.value,
+																	})
+																}
+																onBlur={() => setCaptionEditing(null)}
+																onKeyDown={(e) => {
+																	if (e.key === "Enter") {
+																		setCaptionEditing(null);
+																	}
+																}}
+																className="px-2 py-1 text-xs bg-white border border-zinc-300 rounded shadow-lg min-w-[100px]"
+																placeholder="Add caption..."
+																autoFocus
+															/>
+														</div>
+													)}
+													{/* Caption Display */}
+													{image.caption && captionEditing !== image.id && (
+														<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
+															{image.caption}
+														</div>
+													)}
 												</div>
 											))}
-									</div>
-								</div>
-							</div>
-						</div>
 
-						{/* Control Panel - Fixed on Right Side */}
-						<div
-							ref={controlPanelRef}
-							onContextMenu={handleControlPanelContextMenu}
-							className="hidden lg:block fixed right-4 top-[20px] w-[280px] space-y-4 h-[calc(100vh-56px)] overflow-y-auto hidescrollbar hidescrollbar rounded-xl  py-3 z-40"
-						>
-							{/* Gradient Type & Warp */}
-							<div className="space-y-3">
-								<div className="bg-white rounded-xl py-3 space-y-3 border border-zinc-100 ">
-									<div className="flex items-center justify-between gap-2 px-3">
-										<button
-											onClick={handleSaveProject}
-											disabled={isSaving || !isAuthenticated}
-											className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-zinc-100 shadow border border-zinc-200 text-black rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white text-xs"
-										>
-											{isSaving ? (
-												<Loader2 className="w-3.5 h-3.5 animate-spin" />
-											) : (
-												<Save className="w-3.5 h-3.5" />
-											)}
-											<span className="text-xs">
-												{copied === "saved"
-													? "Saved!"
-													: isSaving
-														? "Saving..."
-														: "Save"}
-											</span>
-										</button>
-										<GoogleLoginButton />
-									</div>
-									<div className="px-3 flex items-center gap-2 justify-start">
-										<button
-											onClick={(e) => {
-												if (publicDocId && !isPublishing) {
-													// If already published, open the public URL
-													const publicUrl = `${window.location.origin}/p/${publicDocId}`;
-													window.open(publicUrl, "_blank");
-												} else {
-													// Otherwise, publish the project
-													handlePublishProject();
-												}
-											}}
-											disabled={
-												isPublishing || !isAuthenticated || !currentProjectId
-											}
-											className="flex items-center p-1.5 bg-white border border-zinc-200 hover:bg-zinc-100 hover:shadow-xl gap-2  text-black rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-zinc-200 text-xs"
-											title={
-												publicDocId
-													? `Click to view published project at /p/${publicDocId}`
-													: "Publish and share your project"
-											}
-										>
-											{isPublishing ? (
-												<Loader2 className="w-3 h-3 animate-spin" />
-											) : publicDocId ? (
-												<ExternalLink className="w-3 h-3" />
-											) : (
-												<Globe className="w-3 h-3" />
-											)}
-											<span className="text-xs">
-												{copied === "published"
-													? "Published!"
-													: isPublishing
-														? "Publishing..."
-														: publicDocId
-															? "View Published"
-															: "Publish"}
-											</span>
-										</button>
-										<div ref={downloadDropdownRef} className="relative">
-											<button
-												onClick={() =>
-													setIsDownloadDropdownOpen(!isDownloadDropdownOpen)
-												}
-												className="w-fit flex items-center gap-2 px-3 py-1.5 text-xs bg-white hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in border border-zinc-200"
-											>
-												<Download className="w-3 h-3" />
-												Download
-											</button>
-											<AnimatePresence>
-												{isDownloadDropdownOpen && (
-													<motion.div
-														initial={{ opacity: 0, y: -10 }}
-														animate={{ opacity: 1, y: 0 }}
-														exit={{ opacity: 0, y: -10 }}
-														transition={{ duration: 0.15 }}
-														className="absolute left-0 mt-2 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50 w-fit min-w-[180px]"
+											{/* Uploaded Videos Layer */}
+											{videos.map((video) => (
+												<div
+													key={video.id}
+													className={`absolute ${
+														selectedVideo === video.id
+															? "ring-2 ring-zinc-500"
+															: "ring-2 ring-transparent"
+													}`}
+													style={{
+														left: `${video.x}%`,
+														top: `${video.y}%`,
+														width: `${video.width}px`,
+														height: `${video.height}px`,
+														transform: "translate(-50%, -50%)",
+														zIndex: video.styles?.zIndex || 1,
+													}}
+												>
+													{/* Video Wrapper with overflow-hidden for border radius */}
+													<div
+														className="w-full h-full cursor-move"
+														style={{
+															borderRadius:
+																video.styles?.borderRadius === 100
+																	? "50%"
+																	: `${video.styles?.borderRadius || 0}px`,
+															overflow: "hidden",
+															borderWidth: video.styles?.borderWidth || 0,
+															borderColor:
+																video.styles?.borderColor || "#000000",
+															borderStyle: video.styles?.borderStyle || "solid",
+															opacity:
+																video.styles?.opacity !== undefined
+																	? video.styles.opacity
+																	: 1,
+															boxShadow: formatShadowCSS(video.styles?.shadow),
+															...(video.styles?.ringWidth > 0 && {
+																outline: `${video.styles.ringWidth}px solid ${video.styles.ringColor}`,
+																outlineOffset: "2px",
+															}),
+														}}
 													>
-														<div className="flex flex-col">
+														<video
+															src={video.src}
+															className="w-full h-full"
+															style={{
+																objectFit: video.styles?.objectFit || "contain",
+															}}
+															onMouseDown={(e) =>
+																handleVideoMouseDown(e, video.id)
+															}
+															controls
+															loop
+															muted
+															playsInline
+														/>
+													</div>
+													{/* Video Controls */}
+													{captionEditing === video.id && (
+														<div className="absolute -top-2 -right-2 flex gap-1">
+															{/* Reupload Video Button */}
 															<button
-																type="button"
-																onClick={() => {
-																	downloadSVG(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
+																onClick={(e) => {
+																	e.stopPropagation();
+																	if (!videoReuploadRefs.current[video.id]) {
+																		videoReuploadRefs.current[video.id] =
+																			document.createElement("input");
+																		videoReuploadRefs.current[video.id].type =
+																			"file";
+																		videoReuploadRefs.current[video.id].accept =
+																			"video/*";
+																		videoReuploadRefs.current[
+																			video.id
+																		].style.display = "none";
+																		videoReuploadRefs.current[
+																			video.id
+																		].addEventListener("change", (evt) =>
+																			handleVideoReupload(evt, video.id)
+																		);
+																		document.body.appendChild(
+																			videoReuploadRefs.current[video.id]
+																		);
+																	}
+																	videoReuploadRefs.current[video.id].click();
 																}}
-																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2"
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Replace video"
 															>
-																<Download className="w-3 h-3" />
-																<span>Download as SVG</span>
+																<Upload className="w-3 h-3" />
 															</button>
+															{/* Object Fit Toggle Button */}
 															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("png", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
+																onClick={(e) => {
+																	e.stopPropagation();
+																	toggleVideoObjectFit(video.id);
 																}}
-																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-3 h-3" />
-																<span>Download as PNG</span>
-															</button>
-															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("jpeg", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-3 h-3" />
-																<span>Download as JPEG</span>
-															</button>
-															{/* GIF Download - Only show if background animation is enabled */}
-															{gradient.backgroundAnimation.enabled && (
-																<button
-																	type="button"
-																	onClick={() => {
-																		downloadGIF(previewFrameSize);
-																		setIsDownloadDropdownOpen(false);
-																	}}
-																	className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-																>
-																	<Download className="w-3 h-3" />
-																	<span>Download as GIF</span>
-																</button>
-															)}
-															{/* MP4 Download */}
-															<button
-																type="button"
-																onClick={() => {
-																	downloadMP4(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-xs text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title={`Object Fit: ${
+																	video.styles?.objectFit || "contain"
+																} (click to change)`}
 															>
 																<Video className="w-3 h-3" />
-																<span>Download as MP4</span>
+															</button>
+															{/* Caption Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	toggleVideoCaption(video.id);
+																}}
+																className="w-6 h-6 bg-zinc-500 hover:bg-zinc-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Add caption"
+															>
+																<Type className="w-3 h-3" />
+															</button>
+															{/* Delete Button */}
+															<button
+																onClick={(e) => {
+																	e.stopPropagation();
+																	removeVideo(video.id);
+																}}
+																className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																title="Delete video"
+															>
+																<X className="w-3 h-3" />
 															</button>
 														</div>
-													</motion.div>
-												)}
-											</AnimatePresence>
+													)}
+													{/* Resize Handles */}
+													{selectedVideo === video.id && (
+														<>
+															{/* Corner handles */}
+															<div
+																className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "nw")
+																}
+															/>
+															<div
+																className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "ne")
+																}
+															/>
+															<div
+																className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "sw")
+																}
+															/>
+															<div
+																className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "se")
+																}
+															/>
+															{/* Edge handles */}
+															<div
+																className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "n")
+																}
+															/>
+															<div
+																className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "s")
+																}
+															/>
+															<div
+																className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "w")
+																}
+															/>
+															<div
+																className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																onMouseDown={(e) =>
+																	handleVideoResizeStart(e, video.id, "e")
+																}
+															/>
+														</>
+													)}
+													{/* Caption Input */}
+													{captionEditing === video.id && (
+														<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+															<input
+																type="text"
+																value={video.caption || ""}
+																onChange={(e) =>
+																	updateVideo(video.id, {
+																		caption: e.target.value,
+																	})
+																}
+																onBlur={() => setCaptionEditing(null)}
+																onKeyDown={(e) => {
+																	if (e.key === "Enter") {
+																		setCaptionEditing(null);
+																	}
+																}}
+																className="px-2 py-1 text-xs bg-white border border-zinc-300 rounded shadow-lg min-w-[100px]"
+																placeholder="Add caption..."
+																autoFocus
+															/>
+														</div>
+													)}
+													{/* Caption Display */}
+													{video.caption && captionEditing !== video.id && (
+														<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
+															{video.caption}
+														</div>
+													)}
+												</div>
+											))}
+
+											{/* Shapes Layer */}
+											{shapes.map((shape) => {
+												const ShapeIcon =
+													shape.type === "rectangle"
+														? RectangleHorizontal
+														: shape.type === "square"
+															? Square
+															: shape.type === "triangle"
+																? Triangle
+																: shape.type === "circle"
+																	? Circle
+																	: shape.type === "svg"
+																		? Shapes
+																		: Minus;
+
+												return (
+													<div
+														key={shape.id}
+														className={`absolute ${
+															selectedShape === shape.id
+																? "ring-2 ring-orange-500"
+																: "ring-2 ring-transparent"
+														}`}
+														style={{
+															left: `${shape.x}%`,
+															top: `${shape.y}%`,
+															width: `${shape.width}px`,
+															height: `${shape.height}px`,
+															transform: `translate(-50%, -50%) rotate(${
+																shape.styles?.rotation || 0
+															}deg) skew(${shape.styles?.skewX || 0}deg, ${
+																shape.styles?.skewY || 0
+															}deg)`,
+															zIndex: shape.styles?.zIndex || 1,
+														}}
+														onMouseDown={(e) =>
+															handleShapeMouseDown(e, shape.id)
+														}
+													>
+														{/* Shape SVG */}
+														<svg
+															width="100%"
+															height="100%"
+															viewBox={
+																shape.type === "svg"
+																	? "0 0 200 200"
+																	: "0 0 100 100"
+															}
+															preserveAspectRatio={
+																shape.type === "circle" || shape.type === "svg"
+																	? "xMidYMid meet"
+																	: "none"
+															}
+															className="cursor-move"
+															style={{
+																opacity: shape.styles?.opacity || 1,
+																filter: formatDropShadowCSS(
+																	shape.styles?.shadow
+																),
+															}}
+														>
+															{/* Gradient Definitions */}
+															{shape.styles?.fillGradient && (
+																<defs>
+																	<linearGradient
+																		id={`shape-gradient-${shape.id}`}
+																		x1="0%"
+																		y1="0%"
+																		x2="100%"
+																		y2="0%"
+																		gradientTransform={`rotate(${
+																			shape.styles.fillGradient.angle || 45
+																		} 50 50)`}
+																	>
+																		{shape.styles.fillGradient.stops
+																			?.sort(
+																				(a, b) => a.position.x - b.position.x
+																			)
+																			.map((stop) => (
+																				<stop
+																					key={stop.id}
+																					offset={`${stop.position.x}%`}
+																					stopColor={stop.color}
+																				/>
+																			))}
+																	</linearGradient>
+																</defs>
+															)}
+															{shape.type === "rectangle" && (
+																<rect
+																	x="0"
+																	y="0"
+																	width="100"
+																	height="100"
+																	fill={
+																		shape.styles?.fillGradient
+																			? `url(#shape-gradient-${shape.id})`
+																			: shape.styles?.fillColor || "#3b82f6"
+																	}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																	rx={shape.styles?.borderRadius || 0}
+																	ry={shape.styles?.borderRadius || 0}
+																/>
+															)}
+															{shape.type === "square" && (
+																<rect
+																	x="0"
+																	y="0"
+																	width="100"
+																	height="100"
+																	fill={
+																		shape.styles?.fillGradient
+																			? `url(#shape-gradient-${shape.id})`
+																			: shape.styles?.fillColor || "#3b82f6"
+																	}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																	rx={shape.styles?.borderRadius || 0}
+																	ry={shape.styles?.borderRadius || 0}
+																/>
+															)}
+															{shape.type === "line" && (
+																<line
+																	x1="0"
+																	y1="50"
+																	x2="100"
+																	y2="50"
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+															{shape.type === "triangle" && (
+																<polygon
+																	points="50,0 0,100 100,100"
+																	fill={
+																		shape.styles?.fillGradient
+																			? `url(#shape-gradient-${shape.id})`
+																			: shape.styles?.fillColor || "#3b82f6"
+																	}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+															{shape.type === "circle" && (
+																<circle
+																	cx="50"
+																	cy="50"
+																	r="50"
+																	fill={
+																		shape.styles?.fillGradient
+																			? `url(#shape-gradient-${shape.id})`
+																			: shape.styles?.fillColor || "#3b82f6"
+																	}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+															{shape.type === "svg" && shape.svgString && (
+																<g
+																	dangerouslySetInnerHTML={{
+																		__html: shape.svgString
+																			.replace(/\$\{width\}/g, "200")
+																			.replace(/\$\{height\}/g, "200")
+																			.replace(
+																				/\$\{color\}/g,
+																				shape.styles?.fillColor || "#3b82f6"
+																			)
+																			.replace(/<svg[^>]*>/, "")
+																			.replace(/<\/svg>/, ""),
+																	}}
+																/>
+															)}
+														</svg>
+
+														{/* Shape Controls */}
+														{selectedShape === shape.id && (
+															<div className="absolute -top-2 -right-2 flex gap-1">
+																{/* Delete Button */}
+																<button
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		removeShape(shape.id);
+																	}}
+																	className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																	title="Delete shape"
+																>
+																	<X className="w-3 h-3" />
+																</button>
+															</div>
+														)}
+
+														{/* Resize Handles */}
+														{selectedShape === shape.id && (
+															<>
+																{/* Corner handles */}
+																<div
+																	className="absolute top-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "nw")
+																	}
+																/>
+																<div
+																	className="absolute top-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "ne")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "sw")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 right-0 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "se")
+																	}
+																/>
+																{/* Edge handles */}
+																<div
+																	className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "n")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "s")
+																	}
+																/>
+																<div
+																	className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "w")
+																	}
+																/>
+																<div
+																	className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-orange-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleShapeResizeStart(e, shape.id, "e")
+																	}
+																/>
+															</>
+														)}
+													</div>
+												);
+											})}
+
+											{/* Icons Layer */}
+											{icons.map((icon) => {
+												const IconComponent = AllIcons[icon.iconName];
+												if (!IconComponent) return null;
+
+												return (
+													<div
+														key={icon.id}
+														className={`absolute ${
+															selectedIcon === icon.id
+																? "ring-2 ring-zinc-500"
+																: "ring-2 ring-transparent"
+														}`}
+														style={{
+															left: `${icon.x}%`,
+															top: `${icon.y}%`,
+															width: `${icon.width}px`,
+															height: `${icon.height}px`,
+															transform: `translate(-50%, -50%) rotate(${
+																icon.styles?.rotation || 0
+															}deg) skew(${icon.styles?.skewX || 0}deg, ${
+																icon.styles?.skewY || 0
+															}deg)`,
+															zIndex: icon.styles?.zIndex || 1,
+														}}
+														onMouseDown={(e) => handleIconMouseDown(e, icon.id)}
+													>
+														<IconComponent
+															className="w-full h-full"
+															style={{
+																color: icon.styles?.color || "#000000",
+																opacity: icon.styles?.opacity || 1,
+																filter: formatDropShadowCSS(
+																	icon.styles?.shadow
+																),
+															}}
+															strokeWidth={icon.styles?.strokeWidth || 2}
+														/>
+
+														{/* Icon Controls */}
+														{selectedIcon === icon.id && (
+															<div className="absolute -top-2 -right-2 flex gap-1">
+																{/* Delete Button */}
+																<button
+																	onClick={(e) => {
+																		e.stopPropagation();
+																		removeIcon(icon.id);
+																	}}
+																	className="w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg transition-colors z-10"
+																	title="Delete icon"
+																>
+																	<X className="w-3 h-3" />
+																</button>
+															</div>
+														)}
+
+														{/* Resize Handles */}
+														{selectedIcon === icon.id && (
+															<>
+																{/* Corner handles */}
+																<div
+																	className="absolute top-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "nw")
+																	}
+																/>
+																<div
+																	className="absolute top-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "ne")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nesw-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "sw")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 right-0 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-nwse-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "se")
+																	}
+																/>
+																{/* Edge handles */}
+																<div
+																	className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "n")
+																	}
+																/>
+																<div
+																	className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ns-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "s")
+																	}
+																/>
+																<div
+																	className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "w")
+																	}
+																/>
+																<div
+																	className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-500 border border-white rounded-full cursor-ew-resize"
+																	onMouseDown={(e) =>
+																		handleIconResizeStart(e, icon.id, "e")
+																	}
+																/>
+															</>
+														)}
+													</div>
+												);
+											})}
+
+											{/* Color Stop Handles - Only show when no element is selected */}
+											{selectedImage === null &&
+												selectedVideo === null &&
+												selectedText === null &&
+												selectedShape === null &&
+												selectedIcon === null &&
+												gradient.stops.map((stop) => (
+													<div
+														key={stop.id}
+														className={`absolute w-6 h-6 flex items-center justify-center cursor-pointer group transition-transform ${
+															selectedStop === stop.id
+																? "scale-125"
+																: "hover:scale-110"
+														}`}
+														style={{
+															left: `calc(${stop.position.x}% - 12px)`,
+															top: `calc(${stop.position.y}% - 12px)`,
+														}}
+														onMouseDown={(e) => handleMouseDown(e, stop.id)}
+														onKeyDown={(e) => handleKeyDown(e, stop.id)}
+														tabIndex={0}
+														role="button"
+														aria-label={`Color stop at ${Math.round(
+															stop.position.x
+														)}%, ${Math.round(stop.position.y)}%`}
+													>
+														{/* Handle */}
+														<div
+															className="w-6 h-6 rounded-full border-2 border-white shadow-lg hover:shadow-xl transition-shadow"
+															style={{ backgroundColor: stop.color }}
+														/>
+														{/* Position Indicator */}
+														<div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap">
+															{Math.round(stop.position.x)}%,{" "}
+															{Math.round(stop.position.y)}%
+														</div>
+													</div>
+												))}
 										</div>
 									</div>
 								</div>
+							</div>
 
-								<div className="bg-white rounded-xl border border-zinc-100">
-									<div className="p-3 space-y-3">
-										<div>
+							{/* Control Panel - Fixed on Right Side */}
+							<ControlPanel
+								copied={copied}
+								setCopied={setCopied}
+								handleSaveProject={handleSaveProject}
+								handlePublishProject={handlePublishProject}
+								previewFrameSize={previewFrameSize}
+								setPreviewFrameSize={setPreviewFrameSize}
+								previewFramePresets={previewFramePresets}
+								setGradient={setGradient}
+								setIsModalOpen={setIsModalOpen}
+								gradient={gradient}
+								handleImageUpload={handleImageUpload}
+								handleVideoUpload={handleVideoUpload}
+								fileInputRef={fileInputRef}
+								videoInputRef={videoInputRef}
+								generateReactCodeMutation={generateReactCodeMutation}
+								generatedReactCode={generatedReactCode}
+								codeCopied={codeCopied}
+								handleCopyGeneratedCode={handleCopyGeneratedCode}
+								addColorStop={addColorStop}
+								updateColorStop={updateColorStop}
+								removeColorStop={removeColorStop}
+								addBackgroundShapeRect={addBackgroundShapeRect}
+								setBackgroundImage={setBackgroundImage}
+								addShape={addShape}
+								addText={addText}
+								addIcon={addIcon}
+								downloadSVG={downloadSVG}
+								downloadRaster={downloadRaster}
+								downloadGIF={downloadGIF}
+								downloadMP4={downloadMP4}
+								controlPanelRef={controlPanelRef}
+								handleControlPanelContextMenu={handleControlPanelContextMenu}
+								selectedImage={selectedImage}
+								selectedVideo={selectedVideo}
+								selectedText={selectedText}
+								selectedShape={selectedShape}
+								selectedIcon={selectedIcon}
+								selectedBackgroundShapeRect={selectedBackgroundShapeRect}
+								images={images}
+								updateImage={updateImage}
+								videos={videos}
+								updateVideo={updateVideo}
+								texts={texts}
+								updateText={updateText}
+								shapes={shapes}
+								updateShape={updateShape}
+								icons={icons}
+								updateIcon={updateIcon}
+								backgroundShapeRects={backgroundShapeRects}
+								updateBackgroundShapeRect={updateBackgroundShapeRect}
+								backgroundImage={backgroundImage}
+								handleBackgroundImageUpload={handleBackgroundImageUpload}
+								handleUrlScreenshot={handleUrlScreenshot}
+								handleAddScreenshotToCanvas={handleAddScreenshotToCanvas}
+								isUrlScreenshotOpen={isUrlScreenshotOpen}
+								setIsUrlScreenshotOpen={setIsUrlScreenshotOpen}
+								urlInput={urlInput}
+								setUrlInput={setUrlInput}
+								screenshotImage={screenshotImage}
+								isScreenshotLoading={isScreenshotLoading}
+								isImageImprovementOpen={isImageImprovementOpen}
+								isShapeDropdownOpen={isShapeDropdownOpen}
+								setIsShapeDropdownOpen={setIsShapeDropdownOpen}
+								shapeDropdownRef={shapeDropdownRef}
+								isBackgroundImageDropdownOpen={isBackgroundImageDropdownOpen}
+								setIsBackgroundImageDropdownOpen={
+									setIsBackgroundImageDropdownOpen
+								}
+								backgroundImageDropdownRef={backgroundImageDropdownRef}
+								backgroundImageInputRef={backgroundImageInputRef}
+								isIconSelectorOpen={isIconSelectorOpen}
+								setIsIconSelectorOpen={setIsIconSelectorOpen}
+								iconSelectorDropdownRef={iconSelectorDropdownRef}
+								iconSearchQuery={iconSearchQuery}
+								setIconSearchQuery={setIconSearchQuery}
+							/>
+						</div>
+						{/* Modal */}
+						<AnimatePresence>
+							{isModalOpen && (
+								<motion.div
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+									onClick={() => setIsModalOpen(false)}
+								>
+									<motion.div
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.8, opacity: 0 }}
+										className="relative flex items-center justify-center w-full h-full"
+										onClick={(e) => e.stopPropagation()}
+									>
+										{/* Close Button, Download, and Frame Size Selector */}
+										<div className="absolute top-1 right-2 flex items-center gap-2 z-50">
 											{/* Frame Size Selector */}
-											<label className="text-xs mb-1">Select frame</label>
 											<div className="flex items-center">
 												<Dropdown
 													value={previewFrameSize}
@@ -10000,4391 +9553,998 @@ const AnimatedGradientGenerator = () => {
 														})
 													)}
 													placeholder="Select frame size"
-													className="w-full"
+													className="min-w-[180px]"
 												/>
 											</div>
-
-											<input
-												ref={fileInputRef}
-												type="file"
-												accept="image/*"
-												multiple
-												onChange={handleImageUpload}
-												className="hidden"
-											/>
-											<input
-												ref={videoInputRef}
-												type="file"
-												accept="video/*"
-												multiple
-												onChange={handleVideoUpload}
-												className="hidden"
-											/>
-										</div>
-										<button
-											onClick={() => setIsModalOpen(true)}
-											className="w-full flex items-center gap-1.5 px-3 py-1.5 text-xs border border-zinc-200 hover:bg-zinc-100 rounded-xl transition-all duration-100 ease-in"
-										>
-											<PlayIcon className="w-3 h-3" />
-											Preview
-										</button>
-										{/* <button
-											type="button"
-											onClick={() => {
-												setVariantNotes([]);
-												setGeneratedImages([]);
-												setIsImageImprovementOpen(true);
-											}}
-											className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium rounded-xl border border-amber-200 bg-white hover:bg-amber-50 text-amber-900 transition-colors"
-										>
-											<Sparkles className="w-3.5 h-3.5" />
-											Generate AI Variants
-										</button> */}
-									</div>
-
-									<div className="border-t p-3 space-y-3">
-										<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-											Gradient Presets
-										</label>
-										<div ref={gradientPresetsRef} className="relative">
-											<button
-												type="button"
-												onClick={() =>
-													setIsGradientPresetsOpen(!isGradientPresetsOpen)
-												}
-												className="w-full h-7 px-2 text-xs border border-zinc-200 hover:bg-zinc-100 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 transition-colors flex items-center justify-between"
-											>
-												<span className="text-left">Choose Gradient</span>
-												<ChevronDown
-													className={`w-3 h-3 transition-transform ${
-														isGradientPresetsOpen ? "rotate-180" : ""
-													}`}
-												/>
-											</button>
-
-											<AnimatePresence>
-												{isGradientPresetsOpen && (
-													<motion.div
-														initial={{ opacity: 0, y: -10 }}
-														animate={{ opacity: 1, y: 0 }}
-														exit={{ opacity: 0, y: -10 }}
-														transition={{ duration: 0.15 }}
-														className="absolute z-50 w-full mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden"
-														style={{ maxHeight: "400px", overflowY: "auto" }}
-													>
-														<div className="p-3">
-															<div className="grid grid-cols-3 gap-2">
-																{gradientPresets.map((preset) => (
-																	<button
-																		key={preset.id}
-																		type="button"
-																		onClick={() => {
-																			setGradient((prev) => ({
-																				...prev,
-																				type: preset.type,
-																				angle: preset.angle,
-																				stops: preset.stops.map((stop) => ({
-																					...stop,
-																				})),
-																			}));
-																			setIsGradientPresetsOpen(false);
-																		}}
-																		className="aspect-square rounded-xl overflow-hidden border-2 border-zinc-200 hover:border-zinc-400 transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400"
-																		style={{
-																			background:
-																				generatePresetGradientCSS(preset),
-																		}}
-																		title={preset.name}
-																	>
-																		<div className="w-full h-full flex items-end justify-center p-1">
-																			<span className="text-xs text-white bg-black bg-opacity-50 px-1.5 py-0.5 rounded text-center truncate w-full">
-																				{preset.name}
-																			</span>
-																		</div>
-																	</button>
-																))}
-															</div>
-														</div>
-													</motion.div>
-												)}
-											</AnimatePresence>
-										</div>
-										<div>
-											<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-												Gradient Type
-											</label>
-											<Dropdown
-												value={gradient.type}
-												onChange={(value) =>
-													setGradient((prev) => ({ ...prev, type: value }))
-												}
-												options={[
-													{ value: "linear", label: "Linear" },
-													{ value: "radial", label: "Radial" },
-													{ value: "conic", label: "Conic" },
-													{ value: "rectangle", label: "Rectangle" },
-													{ value: "ellipse", label: "Ellipse" },
-													{ value: "polygon", label: "Polygon" },
-													{ value: "mesh", label: "Mesh" },
-												]}
-												placeholder="Select gradient type"
-											/>
-										</div>
-									</div>
-
-									{/* Color Stops */}
-									<div className="border-t p-3">
-										<div className="flex items-center justify-between mb-3">
-											<h3 className="text-sm font-semibold">Color Stops</h3>
-											<button
-												onClick={addColorStop}
-												className="flex items-center gap-1.5 px-2 py-1 bg-stone-50 shadow rounded hover:bg-zinc-100 transition-colors text-xs h-7"
-											>
-												<Plus className="w-3 h-3" />
-											</button>
-										</div>
-
-										<div className="space-y-2">
-											{gradient.stops.map((stop) => (
-												<div
-													key={stop.id}
-													className="flex items-end gap-2 p-1 rounded-xl"
+											{/* Download Button with Dropdown */}
+											<div ref={downloadDropdownRef} className="relative">
+												<button
+													onClick={() =>
+														setIsDownloadDropdownOpen(!isDownloadDropdownOpen)
+													}
+													className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 px-2 py-1 text-sm bg-white hover:bg-zinc-100 rounded-xl transition-colors border border-zinc-200 shadow-lg"
 												>
-													<div className="flex-1">
-														<ColorPicker
-															value={stop.color}
-															onChange={(color) =>
-																updateColorStop(stop.id, "color", color)
-															}
-														/>
-													</div>
-													<button
-														onClick={() => removeColorStop(stop.id)}
-														className="p-1.5 text-red-500 hover:bg-red-50 rounded"
-														aria-label={`Remove color stop`}
-													>
-														<Trash2 className="w-3 h-3" />
-													</button>
-												</div>
-											))}
-										</div>
-									</div>
-
-									{/* Background Shapes Dropdown */}
-									<div className="border-t p-3">
-										<Dropdown
-											value=""
-											onChange={(value) => {
-												if (value) {
-													addBackgroundShapeRect(value);
-													setBackgroundImage(null);
-												}
-											}}
-											options={getShapeOptions()}
-											placeholder="Add Background Shape"
-											className="w-full"
-										/>
-									</div>
-
-									{/* Animation Settings */}
-									<div className="border-t p-3">
-										<h3 className="text-sm font-semibold mb-3">Animation</h3>
-										<div className="space-y-3">
-											<div>
-												<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-													Animation Type
-												</label>
-												<Dropdown
-													value={gradient.animation.type}
-													onChange={(value) =>
-														setGradient((prev) => ({
-															...prev,
-															animation: { ...prev.animation, type: value },
-														}))
-													}
-													options={[
-														{ value: "rotate", label: "Rotate" },
-														{ value: "pulse", label: "Pulse" },
-														{ value: "shift", label: "Color Shift" },
-													]}
-													placeholder="Select animation type"
-												/>
-											</div>
-										</div>
-									</div>
-
-									{/* Background Animation Controls */}
-									<div className="border-t p-3">
-										<h3 className="text-sm font-semibold mb-3">
-											Background Animation
-										</h3>
-
-										<div className="space-y-3">
-											<div>
-												<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-													Animation Type
-												</label>
-												<Dropdown
-													value={gradient.backgroundAnimation.type}
-													onChange={(value) =>
-														setGradient((prev) => ({
-															...prev,
-															backgroundAnimation: {
-																...prev.backgroundAnimation,
-																type: value,
-															},
-														}))
-													}
-													options={[
-														{ value: "slide", label: "Slide" },
-														{ value: "wave", label: "Wave" },
-													]}
-													placeholder="Select animation type"
-												/>
-											</div>
-
-											<div>
-												<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-													Direction
-												</label>
-												<Dropdown
-													value={gradient.backgroundAnimation.direction}
-													onChange={(value) =>
-														setGradient((prev) => ({
-															...prev,
-															backgroundAnimation: {
-																...prev.backgroundAnimation,
-																direction: value,
-															},
-														}))
-													}
-													options={[
-														{ value: "right", label: "Right" },
-														{ value: "left", label: "Left" },
-														{ value: "up", label: "Up" },
-														{ value: "down", label: "Down" },
-													]}
-													placeholder="Select direction"
-												/>
-											</div>
-
-											<div>
-												<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-													Speed: {gradient.backgroundAnimation.speed}s
-												</label>
-												<input
-													type="range"
-													min="1"
-													max="20"
-													step="1"
-													value={gradient.backgroundAnimation.speed}
-													onChange={(e) =>
-														setGradient((prev) => ({
-															...prev,
-															backgroundAnimation: {
-																...prev.backgroundAnimation,
-																speed: parseInt(e.target.value),
-															},
-														}))
-													}
-													className="w-full h-2 bg-zinc-50 rounded-xl appearance-none cursor-pointer slider"
-													style={{
-														background: `linear-gradient(to right, #71717a 0%, #71717a ${
-															((gradient.backgroundAnimation.speed - 1) / 19) *
-															100
-														}%, #e4e4e7 ${
-															((gradient.backgroundAnimation.speed - 1) / 19) *
-															100
-														}%, #e4e4e7 100%)`,
-													}}
-												/>
-											</div>
-
-											<div>
-												<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-													Easing
-												</label>
-												<Dropdown
-													value={gradient.backgroundAnimation.easing}
-													onChange={(value) =>
-														setGradient((prev) => ({
-															...prev,
-															backgroundAnimation: {
-																...prev.backgroundAnimation,
-																easing: value,
-															},
-														}))
-													}
-													options={[
-														{ value: "linear", label: "Linear" },
-														{ value: "ease", label: "Ease" },
-														{ value: "ease-in", label: "Ease In" },
-														{ value: "ease-out", label: "Ease Out" },
-														{ value: "ease-in-out", label: "Ease In Out" },
-													]}
-													placeholder="Select easing"
-												/>
-											</div>
-
-											<div>
-												<label className="flex items-center space-x-2 text-xs font-medium cursor-pointer group">
-													<input
-														type="checkbox"
-														checked={
-															gradient.backgroundAnimation.repeat || false
-														}
-														onChange={(e) =>
-															setGradient((prev) => ({
-																...prev,
-																backgroundAnimation: {
-																	...prev.backgroundAnimation,
-																	repeat: e.target.checked,
-																},
-															}))
-														}
-														className="w-5 h-5 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-													/>
-													<span className="text-zinc-700 group-hover:text-zinc-900 transition-colors peer-last:mr-0">
-														Repeat Animation (infinite)
-													</span>
-												</label>
-											</div>
-
-											{/* Background CSS Output */}
-											<div className="pt-3">
-												<div className="flex items-center justify-between mb-1.5">
-													<h4 className="text-xs font-medium">
-														Background CSS
-													</h4>
-													<button
-														onClick={() => {
-															const css = `background: ${generateGradientCSS()};${
-																backgroundAnimation
-																	? `\n${backgroundAnimation}`
-																	: ""
-															}`;
-															copyToClipboard(css, "background-css");
-														}}
-														className="flex items-center gap-1 px-1.5 py-0.5 text-xs bg-zinc-50 hover:bg-zinc-100 rounded transition-colors"
-													>
-														<Copy className="w-3 h-3" />
-														{copied === "background-css"
-															? "Copied!"
-															: "Copy CSS"}
-													</button>
-												</div>
-												<pre className="bg-zinc-100 text-zinc-900 p-2 rounded text-xs overflow-x-auto max-h-24 overflow-y-auto">
-													<code>{`background: ${generateGradientCSS()};${
-														backgroundAnimation
-															? `\n${backgroundAnimation}`
-															: ""
-													}`}</code>
-												</pre>
-											</div>
-										</div>
-									</div>
-								</div>
-
-								<div className="py-3 bg-white rounded-xl border border-zinc-100">
-									{/* Text Styling Panel - Shows when text is selected */}
-									{selectedText &&
-										(() => {
-											const selectedTxt = texts.find(
-												(txt) => txt.id === selectedText
-											);
-											if (!selectedTxt) return null;
-											const styles = selectedTxt.styles || {
-												fontSize: 24,
-												fontWeight: "normal",
-												fontStyle: "normal",
-												color: "#000000",
-												textAlign: "left",
-												fontFamily: "Arial",
-												backgroundColor: "transparent",
-												padding: 0,
-												borderRadius: 0,
-												borderWidth: 0,
-												borderColor: "#000000",
-												borderStyle: "solid",
-												shadow: {
-													enabled: false,
-													x: 0,
-													y: 0,
-													blur: 0,
-													color: "#000000",
-												},
-												opacity: 1,
-												zIndex: 2,
-											};
-
-											return (
-												<div className="p-3">
-													<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-														<Type className="w-4 h-4" />
-														Text Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Font Size */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Font Size: {styles.fontSize || 24}px
-															</label>
-															<input
-																type="range"
-																min="8"
-																max="120"
-																step="1"
-																value={styles.fontSize || 24}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			fontSize: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Font Weight */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Font Weight
-															</label>
-															<Dropdown
-																value={styles.fontWeight || "normal"}
-																onChange={(value) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			fontWeight: value,
-																		},
-																	})
-																}
-																options={[
-																	{ value: "normal", label: "Normal" },
-																	{ value: "bold", label: "Bold" },
-																]}
-																placeholder="Select font weight"
-															/>
-														</div>
-
-														{/* Font Style */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Font Style
-															</label>
-															<Dropdown
-																value={styles.fontStyle || "normal"}
-																onChange={(value) =>
-																	updateText(selectedText, {
-																		styles: { ...styles, fontStyle: value },
-																	})
-																}
-																options={[
-																	{ value: "normal", label: "Normal" },
-																	{ value: "italic", label: "Italic" },
-																]}
-																placeholder="Select font style"
-															/>
-														</div>
-
-														{/* Text Color */}
-														<ColorPicker
-															value={styles.color || "#000000"}
-															onChange={(color) =>
-																updateText(selectedText, {
-																	styles: {
-																		...styles,
-																		color: color,
-																	},
-																})
-															}
-															label="Text Color"
-														/>
-
-														{/* Text Align */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Text Align
-															</label>
-															<Dropdown
-																value={styles.textAlign || "left"}
-																onChange={(value) =>
-																	updateText(selectedText, {
-																		styles: { ...styles, textAlign: value },
-																	})
-																}
-																options={[
-																	{ value: "left", label: "Left" },
-																	{ value: "center", label: "Center" },
-																	{ value: "right", label: "Right" },
-																]}
-																placeholder="Select text align"
-															/>
-														</div>
-
-														{/* List Style */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																List Style
-															</label>
-															<Dropdown
-																value={styles.listStyle || "none"}
-																onChange={(value) =>
-																	updateText(selectedText, {
-																		styles: { ...styles, listStyle: value },
-																	})
-																}
-																options={[
-																	{ value: "none", label: "None" },
-																	{
-																		value: "ordered",
-																		label: "Ordered (Numbered)",
-																	},
-																	{
-																		value: "unordered",
-																		label: "Unordered (Bulleted)",
-																	},
-																]}
-																placeholder="Select list style"
-															/>
-														</div>
-
-														{/* Link URL */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Link URL
-															</label>
-															<div className="flex items-center gap-2">
-																<input
-																	type="text"
-																	value={styles.linkUrl || ""}
-																	onChange={(e) =>
-																		updateText(selectedText, {
-																			styles: {
-																				...styles,
-																				linkUrl: e.target.value,
-																			},
-																		})
-																	}
-																	placeholder="https://example.com"
-																	className="flex-1 px-3 py-2 text-xs border border-zinc-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-400"
-																/>
-																{styles.linkUrl && (
-																	<button
-																		onClick={() =>
-																			updateText(selectedText, {
-																				styles: {
-																					...styles,
-																					linkUrl: "",
-																				},
-																			})
-																		}
-																		className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-																		title="Remove link"
-																	>
-																		<X className="w-4 h-4" />
-																	</button>
-																)}
-															</div>
-															{styles.linkUrl && (
-																<div className="mt-1.5">
-																	<label className="block text-xs text-zinc-600 mb-1">
-																		Link Target
-																	</label>
-																	<Dropdown
-																		value={styles.linkTarget || "_self"}
-																		onChange={(value) =>
-																			updateText(selectedText, {
-																				styles: {
-																					...styles,
-																					linkTarget: value,
-																				},
-																			})
-																		}
-																		options={[
-																			{ value: "_self", label: "Same Window" },
-																			{ value: "_blank", label: "New Window" },
-																		]}
-																		placeholder="Select target"
-																	/>
-																</div>
-															)}
-														</div>
-
-														{/* Font Family */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Font Family
-															</label>
-															<Dropdown
-																value={styles.fontFamily || "Arial"}
-																onChange={(value) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			fontFamily: value,
-																		},
-																	})
-																}
-																options={[
-																	{ value: "Arial", label: "Arial" },
-																	{
-																		value: "Helvetica",
-																		label: "Helvetica",
-																	},
-																	{
-																		value: "Times New Roman",
-																		label: "Times New Roman",
-																	},
-																	{
-																		value: "Courier New",
-																		label: "Courier New",
-																	},
-																	{ value: "Verdana", label: "Verdana" },
-																	{ value: "Georgia", label: "Georgia" },
-																	{ value: "Palatino", label: "Palatino" },
-																	{ value: "Garamond", label: "Garamond" },
-																	{
-																		value: "Comic Sans MS",
-																		label: "Comic Sans MS",
-																	},
-																	{
-																		value: "Trebuchet MS",
-																		label: "Trebuchet MS",
-																	},
-																	{ value: "Impact", label: "Impact" },
-																]}
-																placeholder="Select font family"
-															/>
-														</div>
-
-														{/* Background Color */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Background Color
-															</label>
-															<div className="flex items-center gap-2">
-																<ColorPicker
-																	value={styles.backgroundColor || "#ffffff"}
-																	onChange={(color) =>
-																		updateText(selectedText, {
-																			styles: {
-																				...styles,
-																				backgroundColor: color,
-																			},
-																		})
-																	}
-																/>
-															</div>
-														</div>
-
-														{/* Padding */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Padding: {styles.padding || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="50"
-																step="1"
-																value={styles.padding || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			padding: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Border Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Width: {styles.borderWidth || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.borderWidth || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			borderWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Border Color */}
-														{styles.borderWidth > 0 && (
-															<ColorPicker
-																value={styles.borderColor || "#000000"}
-																onChange={(color) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			borderColor: color,
-																		},
-																	})
-																}
-																label="Border Color"
-															/>
-														)}
-
-														{/* Border Radius */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Radius:{" "}
-																{styles.borderRadius === 100
-																	? "100%"
-																	: `${styles.borderRadius || 0}px`}
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="100"
-																step="1"
-																value={styles.borderRadius || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			borderRadius: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Shadow */}
-														<div>
-															<div className="flex items-center justify-between mb-1.5">
-																<label className="peer block text-xs font-medium text-zinc-700 cursor-pointer group">
-																	Shadow
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.shadow?.enabled || false}
-																	onChange={(e) =>
-																		updateText(selectedText, {
-																			styles: {
-																				...styles,
-																				shadow: {
-																					...styles.shadow,
-																					enabled: e.target.checked,
-																					x: styles.shadow?.x || 0,
-																					y: styles.shadow?.y || 0,
-																					blur: styles.shadow?.blur || 0,
-																					color:
-																						styles.shadow?.color || "#000000",
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.shadow?.enabled && (
-																<div className="space-y-2">
-																	{/* Shadow X */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			X Offset: {styles.shadow?.x || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.x || 0}
-																			onChange={(e) =>
-																				updateText(selectedText, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							x: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Y */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Y Offset: {styles.shadow?.y || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.y || 0}
-																			onChange={(e) =>
-																				updateText(selectedText, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							y: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Blur */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Blur: {styles.shadow?.blur || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="0"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.blur || 0}
-																			onChange={(e) =>
-																				updateText(selectedText, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							blur: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Color */}
-																	<ColorPicker
-																		value={styles.shadow?.color || "#000000"}
-																		onChange={(color) =>
-																			updateText(selectedText, {
-																				styles: {
-																					...styles,
-																					shadow: {
-																						...styles.shadow,
-																						enabled: true,
-																						color: color,
-																					},
-																				},
-																			})
-																		}
-																		label="Color"
-																	/>
-																</div>
-															)}
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={
-																	styles.opacity !== undefined
-																		? styles.opacity
-																		: 1
-																}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			opacity: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Rotation */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Rotation: {styles.rotation || 0}°
-															</label>
-															<input
-																type="range"
-																min="-180"
-																max="180"
-																step="1"
-																value={styles.rotation || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			rotation: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew X */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew X: {styles.skewX || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewX || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			skewX: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew Y */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew Y: {styles.skewY || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewY || 0}
-																onChange={(e) =>
-																	updateText(selectedText, {
-																		styles: {
-																			...styles,
-																			skewY: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* CSS Output */}
-														<div className="border-t pt-3">
-															<div className="flex items-center justify-between mb-1.5">
-																<h4 className="text-xs font-medium">
-																	Text CSS
-																</h4>
-																<button
-																	onClick={() => {
-																		const rotation = styles.rotation || 0;
-																		const skewX = styles.skewX || 0;
-																		const skewY = styles.skewY || 0;
-																		const transform =
-																			rotation !== 0 ||
-																			skewX !== 0 ||
-																			skewY !== 0
-																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
-																				: "";
-																		const css = `font-size: ${styles.fontSize || 24}px;
-font-weight: ${styles.fontWeight || "normal"};
-font-style: ${styles.fontStyle || "normal"};
-color: ${styles.color || "#000000"};
-text-align: ${styles.textAlign || "left"};
-font-family: ${styles.fontFamily || "Arial"};
-background-color: ${styles.backgroundColor || "transparent"};
-padding: ${styles.padding || 0}px;
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-${transform}
-${
-	styles.shadow !== "none" && styles.shadow
-		? `box-shadow: ${
-				styles.shadow === "sm"
-					? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-					: styles.shadow === "md"
-						? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-						: styles.shadow === "lg"
-							? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-							: styles.shadow === "xl"
-								? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-								: styles.shadow === "2xl"
-									? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-									: "none"
-			};`
-		: ""
-}`;
-																		copyToClipboard(css, "text-css");
-																	}}
-																	className="flex items-center gap-1 px-1.5 py-0.5 text-xs bg-zinc-50 hover:bg-zinc-100 rounded transition-colors"
-																>
-																	<Copy className="w-3 h-3" />
-																	{copied === "text-css"
-																		? "Copied!"
-																		: "Copy CSS"}
-																</button>
-															</div>
-															<pre className="bg-zinc-900 text-zinc-400 p-2 rounded text-xs overflow-x-auto max-h-24 overflow-y-auto">
-																<code>
-																	{(() => {
-																		const rotation = styles.rotation || 0;
-																		const skewX = styles.skewX || 0;
-																		const skewY = styles.skewY || 0;
-																		const transform =
-																			rotation !== 0 ||
-																			skewX !== 0 ||
-																			skewY !== 0
-																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
-																				: "";
-																		return `font-size: ${styles.fontSize || 24}px;
-font-weight: ${styles.fontWeight || "normal"};
-font-style: ${styles.fontStyle || "normal"};
-color: ${styles.color || "#000000"};
-text-align: ${styles.textAlign || "left"};
-font-family: ${styles.fontFamily || "Arial"};
-background-color: ${styles.backgroundColor || "transparent"};
-padding: ${styles.padding || 0}px;
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-${transform}
-${
-	styles.shadow !== "none" && styles.shadow
-		? `box-shadow: ${
-				styles.shadow === "sm"
-					? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-					: styles.shadow === "md"
-						? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-						: styles.shadow === "lg"
-							? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-							: styles.shadow === "xl"
-								? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-								: styles.shadow === "2xl"
-									? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-									: "none"
-			};`
-		: ""
-}`;
-																	})()}
-																</code>
-															</pre>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-									{/* Image Styling Panel - Shows when image is selected */}
-									{selectedImage &&
-										(() => {
-											const selectedImg = images.find(
-												(img) => img.id === selectedImage
-											);
-											if (!selectedImg) return null;
-											const styles = selectedImg.styles || {
-												objectFit: "contain",
-												borderWidth: 0,
-												borderColor: "#000000",
-												borderStyle: "solid",
-												ringWidth: 0,
-												ringColor: "#3b82f6",
-												shadow: {
-													enabled: false,
-													x: 0,
-													y: 0,
-													blur: 0,
-													color: "#000000",
-												},
-												borderRadius: 0,
-												opacity: 1,
-												zIndex: 1,
-												noise: {
-													enabled: false,
-													intensity: 0.3,
-												},
-											};
-
-											return (
-												<div className="border-t p-3 mt-3">
-													<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-														<ImageIcon className="w-4 h-4" />
-														Image Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Object Fit */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Object Fit: {styles.objectFit || "contain"}
-															</label>
-															<Dropdown
-																value={styles.objectFit || "contain"}
-																onChange={(value) =>
-																	updateImage(selectedImage, {
-																		styles: { ...styles, objectFit: value },
-																	})
-																}
-																options={[
-																	{ value: "contain", label: "Contain" },
-																	{ value: "cover", label: "Cover" },
-																	{ value: "fill", label: "Fill" },
-																	{ value: "none", label: "None" },
-																	{
-																		value: "scale-down",
-																		label: "Scale Down",
-																	},
-																]}
-																placeholder="Select object fit"
-															/>
-														</div>
-
-														{/* Border Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Width: {styles.borderWidth || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.borderWidth || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			borderWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Border Color */}
-														{styles.borderWidth > 0 && (
-															<ColorPicker
-																value={styles.borderColor || "#000000"}
-																onChange={(color) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			borderColor: color,
-																		},
-																	})
-																}
-																label="Border Color"
-															/>
-														)}
-
-														{/* Border Style */}
-														{styles.borderWidth > 0 && (
-															<div>
-																<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																	Border Style
-																</label>
-																<Dropdown
-																	value={styles.borderStyle || "solid"}
-																	onChange={(value) =>
-																		updateImage(selectedImage, {
-																			styles: {
-																				...styles,
-																				borderStyle: value,
-																			},
-																		})
-																	}
-																	options={[
-																		{ value: "solid", label: "Solid" },
-																		{ value: "dashed", label: "Dashed" },
-																		{ value: "dotted", label: "Dotted" },
-																	]}
-																	placeholder="Select border style"
-																/>
-															</div>
-														)}
-
-														{/* Border Radius */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Radius:{" "}
-																{styles.borderRadius === 100
-																	? "100%"
-																	: `${styles.borderRadius || 0}px`}
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="100"
-																step="1"
-																value={styles.borderRadius || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			borderRadius: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Ring Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Ring Width: {styles.ringWidth || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.ringWidth || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			ringWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Ring Color */}
-														{styles.ringWidth > 0 && (
-															<ColorPicker
-																value={styles.ringColor || "#3b82f6"}
-																onChange={(color) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			ringColor: color,
-																		},
-																	})
-																}
-																label="Ring Color"
-															/>
-														)}
-
-														{/* Shadow */}
-														<div>
-															<div className="flex items-center justify-between my-1.5">
-																<label className="block text-xs font-medium text-zinc-700 cursor-pointer group">
-																	Shadow
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.shadow?.enabled || false}
-																	onChange={(e) =>
-																		updateImage(selectedImage, {
-																			styles: {
-																				...styles,
-																				shadow: {
-																					...styles.shadow,
-																					enabled: e.target.checked,
-																					x: styles.shadow?.x || 0,
-																					y: styles.shadow?.y || 0,
-																					blur: styles.shadow?.blur || 0,
-																					color:
-																						styles.shadow?.color || "#000000",
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 focus:ring-2 focus:ring-brand-soft text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.shadow?.enabled && (
-																<div className="space-y-2">
-																	{/* Shadow X */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			X Offset: {styles.shadow?.x || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.x || 0}
-																			onChange={(e) =>
-																				updateImage(selectedImage, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							x: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Y */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Y Offset: {styles.shadow?.y || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.y || 0}
-																			onChange={(e) =>
-																				updateImage(selectedImage, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							y: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Blur */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Blur: {styles.shadow?.blur || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="0"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.blur || 0}
-																			onChange={(e) =>
-																				updateImage(selectedImage, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							blur: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Color */}
-																	<ColorPicker
-																		value={styles.shadow?.color || "#000000"}
-																		onChange={(color) =>
-																			updateImage(selectedImage, {
-																				styles: {
-																					...styles,
-																					shadow: {
-																						...styles.shadow,
-																						enabled: true,
-																						color: color,
-																					},
-																				},
-																			})
-																		}
-																		label="Color"
-																	/>
-																</div>
-															)}
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={
-																	styles.opacity !== undefined
-																		? styles.opacity
-																		: 1
-																}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			opacity: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Z-Index */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Z-Index: {styles.zIndex || 1}
-															</label>
-															<input
-																type="range"
-																min="1"
-																max="10"
-																step="1"
-																value={styles.zIndex || 1}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			zIndex: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Rotation */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Rotation: {styles.rotation || 0}°
-															</label>
-															<input
-																type="range"
-																min="-180"
-																max="180"
-																step="1"
-																value={styles.rotation || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			rotation: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew X */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew X: {styles.skewX || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewX || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			skewX: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew Y */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew Y: {styles.skewY || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewY || 0}
-																onChange={(e) =>
-																	updateImage(selectedImage, {
-																		styles: {
-																			...styles,
-																			skewY: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Noise */}
-														<div className="border-t pt-3">
-															<div className="flex items-center justify-between mb-1.5">
-																<label className="block text-sm font-medium text-zinc-700 cursor-pointer group">
-																	Noise
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.noise?.enabled || false}
-																	onChange={(e) =>
-																		updateImage(selectedImage, {
-																			styles: {
-																				...styles,
-																				noise: {
-																					...styles.noise,
-																					enabled: e.target.checked,
-																					intensity:
-																						styles.noise?.intensity || 0.3,
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.noise?.enabled && (
-																<div>
-																	<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																		Noise Intensity:{" "}
-																		{Math.round(
-																			(styles.noise?.intensity || 0.3) * 100
-																		)}
-																		%
-																	</label>
-																	<input
-																		type="range"
-																		min="0"
-																		max="1"
-																		step="0.01"
-																		value={styles.noise?.intensity || 0.3}
-																		onChange={(e) =>
-																			updateImage(selectedImage, {
-																				styles: {
-																					...styles,
-																					noise: {
-																						...styles.noise,
-																						enabled: true,
-																						intensity: parseFloat(
-																							e.target.value
-																						),
-																					},
-																				},
-																			})
-																		}
-																		className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																	/>
-																</div>
-															)}
-														</div>
-
-														{/* CSS Output */}
-														<div className="border-t pt-3">
-															<div className="flex items-center justify-between mb-1.5">
-																<h4 className="text-xs font-medium">
-																	Image CSS
-																</h4>
-																<button
-																	onClick={() => {
-																		const rotation = styles.rotation || 0;
-																		const skewX = styles.skewX || 0;
-																		const skewY = styles.skewY || 0;
-																		const transform =
-																			rotation !== 0 ||
-																			skewX !== 0 ||
-																			skewY !== 0
-																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
-																				: "";
-																		const css = `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-z-index: ${styles.zIndex || 1};
-${transform}
-${
-	formatShadowCSS(styles.shadow) !== "none"
-		? `box-shadow: ${formatShadowCSS(styles.shadow)};`
-		: ""
-}${
-																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
-outline-offset: 2px;`
-																				: ""
-																		}`;
-																		copyToClipboard(css, "image-css");
-																	}}
-																	className="flex items-center gap-1 px-2 py-1 text-xs bg-zinc-50 hover:bg-zinc-100 rounded transition-colors"
-																>
-																	<Copy className="w-3 h-3" />
-																	{copied === "image-css"
-																		? "Copied!"
-																		: "Copy CSS"}
-																</button>
-															</div>
-															<pre className="bg-zinc-50 text-zinc-900 p-2 rounded text-xs overflow-x-auto max-h-24 overflow-y-auto">
-																<code>
-																	{(() => {
-																		const rotation = styles.rotation || 0;
-																		const skewX = styles.skewX || 0;
-																		const skewY = styles.skewY || 0;
-																		const transform =
-																			rotation !== 0 ||
-																			skewX !== 0 ||
-																			skewY !== 0
-																				? `transform: rotate(${rotation}deg) skew(${skewX}deg, ${skewY}deg);`
-																				: "";
-																		return `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-z-index: ${styles.zIndex || 1};
-${transform}
-${
-	formatShadowCSS(styles.shadow) !== "none"
-		? `box-shadow: ${formatShadowCSS(styles.shadow)};`
-		: ""
-}${
-																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
-outline-offset: 2px;`
-																				: ""
-																		}`;
-																	})()}
-																</code>
-															</pre>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-									{/* Video Styling Panel - Shows when video is selected */}
-									{selectedVideo &&
-										(() => {
-											const selectedVid = videos.find(
-												(vid) => vid.id === selectedVideo
-											);
-											if (!selectedVid) return null;
-											const styles = selectedVid.styles || {
-												objectFit: "contain",
-												borderWidth: 0,
-												borderColor: "#000000",
-												borderStyle: "solid",
-												ringWidth: 0,
-												ringColor: "#3b82f6",
-												shadow: {
-													enabled: false,
-													x: 0,
-													y: 0,
-													blur: 0,
-													color: "#000000",
-												},
-												borderRadius: 0,
-												opacity: 1,
-												zIndex: 1,
-											};
-
-											return (
-												<div className="border-t p-3 mt-3">
-													<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-														<Video className="w-4 h-4" />
-														Video Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Object Fit */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Object Fit: {styles.objectFit || "contain"}
-															</label>
-															<Dropdown
-																value={styles.objectFit || "contain"}
-																onChange={(value) =>
-																	updateVideo(selectedVideo, {
-																		styles: { ...styles, objectFit: value },
-																	})
-																}
-																options={[
-																	{ value: "contain", label: "Contain" },
-																	{ value: "cover", label: "Cover" },
-																	{ value: "fill", label: "Fill" },
-																	{ value: "none", label: "None" },
-																	{
-																		value: "scale-down",
-																		label: "Scale Down",
-																	},
-																]}
-																placeholder="Select object fit"
-															/>
-														</div>
-
-														{/* Border Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Width: {styles.borderWidth || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.borderWidth || 0}
-																onChange={(e) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			borderWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Border Color */}
-														{styles.borderWidth > 0 && (
-															<ColorPicker
-																value={styles.borderColor || "#000000"}
-																onChange={(color) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			borderColor: color,
-																		},
-																	})
-																}
-																label="Border Color"
-															/>
-														)}
-
-														{/* Border Style */}
-														{styles.borderWidth > 0 && (
-															<div>
-																<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																	Border Style
-																</label>
-																<Dropdown
-																	value={styles.borderStyle || "solid"}
-																	onChange={(value) =>
-																		updateVideo(selectedVideo, {
-																			styles: {
-																				...styles,
-																				borderStyle: value,
-																			},
-																		})
-																	}
-																	options={[
-																		{ value: "solid", label: "Solid" },
-																		{ value: "dashed", label: "Dashed" },
-																		{ value: "dotted", label: "Dotted" },
-																	]}
-																	placeholder="Select border style"
-																/>
-															</div>
-														)}
-
-														{/* Border Radius */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Border Radius:{" "}
-																{styles.borderRadius === 100
-																	? "100%"
-																	: `${styles.borderRadius || 0}px`}
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="100"
-																step="1"
-																value={styles.borderRadius || 0}
-																onChange={(e) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			borderRadius: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Ring Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Ring Width: {styles.ringWidth || 0}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.ringWidth || 0}
-																onChange={(e) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			ringWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Ring Color */}
-														{styles.ringWidth > 0 && (
-															<ColorPicker
-																value={styles.ringColor || "#3b82f6"}
-																onChange={(color) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			ringColor: color,
-																		},
-																	})
-																}
-																label="Ring Color"
-															/>
-														)}
-
-														{/* Shadow */}
-														<div>
-															<div className="flex items-center justify-between mb-1.5">
-																<label className="block text-xs font-medium text-zinc-700 cursor-pointer group">
-																	Shadow
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.shadow?.enabled || false}
-																	onChange={(e) =>
-																		updateVideo(selectedVideo, {
-																			styles: {
-																				...styles,
-																				shadow: {
-																					...styles.shadow,
-																					enabled: e.target.checked,
-																					x: styles.shadow?.x || 0,
-																					y: styles.shadow?.y || 0,
-																					blur: styles.shadow?.blur || 0,
-																					color:
-																						styles.shadow?.color || "#000000",
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.shadow?.enabled && (
-																<div className="space-y-2">
-																	{/* Shadow X */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			X Offset: {styles.shadow?.x || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.x || 0}
-																			onChange={(e) =>
-																				updateVideo(selectedVideo, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							x: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Y */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Y Offset: {styles.shadow?.y || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.y || 0}
-																			onChange={(e) =>
-																				updateVideo(selectedVideo, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							y: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Blur */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Blur: {styles.shadow?.blur || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="0"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.blur || 0}
-																			onChange={(e) =>
-																				updateVideo(selectedVideo, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							blur: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Color */}
-																	<ColorPicker
-																		value={styles.shadow?.color || "#000000"}
-																		onChange={(color) =>
-																			updateVideo(selectedVideo, {
-																				styles: {
-																					...styles,
-																					shadow: {
-																						...styles.shadow,
-																						enabled: true,
-																						color: color,
-																					},
-																				},
-																			})
-																		}
-																		label="Color"
-																	/>
-																</div>
-															)}
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={
-																	styles.opacity !== undefined
-																		? styles.opacity
-																		: 1
-																}
-																onChange={(e) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			opacity: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Z-Index */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Z-Index: {styles.zIndex || 1}
-															</label>
-															<input
-																type="range"
-																min="1"
-																max="10"
-																step="1"
-																value={styles.zIndex || 1}
-																onChange={(e) =>
-																	updateVideo(selectedVideo, {
-																		styles: {
-																			...styles,
-																			zIndex: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* CSS Output */}
-														<div className="border-t pt-3">
-															<div className="flex items-center justify-between mb-1.5">
-																<h4 className="text-xs font-medium">
-																	Video CSS
-																</h4>
-																<button
-																	onClick={() => {
-																		const css = `object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-z-index: ${styles.zIndex || 1};
-${
-	formatShadowCSS(styles.shadow) !== "none"
-		? `box-shadow: ${formatShadowCSS(styles.shadow)};`
-		: ""
-}${
-																			styles.ringWidth > 0
-																				? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
-outline-offset: 2px;`
-																				: ""
-																		}`;
-																		copyToClipboard(css, "video-css");
-																	}}
-																	className="flex items-center gap-1 px-2 py-1 text-xs bg-zinc-50 hover:bg-zinc-100 rounded transition-colors"
-																>
-																	<Copy className="w-3 h-3" />
-																	{copied === "video-css"
-																		? "Copied!"
-																		: "Copy CSS"}
-																</button>
-															</div>
-															<pre className="bg-zinc-50 text-zinc-900 p-2 rounded text-xs overflow-x-auto max-h-24 overflow-y-auto">
-																<code>{`object-fit: ${styles.objectFit || "contain"};
-border: ${styles.borderWidth || 0}px ${styles.borderStyle || "solid"} ${styles.borderColor || "#000000"};
-border-radius: ${styles.borderRadius === 100 ? "50%" : `${styles.borderRadius || 0}px`};
-opacity: ${styles.opacity !== undefined ? styles.opacity : 1};
-z-index: ${styles.zIndex || 1};
-${
-	formatShadowCSS(styles.shadow) !== "none"
-		? `box-shadow: ${formatShadowCSS(styles.shadow)};`
-		: ""
-}${
-																	styles.ringWidth > 0
-																		? `\noutline: ${styles.ringWidth}px solid ${styles.ringColor || "#3b82f6"};
-outline-offset: 2px;`
-																		: ""
-																}`}</code>
-															</pre>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-									{/* Background Shape Rectangle Styling Panel */}
-									{selectedBackgroundShapeRect &&
-										(() => {
-											const selectedRect = backgroundShapeRects.find(
-												(r) => r.id === selectedBackgroundShapeRect
-											);
-											if (!selectedRect) return null;
-											const styles = selectedRect.styles || {
-												opacity: 1,
-												zIndex: 0,
-												rotation: 0,
-												skewX: 0,
-												skewY: 0,
-											};
-
-											return (
-												<div className="border-t p-3 mt-3">
-													<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-														<Square className="w-4 h-4" />
-														Background Shape Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Shape Scale */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Shape Scale: {selectedRect.scale.toFixed(1)}x
-															</label>
-															<input
-																type="range"
-																min="0.5"
-																max="3"
-																step="0.1"
-																value={selectedRect.scale}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			scale: parseFloat(e.target.value),
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={
-																	styles.opacity !== undefined
-																		? styles.opacity
-																		: 1
-																}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			styles: {
-																				...styles,
-																				opacity: parseFloat(e.target.value),
-																			},
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Z-Index */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Z-Index: {styles.zIndex || 0}
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="10"
-																step="1"
-																value={styles.zIndex || 0}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			styles: {
-																				...styles,
-																				zIndex: parseInt(e.target.value),
-																			},
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Rotation */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Rotation: {styles.rotation || 0}°
-															</label>
-															<input
-																type="range"
-																min="-180"
-																max="180"
-																step="1"
-																value={styles.rotation || 0}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			styles: {
-																				...styles,
-																				rotation: parseInt(e.target.value),
-																			},
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew X */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew X: {styles.skewX || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewX || 0}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			styles: {
-																				...styles,
-																				skewX: parseInt(e.target.value),
-																			},
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew Y */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew Y: {styles.skewY || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewY || 0}
-																onChange={(e) =>
-																	updateBackgroundShapeRect(
-																		selectedBackgroundShapeRect,
-																		{
-																			styles: {
-																				...styles,
-																				skewY: parseInt(e.target.value),
-																			},
-																		}
-																	)
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-
-									{/* Shape Styling Panel - Shows when shape is selected */}
-									{selectedShape &&
-										(() => {
-											const selectedShp = shapes.find(
-												(shp) => shp.id === selectedShape
-											);
-											if (!selectedShp) return null;
-											const styles = selectedShp.styles || {
-												fillColor: "#3b82f6",
-												strokeColor: "#1e40af",
-												strokeWidth: 2,
-												opacity: 1,
-												borderRadius: 0,
-												shadow: {
-													enabled: false,
-													x: 0,
-													y: 0,
-													blur: 0,
-													color: "#000000",
-												},
-												zIndex: 1,
-											};
-
-											return (
-												<div className="border-t p-3 mt-3">
-													<h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-														<Square className="w-4 h-4" />
-														Shape Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Fill Color - Solid or Gradient */}
-														{(selectedShp.type === "rectangle" ||
-															selectedShp.type === "square" ||
-															selectedShp.type === "circle" ||
-															selectedShp.type === "triangle") && (
-															<div>
-																<div className="flex items-center justify-between mb-2">
-																	<label className="block text-xs font-medium text-zinc-700">
-																		Fill Color
-																	</label>
-																	<div className="flex items-center gap-2">
-																		<span className="text-xs text-zinc-500">
-																			{styles.fillGradient
-																				? "Gradient"
-																				: "Solid"}
-																		</span>
-																		<button
-																			type="button"
-																			onClick={() => {
-																				if (styles.fillGradient) {
-																					// Switch to solid color
-																					updateShape(selectedShape, {
-																						styles: {
-																							...styles,
-																							fillColor:
-																								styles.fillGradient.stops?.[0]
-																									?.color || "#3b82f6",
-																							fillGradient: null,
-																						},
-																					});
-																				} else {
-																					// Switch to gradient
-																					updateShape(selectedShape, {
-																						styles: {
-																							...styles,
-																							fillGradient: {
-																								type: "linear",
-																								angle: 45,
-																								stops: [
-																									{
-																										id: Date.now(),
-																										color:
-																											styles.fillColor ||
-																											"#3b82f6",
-																										position: { x: 0, y: 0 },
-																									},
-																									{
-																										id: Date.now() + 1,
-																										color: "#1e40af",
-																										position: { x: 100, y: 0 },
-																									},
-																								],
-																							},
-																						},
-																					});
-																				}
-																			}}
-																			className="px-2 py-1 text-xs bg-zinc-100 hover:bg-zinc-200 rounded transition-colors"
-																		>
-																			{styles.fillGradient
-																				? "Use Solid"
-																				: "Use Gradient"}
-																		</button>
-																	</div>
-																</div>
-																{styles.fillGradient ? (
-																	<div className="space-y-3">
-																		{/* Gradient Angle */}
-																		<div>
-																			<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																				Angle: {styles.fillGradient.angle || 45}
-																				°
-																			</label>
-																			<input
-																				type="range"
-																				min="0"
-																				max="360"
-																				step="1"
-																				value={styles.fillGradient.angle || 45}
-																				onChange={(e) =>
-																					updateShape(selectedShape, {
-																						styles: {
-																							...styles,
-																							fillGradient: {
-																								...styles.fillGradient,
-																								angle: parseInt(e.target.value),
-																							},
-																						},
-																					})
-																				}
-																				className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																			/>
-																		</div>
-																		{/* Gradient Color Stops */}
-																		<div>
-																			<div className="flex items-center justify-between mb-2">
-																				<label className="block text-xs font-medium text-zinc-700">
-																					Color Stops
-																				</label>
-																				<button
-																					type="button"
-																					onClick={() => {
-																						const newStop = {
-																							id: Date.now(),
-																							color: "#10b981",
-																							position: {
-																								x: Math.random() * 80 + 10,
-																								y: Math.random() * 80 + 10,
-																							},
-																						};
-																						updateShape(selectedShape, {
-																							styles: {
-																								...styles,
-																								fillGradient: {
-																									...styles.fillGradient,
-																									stops: [
-																										...styles.fillGradient
-																											.stops,
-																										newStop,
-																									],
-																								},
-																							},
-																						});
-																					}}
-																					className="px-2 py-1 text-xs bg-zinc-100 hover:bg-zinc-200 rounded transition-colors flex items-center gap-1"
-																				>
-																					<Plus className="w-3 h-3" />
-																					Add Stop
-																				</button>
-																			</div>
-																			<div className="space-y-2">
-																				{styles.fillGradient.stops?.map(
-																					(stop, index) => (
-																						<div
-																							key={stop.id}
-																							className="flex items-end gap-2 p-2 bg-zinc-50 rounded-xl"
-																						>
-																							<div className="flex-1">
-																								<ColorPicker
-																									value={stop.color}
-																									onChange={(color) => {
-																										const updatedStops =
-																											styles.fillGradient.stops.map(
-																												(s) =>
-																													s.id === stop.id
-																														? { ...s, color }
-																														: s
-																											);
-																										updateShape(selectedShape, {
-																											styles: {
-																												...styles,
-																												fillGradient: {
-																													...styles.fillGradient,
-																													stops: updatedStops,
-																												},
-																											},
-																										});
-																									}}
-																								/>
-																							</div>
-																							{/* Position X */}
-																							<div className="w-16">
-																								<label className="block text-xs text-zinc-600 mb-1">
-																									X:{" "}
-																									{Math.round(stop.position.x)}%
-																								</label>
-																								<input
-																									type="range"
-																									min="0"
-																									max="100"
-																									step="1"
-																									value={stop.position.x}
-																									onChange={(e) => {
-																										const updatedStops =
-																											styles.fillGradient.stops.map(
-																												(s) =>
-																													s.id === stop.id
-																														? {
-																																...s,
-																																position: {
-																																	...s.position,
-																																	x: parseInt(
-																																		e.target
-																																			.value
-																																	),
-																																},
-																															}
-																														: s
-																											);
-																										updateShape(selectedShape, {
-																											styles: {
-																												...styles,
-																												fillGradient: {
-																													...styles.fillGradient,
-																													stops: updatedStops,
-																												},
-																											},
-																										});
-																									}}
-																									className="w-full h-1.5 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																								/>
-																							</div>
-																							{/* Remove Stop Button */}
-																							{styles.fillGradient.stops
-																								.length > 2 && (
-																								<button
-																									type="button"
-																									onClick={() => {
-																										const updatedStops =
-																											styles.fillGradient.stops.filter(
-																												(s) => s.id !== stop.id
-																											);
-																										updateShape(selectedShape, {
-																											styles: {
-																												...styles,
-																												fillGradient: {
-																													...styles.fillGradient,
-																													stops: updatedStops,
-																												},
-																											},
-																										});
-																									}}
-																									className="p-1.5 text-red-500 hover:bg-red-50 rounded"
-																									title="Remove color stop"
-																								>
-																									<Trash2 className="w-3 h-3" />
-																								</button>
-																							)}
-																						</div>
-																					)
-																				)}
-																			</div>
-																		</div>
-																	</div>
-																) : (
-																	<ColorPicker
-																		value={styles.fillColor || "#3b82f6"}
-																		onChange={(color) =>
-																			updateShape(selectedShape, {
-																				styles: {
-																					...styles,
-																					fillColor: color,
-																				},
-																			})
-																		}
-																	/>
-																)}
-															</div>
-														)}
-
-														{/* Stroke Color */}
-														<ColorPicker
-															value={styles.strokeColor || "#1e40af"}
-															onChange={(color) =>
-																updateShape(selectedShape, {
-																	styles: {
-																		...styles,
-																		strokeColor: color,
-																	},
-																})
-															}
-															label="Stroke Color"
-														/>
-
-														{/* Stroke Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Stroke Width: {styles.strokeWidth ?? 2}px
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="20"
-																step="1"
-																value={styles.strokeWidth ?? 2}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			strokeWidth: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Border Radius (for rectangle/square) */}
-														{(selectedShp.type === "rectangle" ||
-															selectedShp.type === "square") && (
-															<div>
-																<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																	Border Radius: {styles.borderRadius || 0}
-																	px
-																</label>
-																<input
-																	type="range"
-																	min="0"
-																	max="100"
-																	step="1"
-																	value={styles.borderRadius || 0}
-																	onChange={(e) =>
-																		updateShape(selectedShape, {
-																			styles: {
-																				...styles,
-																				borderRadius: parseInt(e.target.value),
-																			},
-																		})
-																	}
-																	className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																/>
-															</div>
-														)}
-
-														{/* Shadow */}
-														<div>
-															<div className="flex items-center justify-between mb-1.5">
-																<label className="block text-xs font-medium text-zinc-700 cursor-pointer group">
-																	Shadow
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.shadow?.enabled || false}
-																	onChange={(e) =>
-																		updateShape(selectedShape, {
-																			styles: {
-																				...styles,
-																				shadow: {
-																					...styles.shadow,
-																					enabled: e.target.checked,
-																					x: styles.shadow?.x || 0,
-																					y: styles.shadow?.y || 0,
-																					blur: styles.shadow?.blur || 0,
-																					color:
-																						styles.shadow?.color || "#000000",
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.shadow?.enabled && (
-																<div className="space-y-2">
-																	{/* Shadow X */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			X Offset: {styles.shadow?.x || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.x || 0}
-																			onChange={(e) =>
-																				updateShape(selectedShape, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							x: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Y */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Y Offset: {styles.shadow?.y || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.y || 0}
-																			onChange={(e) =>
-																				updateShape(selectedShape, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							y: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Blur */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Blur: {styles.shadow?.blur || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="0"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.blur || 0}
-																			onChange={(e) =>
-																				updateShape(selectedShape, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							blur: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Color */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Color
-																		</label>
-																		<div className="flex items-center gap-2">
-																			<input
-																				type="color"
-																				value={
-																					styles.shadow?.color || "#000000"
-																				}
-																				onChange={(e) =>
-																					updateShape(selectedShape, {
-																						styles: {
-																							...styles,
-																							shadow: {
-																								...styles.shadow,
-																								enabled: true,
-																								color: e.target.value,
-																							},
-																						},
-																					})
-																				}
-																				className="w-10 h-6 rounded border border-zinc-300 cursor-pointer"
-																			/>
-																			<input
-																				type="text"
-																				value={
-																					styles.shadow?.color || "#000000"
-																				}
-																				onChange={(e) =>
-																					updateShape(selectedShape, {
-																						styles: {
-																							...styles,
-																							shadow: {
-																								...styles.shadow,
-																								enabled: true,
-																								color: e.target.value,
-																							},
-																						},
-																					})
-																				}
-																				className="flex-1 h-8 rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-900 shadow-sm transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-zinc-300"
-																				placeholder="#000000"
-																			/>
-																		</div>
-																	</div>
-																</div>
-															)}
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={
-																	styles.opacity !== undefined
-																		? styles.opacity
-																		: 1
-																}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			opacity: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Z-Index */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Z-Index: {styles.zIndex || 1}
-															</label>
-															<input
-																type="range"
-																min="1"
-																max="10"
-																step="1"
-																value={styles.zIndex || 1}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			zIndex: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Rotation */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Rotation: {styles.rotation || 0}°
-															</label>
-															<input
-																type="range"
-																min="-180"
-																max="180"
-																step="1"
-																value={styles.rotation || 0}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			rotation: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew X */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew X: {styles.skewX || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewX || 0}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			skewX: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew Y */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew Y: {styles.skewY || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewY || 0}
-																onChange={(e) =>
-																	updateShape(selectedShape, {
-																		styles: {
-																			...styles,
-																			skewY: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-									{/* Icon Styling Panel - Shows when icon is selected */}
-									{selectedIcon &&
-										(() => {
-											const selectedIc = icons.find(
-												(ic) => ic.id === selectedIcon
-											);
-											if (!selectedIc) return null;
-											const styles = selectedIc.styles || {
-												color: "#000000",
-												size: 24,
-												strokeWidth: 2,
-												opacity: 1,
-												shadow: {
-													enabled: false,
-													x: 0,
-													y: 0,
-													blur: 0,
-													color: "#000000",
-												},
-												zIndex: 1,
-											};
-
-											return (
-												<div className="border-t p-3 mt-4">
-													<h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-														<Sparkles className="w-5 h-5" />
-														Icon Styling
-													</h3>
-
-													<div className="space-y-3">
-														{/* Icon Name Display */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Icon: {selectedIc.iconName}
-															</label>
-														</div>
-
-														{/* Color */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Color
-															</label>
-															<div className="flex items-center gap-2">
-																<input
-																	type="color"
-																	value={styles.color || "#000000"}
-																	onChange={(e) =>
-																		updateIcon(selectedIcon, {
-																			styles: {
-																				...styles,
-																				color: e.target.value,
-																			},
-																		})
-																	}
-																	className="w-10 h-6 rounded border border-zinc-300 cursor-pointer"
-																/>
-																<input
-																	type="text"
-																	value={styles.color || "#000000"}
-																	onChange={(e) =>
-																		updateIcon(selectedIcon, {
-																			styles: {
-																				...styles,
-																				color: e.target.value,
-																			},
-																		})
-																	}
-																	className="flex-1 h-8 rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-900 shadow-sm transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-zinc-300"
-																	placeholder="#000000"
-																/>
-															</div>
-														</div>
-
-														{/* Stroke Width */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Stroke Width: {styles.strokeWidth || 2}
-															</label>
-															<input
-																type="range"
-																min="1"
-																max="10"
-																step="0.5"
-																value={styles.strokeWidth || 2}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			strokeWidth: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Opacity */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Opacity:{" "}
-																{Math.round((styles.opacity || 1) * 100)}%
-															</label>
-															<input
-																type="range"
-																min="0"
-																max="1"
-																step="0.01"
-																value={styles.opacity || 1}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			opacity: parseFloat(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Shadow */}
-														<div>
-															<div className="flex items-center justify-between mb-1.5">
-																<label className="block text-xs font-medium text-zinc-700 cursor-pointer group">
-																	Shadow
-																</label>
-																<input
-																	type="checkbox"
-																	checked={styles.shadow?.enabled || false}
-																	onChange={(e) =>
-																		updateIcon(selectedIcon, {
-																			styles: {
-																				...styles,
-																				shadow: {
-																					...styles.shadow,
-																					enabled: e.target.checked,
-																					x: styles.shadow?.x || 0,
-																					y: styles.shadow?.y || 0,
-																					blur: styles.shadow?.blur || 0,
-																					color:
-																						styles.shadow?.color || "#000000",
-																				},
-																			},
-																		})
-																	}
-																	className="w-4 h-4 rounded border border-zinc-300 bg-white text-zinc-900 shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-zinc-900 data-[state=checked]:text-zinc-50 hover:border-zinc-400"
-																/>
-															</div>
-															{styles.shadow?.enabled && (
-																<div className="space-y-2">
-																	{/* Shadow X */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			X Offset: {styles.shadow?.x || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.x || 0}
-																			onChange={(e) =>
-																				updateIcon(selectedIcon, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							x: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Y */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Y Offset: {styles.shadow?.y || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="-50"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.y || 0}
-																			onChange={(e) =>
-																				updateIcon(selectedIcon, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							y: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Blur */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Blur: {styles.shadow?.blur || 0}px
-																		</label>
-																		<input
-																			type="range"
-																			min="0"
-																			max="50"
-																			step="1"
-																			value={styles.shadow?.blur || 0}
-																			onChange={(e) =>
-																				updateIcon(selectedIcon, {
-																					styles: {
-																						...styles,
-																						shadow: {
-																							...styles.shadow,
-																							enabled: true,
-																							blur: parseInt(e.target.value),
-																						},
-																					},
-																				})
-																			}
-																			className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-																		/>
-																	</div>
-																	{/* Shadow Color */}
-																	<div>
-																		<label className="block text-xs font-medium text-zinc-700 mb-1">
-																			Color
-																		</label>
-																		<div className="flex items-center gap-2">
-																			<input
-																				type="color"
-																				value={
-																					styles.shadow?.color || "#000000"
-																				}
-																				onChange={(e) =>
-																					updateIcon(selectedIcon, {
-																						styles: {
-																							...styles,
-																							shadow: {
-																								...styles.shadow,
-																								enabled: true,
-																								color: e.target.value,
-																							},
-																						},
-																					})
-																				}
-																				className="w-10 h-6 rounded border border-zinc-300 cursor-pointer"
-																			/>
-																			<input
-																				type="text"
-																				value={
-																					styles.shadow?.color || "#000000"
-																				}
-																				onChange={(e) =>
-																					updateIcon(selectedIcon, {
-																						styles: {
-																							...styles,
-																							shadow: {
-																								...styles.shadow,
-																								enabled: true,
-																								color: e.target.value,
-																							},
-																						},
-																					})
-																				}
-																				className="flex-1 h-8 rounded-md border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-900 shadow-sm transition-colors file:border-0 file:bg-transparent file:text-xs file:font-medium placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:border-zinc-300"
-																				placeholder="#000000"
-																			/>
-																		</div>
-																	</div>
-																</div>
-															)}
-														</div>
-
-														{/* Z-Index */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Z-Index: {styles.zIndex || 1}
-															</label>
-															<input
-																type="range"
-																min="1"
-																max="10"
-																step="1"
-																value={styles.zIndex || 1}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			zIndex: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Rotation */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Rotation: {styles.rotation || 0}°
-															</label>
-															<input
-																type="range"
-																min="-180"
-																max="180"
-																step="1"
-																value={styles.rotation || 0}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			rotation: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew X */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew X: {styles.skewX || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewX || 0}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			skewX: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-
-														{/* Skew Y */}
-														<div>
-															<label className="block text-xs font-medium text-zinc-700 mb-1.5">
-																Skew Y: {styles.skewY || 0}°
-															</label>
-															<input
-																type="range"
-																min="-45"
-																max="45"
-																step="1"
-																value={styles.skewY || 0}
-																onChange={(e) =>
-																	updateIcon(selectedIcon, {
-																		styles: {
-																			...styles,
-																			skewY: parseInt(e.target.value),
-																		},
-																	})
-																}
-																className="w-full h-2 bg-zinc-200 rounded-xl appearance-none cursor-pointer slider"
-															/>
-														</div>
-													</div>
-												</div>
-											);
-										})()}
-								</div>
-							</div>
-						</div>
-					</div>
-
-					{/* Modal */}
-					<AnimatePresence>
-						{isModalOpen && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-								onClick={() => setIsModalOpen(false)}
-							>
-								<motion.div
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									exit={{ scale: 0.8, opacity: 0 }}
-									className="relative flex items-center justify-center w-full h-full"
-									onClick={(e) => e.stopPropagation()}
-								>
-									{/* Close Button, Download, and Frame Size Selector */}
-									<div className="absolute top-1 right-2 flex items-center gap-2 z-50">
-										{/* Frame Size Selector */}
-										<div className="flex items-center">
-											<Dropdown
-												value={previewFrameSize}
-												onChange={(value) => {
-													setPreviewFrameSize(value);
-													const frame = previewFramePresets[value];
-													if (frame) {
-														setGradient((prev) => ({
-															...prev,
-															dimensions: {
-																width: frame.width,
-																height: frame.height,
-															},
-														}));
-													}
-												}}
-												options={Object.entries(previewFramePresets).map(
-													([key, preset]) => ({
-														value: key,
-														label: preset.label,
-													})
-												)}
-												placeholder="Select frame size"
-												className="min-w-[180px]"
-											/>
-										</div>
-										{/* Download Button with Dropdown */}
-										<div ref={downloadDropdownRef} className="relative">
-											<button
-												onClick={() =>
-													setIsDownloadDropdownOpen(!isDownloadDropdownOpen)
-												}
-												className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-zinc-400 px-2 py-1 text-sm bg-white hover:bg-zinc-100 rounded-xl transition-colors border border-zinc-200 shadow-lg"
-											>
-												<Download className="w-4 h-4" />
-												Download
-											</button>
-											<AnimatePresence>
-												{isDownloadDropdownOpen && (
-													<motion.div
-														initial={{ opacity: 0, y: -10 }}
-														animate={{ opacity: 1, y: 0 }}
-														exit={{ opacity: 0, y: -10 }}
-														transition={{ duration: 0.15 }}
-														className="absolute right-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50 min-w-[200px]"
-													>
-														<div className="flex flex-col">
-															<button
-																type="button"
-																onClick={() => {
-																	downloadSVG(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-2 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download SVG</span>
-															</button>
-															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("png", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download PNG</span>
-															</button>
-															<button
-																type="button"
-																onClick={() => {
-																	downloadRaster("jpeg", previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Download className="w-4 h-4" />
-																<span>Download as JPEG</span>
-															</button>
-															{/* GIF Download - Only show if background animation is enabled */}
-															{gradient.backgroundAnimation.enabled && (
+													<Download className="w-4 h-4" />
+													Download
+												</button>
+												<AnimatePresence>
+													{isDownloadDropdownOpen && (
+														<motion.div
+															initial={{ opacity: 0, y: -10 }}
+															animate={{ opacity: 1, y: 0 }}
+															exit={{ opacity: 0, y: -10 }}
+															transition={{ duration: 0.15 }}
+															className="absolute right-0 mt-1 bg-white border border-zinc-200 rounded-xl shadow-lg overflow-hidden z-50 min-w-[200px]"
+														>
+															<div className="flex flex-col">
 																<button
 																	type="button"
 																	onClick={() => {
-																		downloadGIF(previewFrameSize);
+																		downloadSVG(previewFrameSize);
+																		setIsDownloadDropdownOpen(false);
+																	}}
+																	className="w-full px-4 py-2 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2"
+																>
+																	<Download className="w-4 h-4" />
+																	<span>Download SVG</span>
+																</button>
+																<button
+																	type="button"
+																	onClick={() => {
+																		downloadRaster("png", previewFrameSize);
 																		setIsDownloadDropdownOpen(false);
 																	}}
 																	className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
 																>
 																	<Download className="w-4 h-4" />
-																	<span>Download as GIF</span>
+																	<span>Download PNG</span>
 																</button>
-															)}
-															{/* MP4 Download */}
-															<button
-																type="button"
-																onClick={() => {
-																	downloadMP4(previewFrameSize);
-																	setIsDownloadDropdownOpen(false);
-																}}
-																className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
-															>
-																<Video className="w-4 h-4" />
-																<span>Download as MP4</span>
-															</button>
-														</div>
-													</motion.div>
-												)}
-											</AnimatePresence>
+																<button
+																	type="button"
+																	onClick={() => {
+																		downloadRaster("jpeg", previewFrameSize);
+																		setIsDownloadDropdownOpen(false);
+																	}}
+																	className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+																>
+																	<Download className="w-4 h-4" />
+																	<span>Download as JPEG</span>
+																</button>
+																{/* GIF Download - Only show if background animation is enabled */}
+																{gradient.backgroundAnimation.enabled && (
+																	<button
+																		type="button"
+																		onClick={() => {
+																			downloadGIF(previewFrameSize);
+																			setIsDownloadDropdownOpen(false);
+																		}}
+																		className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+																	>
+																		<Download className="w-4 h-4" />
+																		<span>Download as GIF</span>
+																	</button>
+																)}
+																{/* MP4 Download */}
+																<button
+																	type="button"
+																	onClick={() => {
+																		downloadMP4(previewFrameSize);
+																		setIsDownloadDropdownOpen(false);
+																	}}
+																	className="w-full px-4 py-3 text-sm text-left hover:bg-zinc-50 transition-colors flex items-center gap-2 border-t border-zinc-100"
+																>
+																	<Video className="w-4 h-4" />
+																	<span>Download as MP4</span>
+																</button>
+															</div>
+														</motion.div>
+													)}
+												</AnimatePresence>
+											</div>
+											{/* Close Button */}
+											<button
+												onClick={() => setIsModalOpen(false)}
+												className="w-8 h-8 bg-white hover:bg-zinc-100 rounded-full flex items-center justify-center shadow-lg transition-colors border border-zinc-200"
+											>
+												<X className="w-4 h-4 text-zinc-900" />
+											</button>
 										</div>
-										{/* Close Button */}
-										<button
-											onClick={() => setIsModalOpen(false)}
-											className="w-8 h-8 bg-white hover:bg-zinc-100 rounded-full flex items-center justify-center shadow-lg transition-colors border border-zinc-200"
-										>
-											<X className="w-4 h-4 text-zinc-900" />
-										</button>
-									</div>
 
-									{/* Modal Preview Container */}
-									<div
-										ref={modalPreviewRef}
-										className="relative rounded-xl overflow-hidden shadow-2xl"
-										style={{
-											aspectRatio: `${gradient.dimensions.width} / ${gradient.dimensions.height}`,
-											...modalDimensions,
-											...(backgroundImage
-												? {
-														backgroundImage: `url(${backgroundImage})`,
-														backgroundSize: "cover",
-														backgroundPosition: "center",
-														backgroundRepeat: "no-repeat",
-													}
-												: {
-														background: generateGradientCSS(),
-														...(isPlaying &&
-															gradient.backgroundAnimation.enabled && {
-																backgroundSize: "200% 200%",
-															}),
-													}),
-											...(isPlaying &&
-												!backgroundImage &&
-												backgroundAnimation && {
-													animation: backgroundAnimation,
-												}),
-										}}
-									>
-										{/* Element Animation Overlay */}
+										{/* Modal Preview Container */}
 										<div
-											className="absolute inset-0 pointer-events-none"
+											ref={modalPreviewRef}
+											className="relative rounded-xl overflow-hidden shadow-2xl"
 											style={{
-												...(isPlaying && animation && { animation }),
+												aspectRatio: `${gradient.dimensions.width} / ${gradient.dimensions.height}`,
+												...modalDimensions,
+												...(backgroundImage
+													? {
+															backgroundImage: `url(${backgroundImage})`,
+															backgroundSize: "cover",
+															backgroundPosition: "center",
+															backgroundRepeat: "no-repeat",
+														}
+													: {
+															background: generateGradientCSS(),
+															...(isPlaying &&
+																gradient.backgroundAnimation.enabled && {
+																	backgroundSize: "200% 200%",
+																}),
+														}),
+												...(isPlaying &&
+													!backgroundImage &&
+													backgroundAnimation && {
+														animation: backgroundAnimation,
+													}),
 											}}
-										/>
+										>
+											{/* Element Animation Overlay */}
+											<div
+												className="absolute inset-0 pointer-events-none"
+												style={{
+													...(isPlaying && animation && { animation }),
+												}}
+											/>
 
-										{/* Background Shape Rectangles - Modal */}
-										{backgroundShapeRects.map((rect) => {
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
+											{/* Background Shape Rectangles - Modal */}
+											{backgroundShapeRects.map((rect) => {
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
 
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
 
-											return (
-												<div
-													key={rect.id}
-													className="absolute"
-													style={{
-														left: `${rect.x}%`,
-														top: `${rect.y}%`,
-														width: `${rect.width * scaleX}px`,
-														height: `${rect.height * scaleY}px`,
-														transform: `translate(-50%, -50%) rotate(${rect.styles?.rotation || 0}deg) skew(${rect.styles?.skewX || 0}deg, ${rect.styles?.skewY || 0}deg)`,
-														zIndex: rect.styles?.zIndex || 0,
-														opacity: rect.styles?.opacity || 1,
-													}}
-												>
-													<BackgroundShape
-														shapeId={rect.shapeId}
-														scale={rect.scale}
-														color="#000000"
-													/>
-												</div>
-											);
-										})}
-
-										{/* Text Elements - Modal */}
-										{texts.map((text) => {
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
-
-											const styles = text.styles || {};
-											return (
-												<div
-													key={text.id}
-													className="absolute [&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
-													style={{
-														left: `${text.x}%`,
-														top: `${text.y}%`,
-														width: `${text.width * scaleX}px`,
-														minHeight: `${text.height * scaleY}px`,
-														transform: "translate(-50%, -50%)",
-														fontSize: `${(styles.fontSize || 24) * scaleY}px`,
-														fontWeight: styles.fontWeight || "normal",
-														fontStyle: styles.fontStyle || "normal",
-														color: styles.color || "#000000",
-														textAlign: styles.textAlign || "left",
-														fontFamily: styles.fontFamily || "Arial",
-														backgroundColor:
-															styles.backgroundColor || "transparent",
-														padding: `${(styles.padding || 0) * scaleY}px`,
-														borderRadius:
-															styles.borderRadius === 100
-																? "50%"
-																: `${(styles.borderRadius || 0) * scaleY}px`,
-														borderWidth: `${(styles.borderWidth || 0) * scaleY}px`,
-														borderColor: styles.borderColor || "#000000",
-														borderStyle: styles.borderStyle || "solid",
-														opacity:
-															styles.opacity !== undefined ? styles.opacity : 1,
-														boxShadow:
-															styles.shadow !== "none" && styles.shadow
-																? styles.shadow === "sm"
-																	? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-																	: styles.shadow === "md"
-																		? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																		: styles.shadow === "lg"
-																			? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																			: styles.shadow === "xl"
-																				? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																				: styles.shadow === "2xl"
-																					? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																					: "none"
-																: "none",
-														zIndex: styles.zIndex || 2,
-														whiteSpace:
-															styles.listStyle !== "none"
-																? "normal"
-																: "pre-wrap",
-														wordWrap: "break-word",
-													}}
-													dangerouslySetInnerHTML={{
-														__html: formatTextContent(text.content, styles),
-													}}
-												/>
-											);
-										})}
-
-										{/* Image Elements - Modal */}
-										{images.map((image) => {
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
-
-											return (
-												<div
-													key={image.id}
-													className="absolute"
-													style={{
-														left: `${image.x}%`,
-														top: `${image.y}%`,
-														width: `${image.width * scaleX}px`,
-														height: `${image.height * scaleY}px`,
-														transform: "translate(-50%, -50%)",
-														zIndex: image.styles?.zIndex || 1,
-													}}
-												>
-													{/* Image Wrapper with all styles */}
+												return (
 													<div
-														className="w-full h-full"
+														key={rect.id}
+														className="absolute"
 														style={{
-															borderRadius:
-																image.styles?.borderRadius === 100
-																	? "50%"
-																	: `${(image.styles?.borderRadius || 0) * scaleY}px`,
-															overflow: "hidden",
-															borderWidth: `${(image.styles?.borderWidth || 0) * scaleY}px`,
-															borderColor:
-																image.styles?.borderColor || "#000000",
-															borderStyle: image.styles?.borderStyle || "solid",
-															opacity:
-																image.styles?.opacity !== undefined
-																	? image.styles.opacity
-																	: 1,
-															boxShadow:
-																image.styles?.shadow === "none" ||
-																!image.styles?.shadow
-																	? "none"
-																	: image.styles.shadow === "sm"
-																		? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-																		: image.styles.shadow === "md"
-																			? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																			: image.styles.shadow === "lg"
-																				? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																				: image.styles.shadow === "xl"
-																					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																					: image.styles.shadow === "2xl"
-																						? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																						: "none",
-															...(image.styles?.ringWidth > 0 && {
-																outline: `${image.styles.ringWidth * scaleY}px solid ${image.styles.ringColor}`,
-																outlineOffset: `${2 * scaleY}px`,
-															}),
+															left: `${rect.x}%`,
+															top: `${rect.y}%`,
+															width: `${rect.width * scaleX}px`,
+															height: `${rect.height * scaleY}px`,
+															transform: `translate(-50%, -50%) rotate(${
+																rect.styles?.rotation || 0
+															}deg) skew(${rect.styles?.skewX || 0}deg, ${
+																rect.styles?.skewY || 0
+															}deg)`,
+															zIndex: rect.styles?.zIndex || 0,
+															opacity: rect.styles?.opacity || 1,
 														}}
 													>
-														<img
-															src={image.src}
-															alt="Uploaded"
-															className="w-full h-full"
-															style={{
-																objectFit: image.styles?.objectFit || "contain",
-																...(image.styles?.noise?.enabled && {
-																	filter: `contrast(${
-																		1 +
-																		(image.styles.noise.intensity || 0.3) * 0.2
-																	}) brightness(${
-																		1 +
-																		(image.styles.noise.intensity || 0.3) * 0.1
-																	})`,
-																}),
-															}}
-															draggable={false}
+														<BackgroundShape
+															shapeId={rect.shapeId}
+															scale={rect.scale}
+															color="#000000"
 														/>
 													</div>
-													{/* Noise texture overlay for image only */}
-													{image.styles?.noise?.enabled && (
+												);
+											})}
+
+											{/* Text Elements - Modal */}
+											{texts.map((text) => {
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
+
+												const styles = text.styles || {};
+												return (
+													<div
+														key={text.id}
+														className="absolute [&_ul]:m-0 [&_ul]:pl-6 [&_ol]:m-0 [&_ol]:pl-6 [&_li]:my-1 [&_p]:m-0 [&_a]:text-inherit [&_a]:no-underline"
+														style={{
+															left: `${text.x}%`,
+															top: `${text.y}%`,
+															width: `${text.width * scaleX}px`,
+															minHeight: `${text.height * scaleY}px`,
+															transform: "translate(-50%, -50%)",
+															fontSize: `${(styles.fontSize || 24) * scaleY}px`,
+															fontWeight: styles.fontWeight || "normal",
+															fontStyle: styles.fontStyle || "normal",
+															color: styles.color || "#000000",
+															textAlign: styles.textAlign || "left",
+															fontFamily: styles.fontFamily || "Arial",
+															backgroundColor:
+																styles.backgroundColor || "transparent",
+															padding: `${(styles.padding || 0) * scaleY}px`,
+															borderRadius:
+																styles.borderRadius === 100
+																	? "50%"
+																	: `${(styles.borderRadius || 0) * scaleY}px`,
+															borderWidth: `${
+																(styles.borderWidth || 0) * scaleY
+															}px`,
+															borderColor: styles.borderColor || "#000000",
+															borderStyle: styles.borderStyle || "solid",
+															opacity:
+																styles.opacity !== undefined
+																	? styles.opacity
+																	: 1,
+															boxShadow:
+																styles.shadow !== "none" && styles.shadow
+																	? styles.shadow === "sm"
+																		? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+																		: styles.shadow === "md"
+																			? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																			: styles.shadow === "lg"
+																				? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																				: styles.shadow === "xl"
+																					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																					: styles.shadow === "2xl"
+																						? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																						: "none"
+																	: "none",
+															zIndex: styles.zIndex || 2,
+															whiteSpace:
+																styles.listStyle !== "none"
+																	? "normal"
+																	: "pre-wrap",
+															wordWrap: "break-word",
+														}}
+														dangerouslySetInnerHTML={{
+															__html: formatTextContent(text.content, styles),
+														}}
+													/>
+												);
+											})}
+
+											{/* Image Elements - Modal */}
+											{images.map((image) => {
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
+
+												return (
+													<div
+														key={image.id}
+														className="absolute"
+														style={{
+															left: `${image.x}%`,
+															top: `${image.y}%`,
+															width: `${image.width * scaleX}px`,
+															height: `${image.height * scaleY}px`,
+															transform: "translate(-50%, -50%)",
+															zIndex: image.styles?.zIndex || 1,
+														}}
+													>
+														{/* Image Wrapper with all styles */}
 														<div
-															className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+															className="w-full h-full"
 															style={{
-																backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter-modal-${image.id}'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter-modal-${image.id})'/%3E%3C/svg%3E")`,
-																opacity: image.styles.noise.intensity || 0.3,
 																borderRadius:
 																	image.styles?.borderRadius === 100
 																		? "50%"
-																		: `${(image.styles?.borderRadius || 0) * scaleY}px`,
+																		: `${
+																				(image.styles?.borderRadius || 0) *
+																				scaleY
+																			}px`,
+																overflow: "hidden",
+																borderWidth: `${
+																	(image.styles?.borderWidth || 0) * scaleY
+																}px`,
+																borderColor:
+																	image.styles?.borderColor || "#000000",
+																borderStyle:
+																	image.styles?.borderStyle || "solid",
+																opacity:
+																	image.styles?.opacity !== undefined
+																		? image.styles.opacity
+																		: 1,
+																boxShadow:
+																	image.styles?.shadow === "none" ||
+																	!image.styles?.shadow
+																		? "none"
+																		: image.styles.shadow === "sm"
+																			? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+																			: image.styles.shadow === "md"
+																				? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																				: image.styles.shadow === "lg"
+																					? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																					: image.styles.shadow === "xl"
+																						? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																						: image.styles.shadow === "2xl"
+																							? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																							: "none",
+																...(image.styles?.ringWidth > 0 && {
+																	outline: `${
+																		image.styles.ringWidth * scaleY
+																	}px solid ${image.styles.ringColor}`,
+																	outlineOffset: `${2 * scaleY}px`,
+																}),
 															}}
-														/>
-													)}
-													{image.caption && (
-														<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap z-10">
-															{image.caption}
+														>
+															<img
+																src={image.src}
+																alt="Uploaded"
+																className="w-full h-full"
+																style={{
+																	objectFit:
+																		image.styles?.objectFit || "contain",
+																	...(image.styles?.noise?.enabled && {
+																		filter: `contrast(${
+																			1 +
+																			(image.styles.noise.intensity || 0.3) *
+																				0.2
+																		}) brightness(${
+																			1 +
+																			(image.styles.noise.intensity || 0.3) *
+																				0.1
+																		})`,
+																	}),
+																}}
+																draggable={false}
+															/>
 														</div>
-													)}
-												</div>
-											);
-										})}
+														{/* Noise texture overlay for image only */}
+														{image.styles?.noise?.enabled && (
+															<div
+																className="absolute inset-0 opacity-30 mix-blend-overlay pointer-events-none"
+																style={{
+																	backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter-modal-${image.id}'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter-modal-${image.id})'/%3E%3C/svg%3E")`,
+																	opacity: image.styles.noise.intensity || 0.3,
+																	borderRadius:
+																		image.styles?.borderRadius === 100
+																			? "50%"
+																			: `${
+																					(image.styles?.borderRadius || 0) *
+																					scaleY
+																				}px`,
+																}}
+															/>
+														)}
+														{image.caption && (
+															<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap z-10">
+																{image.caption}
+															</div>
+														)}
+													</div>
+												);
+											})}
 
-										{/* Video Elements - Modal */}
-										{videos.map((video) => {
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
+											{/* Video Elements - Modal */}
+											{videos.map((video) => {
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
 
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
 
-											return (
-												<div
-													key={video.id}
-													className="absolute"
-													style={{
-														left: `${video.x}%`,
-														top: `${video.y}%`,
-														width: `${video.width * scaleX}px`,
-														height: `${video.height * scaleY}px`,
-														transform: "translate(-50%, -50%)",
-														zIndex: video.styles?.zIndex || 1,
-													}}
-												>
-													{/* Video Wrapper with all styles */}
+												return (
 													<div
-														className="w-full h-full"
+														key={video.id}
+														className="absolute"
 														style={{
-															borderRadius:
-																video.styles?.borderRadius === 100
-																	? "50%"
-																	: `${(video.styles?.borderRadius || 0) * scaleY}px`,
-															overflow: "hidden",
-															borderWidth: `${(video.styles?.borderWidth || 0) * scaleY}px`,
-															borderColor:
-																video.styles?.borderColor || "#000000",
-															borderStyle: video.styles?.borderStyle || "solid",
-															opacity:
-																video.styles?.opacity !== undefined
-																	? video.styles.opacity
-																	: 1,
-															boxShadow:
-																video.styles?.shadow === "none" ||
-																!video.styles?.shadow
-																	? "none"
-																	: video.styles.shadow === "sm"
-																		? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
-																		: video.styles.shadow === "md"
-																			? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
-																			: video.styles.shadow === "lg"
-																				? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
-																				: video.styles.shadow === "xl"
-																					? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-																					: video.styles.shadow === "2xl"
-																						? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-																						: "none",
-															...(video.styles?.ringWidth > 0 && {
-																outline: `${video.styles.ringWidth * scaleY}px solid ${video.styles.ringColor}`,
-																outlineOffset: `${2 * scaleY}px`,
-															}),
+															left: `${video.x}%`,
+															top: `${video.y}%`,
+															width: `${video.width * scaleX}px`,
+															height: `${video.height * scaleY}px`,
+															transform: "translate(-50%, -50%)",
+															zIndex: video.styles?.zIndex || 1,
 														}}
 													>
-														<video
-															src={video.src}
-															alt="Uploaded"
+														{/* Video Wrapper with all styles */}
+														<div
 															className="w-full h-full"
 															style={{
-																objectFit: video.styles?.objectFit || "contain",
+																borderRadius:
+																	video.styles?.borderRadius === 100
+																		? "50%"
+																		: `${
+																				(video.styles?.borderRadius || 0) *
+																				scaleY
+																			}px`,
+																overflow: "hidden",
+																borderWidth: `${
+																	(video.styles?.borderWidth || 0) * scaleY
+																}px`,
+																borderColor:
+																	video.styles?.borderColor || "#000000",
+																borderStyle:
+																	video.styles?.borderStyle || "solid",
+																opacity:
+																	video.styles?.opacity !== undefined
+																		? video.styles.opacity
+																		: 1,
+																boxShadow:
+																	video.styles?.shadow === "none" ||
+																	!video.styles?.shadow
+																		? "none"
+																		: video.styles.shadow === "sm"
+																			? "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+																			: video.styles.shadow === "md"
+																				? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+																				: video.styles.shadow === "lg"
+																					? "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+																					: video.styles.shadow === "xl"
+																						? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+																						: video.styles.shadow === "2xl"
+																							? "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+																							: "none",
+																...(video.styles?.ringWidth > 0 && {
+																	outline: `${
+																		video.styles.ringWidth * scaleY
+																	}px solid ${video.styles.ringColor}`,
+																	outlineOffset: `${2 * scaleY}px`,
+																}),
 															}}
-															controls
-															loop
-															muted
-															playsInline
-															autoPlay
+														>
+															<video
+																src={video.src}
+																alt="Uploaded"
+																className="w-full h-full"
+																style={{
+																	objectFit:
+																		video.styles?.objectFit || "contain",
+																}}
+																controls
+																loop
+																muted
+																playsInline
+																autoPlay
+															/>
+														</div>
+														{video.caption && (
+															<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap z-10">
+																{video.caption}
+															</div>
+														)}
+													</div>
+												);
+											})}
+
+											{/* Icon Elements - Modal */}
+											{icons.map((icon) => {
+												const IconComponent = AllIcons[icon.iconName];
+												if (!IconComponent) return null;
+
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
+
+												return (
+													<div
+														key={icon.id}
+														className="absolute"
+														style={{
+															left: `${icon.x}%`,
+															top: `${icon.y}%`,
+															width: `${icon.width * scaleX}px`,
+															height: `${icon.height * scaleY}px`,
+															transform: "translate(-50%, -50%)",
+															zIndex: icon.styles?.zIndex || 1,
+														}}
+													>
+														<IconComponent
+															className="w-full h-full"
+															style={{
+																color: icon.styles?.color || "#000000",
+																opacity: icon.styles?.opacity || 1,
+																filter: formatDropShadowCSS(
+																	icon.styles?.shadow
+																),
+															}}
+															strokeWidth={icon.styles?.strokeWidth || 2}
 														/>
 													</div>
-													{video.caption && (
-														<div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-sm text-white bg-black bg-opacity-75 px-2 py-1 rounded whitespace-nowrap z-10">
-															{video.caption}
-														</div>
-													)}
-												</div>
-											);
-										})}
+												);
+											})}
 
-										{/* Icon Elements - Modal */}
-										{icons.map((icon) => {
-											const IconComponent = LucideIcons[icon.iconName];
-											if (!IconComponent) return null;
+											{/* Shape Elements - Modal */}
+											{shapes.map((shape) => {
+												// Calculate scaling based on actual rendered dimensions
+												const modalActualHeight =
+													modalPreviewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const modalActualWidth =
+													modalPreviewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
+												const previewActualHeight =
+													previewRef.current?.offsetHeight ||
+													gradient.dimensions.height;
+												const previewActualWidth =
+													previewRef.current?.offsetWidth ||
+													gradient.dimensions.width;
 
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
+												// Calculate scale factors
+												const scaleX =
+													previewActualWidth > 0
+														? modalActualWidth / previewActualWidth
+														: 1;
+												const scaleY =
+													previewActualHeight > 0
+														? modalActualHeight / previewActualHeight
+														: 1;
 
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
-
-											return (
-												<div
-													key={icon.id}
-													className="absolute"
-													style={{
-														left: `${icon.x}%`,
-														top: `${icon.y}%`,
-														width: `${icon.width * scaleX}px`,
-														height: `${icon.height * scaleY}px`,
-														transform: "translate(-50%, -50%)",
-														zIndex: icon.styles?.zIndex || 1,
-													}}
-												>
-													<IconComponent
-														className="w-full h-full"
-														style={{
-															color: icon.styles?.color || "#000000",
-															opacity: icon.styles?.opacity || 1,
-															filter: formatDropShadowCSS(icon.styles?.shadow),
-														}}
-														strokeWidth={icon.styles?.strokeWidth || 2}
-													/>
-												</div>
-											);
-										})}
-
-										{/* Shape Elements - Modal */}
-										{shapes.map((shape) => {
-											// Calculate scaling based on actual rendered dimensions
-											const modalActualHeight =
-												modalPreviewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const modalActualWidth =
-												modalPreviewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-											const previewActualHeight =
-												previewRef.current?.offsetHeight ||
-												gradient.dimensions.height;
-											const previewActualWidth =
-												previewRef.current?.offsetWidth ||
-												gradient.dimensions.width;
-
-											// Calculate scale factors
-											const scaleX =
-												previewActualWidth > 0
-													? modalActualWidth / previewActualWidth
-													: 1;
-											const scaleY =
-												previewActualHeight > 0
-													? modalActualHeight / previewActualHeight
-													: 1;
-
-											return (
-												<div
-													key={shape.id}
-													className="absolute"
-													style={{
-														left: `${shape.x}%`,
-														top: `${shape.y}%`,
-														width: `${shape.width * scaleX}px`,
-														height: `${shape.height * scaleY}px`,
-														transform: "translate(-50%, -50%)",
-														zIndex: shape.styles?.zIndex || 1,
-													}}
-												>
-													<svg
-														width="100%"
-														height="100%"
-														viewBox="0 0 100 100"
-														preserveAspectRatio={
-															shape.type === "circle" ? "xMidYMid meet" : "none"
-														}
-														style={{
-															opacity: shape.styles?.opacity || 1,
-															filter: formatDropShadowCSS(shape.styles?.shadow),
-														}}
-													>
-														{shape.type === "rectangle" && (
-															<rect
-																x="0"
-																y="0"
-																width="100"
-																height="100"
-																fill={shape.styles?.fillColor || "#3b82f6"}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-																rx={shape.styles?.borderRadius || 0}
-																ry={shape.styles?.borderRadius || 0}
-															/>
-														)}
-														{shape.type === "square" && (
-															<rect
-																x="0"
-																y="0"
-																width="100"
-																height="100"
-																fill={shape.styles?.fillColor || "#3b82f6"}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-																rx={shape.styles?.borderRadius || 0}
-																ry={shape.styles?.borderRadius || 0}
-															/>
-														)}
-														{shape.type === "line" && (
-															<line
-																x1="0"
-																y1="50"
-																x2="100"
-																y2="50"
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-														{shape.type === "triangle" && (
-															<polygon
-																points="50,0 0,100 100,100"
-																fill={shape.styles?.fillColor || "#3b82f6"}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-														{shape.type === "circle" && (
-															<circle
-																cx="50"
-																cy="50"
-																r="50"
-																fill={shape.styles?.fillColor || "#3b82f6"}
-																stroke={shape.styles?.strokeColor || "#1e40af"}
-																strokeWidth={shape.styles?.strokeWidth || 2}
-															/>
-														)}
-													</svg>
-												</div>
-											);
-										})}
-									</div>
-								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence>
-
-					{/* Scaling Mode Indicator */}
-					{isScalingMode && (
-						<div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-yellow-500 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
-							<Zap className="w-4 h-4" />
-							<span className="text-sm font-semibold">
-								Scaling Mode Active - Hover over V key area to scale down
-							</span>
-							<button
-								onClick={() => setIsScalingMode(false)}
-								className="ml-2 hover:bg-yellow-600 rounded px-2 py-1"
-							>
-								<X className="w-4 h-4" />
-							</button>
-						</div>
-					)}
-					<TopCenterToolbar
-						addText={addText}
-						projects={projects}
-						backgroundImageDropdownRef={backgroundImageDropdownRef}
-						backgroundImageInputRef={backgroundImageInputRef}
-						handleBackgroundImageUpload={handleBackgroundImageUpload}
-						isBackgroundImageDropdownOpen={isBackgroundImageDropdownOpen}
-						setIsBackgroundImageDropdownOpen={setIsBackgroundImageDropdownOpen}
-						backgroundImage={backgroundImage}
-						setBackgroundImage={setBackgroundImage}
-						fileInputRef={fileInputRef}
-						macAssetImages={macAssetImages}
-						images={images}
-						setImages={setImages}
-						setSelectedImage={setSelectedImage}
-						setSelectedImages={setSelectedImages}
-						videoInputRef={videoInputRef}
-						iconSelectorDropdownRef={iconSelectorDropdownRef}
-						isIconSelectorOpen={isIconSelectorOpen}
-						setIsIconSelectorOpen={setIsIconSelectorOpen}
-						setIconSearchQuery={setIconSearchQuery}
-						addIcon={addIcon}
-						shapeDropdownRef={shapeDropdownRef}
-						isShapeDropdownOpen={isShapeDropdownOpen}
-						setIsShapeDropdownOpen={setIsShapeDropdownOpen}
-						addShape={addShape}
-						urlScreenshotDropdownRef={urlScreenshotDropdownRef}
-						isUrlScreenshotOpen={isUrlScreenshotOpen}
-						setIsUrlScreenshotOpen={setIsUrlScreenshotOpen}
-						urlInputRef={urlInputRef}
-						urlInput={urlInput}
-						setUrlInput={setUrlInput}
-						handleUrlScreenshot={handleUrlScreenshot}
-						isScreenshotLoading={isScreenshotLoading}
-						screenshotImage={screenshotImage}
-						setScreenshotImage={setScreenshotImage}
-						handleAddScreenshotToCanvas={handleAddScreenshotToCanvas}
-						framesList={framesList}
-						activeFrameId={activeFrameId}
-						handleFrameSelect={handleFrameSelect}
-						isLoadingFrames={isLoadingFrames}
-						handleAddFrame={handleAddFrame}
-						handleDeleteFrame={handleDeleteFrame}
-						isFrameActionLoading={isFrameActionLoading}
-						isAuthenticated={isAuthenticated}
-						setPreviewZoom={setPreviewZoom}
-						undo={undo}
-						historyIndex={historyIndex}
-						historyLength={history.length}
-						redo={redo}
-						handleCopyHTML={handleCopyHTML}
-						copied={copied}
-					/>
-
-					{/* MP4 Generation Loading Modal */}
-					<AnimatePresence>
-						{isGeneratingMP4 && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
-							>
-								<motion.div
-									initial={{ scale: 0.8, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									exit={{ scale: 0.8, opacity: 0 }}
-									className="bg-white rounded-xl p-8 max-w-md w-full mx-4"
-								>
-									<div className="text-center">
-										<div className="mb-4">
-											<div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zinc-600"></div>
-										</div>
-										<h3 className="text-xl font-semibold mb-2">
-											Generating MP4 Video
-										</h3>
-										<p className="text-zinc-600 mb-4">
-											{mp4Progress < 20
-												? "Initializing..."
-												: mp4Progress < 70
-													? "Recording frames..."
-													: mp4Progress < 90
-														? "Converting to MP4..."
-														: "Finalizing..."}
-										</p>
-										<div className="w-full bg-zinc-200 rounded-full h-2.5 mb-2">
-											<div
-												className="bg-zinc-600 h-2.5 rounded-full transition-all duration-300"
-												style={{ width: `${mp4Progress}%` }}
-											></div>
-										</div>
-										<p className="text-sm text-zinc-500">
-											{Math.round(mp4Progress)}%
-										</p>
-									</div>
-								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence>
-
-					{/* <AnimatePresence>
-						{isImageImprovementOpen && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="fixed inset-0 z-[20010] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
-								onClick={() => setIsImageImprovementOpen(false)}
-							>
-								<motion.div
-									initial={{ y: 40, opacity: 0 }}
-									animate={{ y: 0, opacity: 1 }}
-									exit={{ y: 40, opacity: 0 }}
-									transition={{ duration: 0.2 }}
-									className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl border border-zinc-100 p-6 space-y-5 max-h-[90vh] overflow-y-auto hidescrollbar"
-									onClick={(e) => e.stopPropagation()}
-								>
-									<div className="flex items-start justify-between gap-4">
-										<div>
-											<h3 className="text-lg font-semibold text-zinc-900">
-												Freepik Mystic Variants
-											</h3>
-											<p className="text-sm text-zinc-500">
-												We capture the current previewRef canvas, bundle your
-												AST, and ask Gemini 2.5 Flash Image to remix it into
-												fresh variants.
-											</p>
-										</div>
-										<button
-											onClick={() => setIsImageImprovementOpen(false)}
-											className="w-8 h-8 rounded-full border border-zinc-200 hover:bg-zinc-100 flex items-center justify-center text-zinc-600 transition-colors"
-											title="Close"
-										>
-											<X className="w-4 h-4" />
-										</button>
-									</div>
-
-									<div className="space-y-2">
-										<label className="text-xs font-medium text-zinc-700">
-											What should Mystic AI do?
-										</label>
-										<textarea
-											ref={improvementPromptRef}
-											value={improvementPrompt}
-											onChange={(e) => setImprovementPrompt(e.target.value)}
-											placeholder="Example: Make this hero futuristic with neon blues and glassmorphic cards, keep the CTA legible."
-											className="w-full min-h-[100px] rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent resize-none"
-										/>
-										<div className="flex flex-wrap items-center justify-between gap-3">
-											<p className="text-[11px] text-zinc-500">
-												Your AST + previewRef snapshot are only used for this
-												request.
-											</p>
-											<button
-												type="button"
-												onClick={handleGenerateAIVariants}
-												disabled={isGeneratingVariants}
-												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl text-white bg-amber-600 hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-											>
-												{isGeneratingVariants ? (
-													<>
-														<Loader2 className="w-3.5 h-3.5 animate-spin" />
-														<span>Generating...</span>
-													</>
-												) : (
-													<>
-														<Sparkles className="w-3.5 h-3.5" />
-														<span>Generate variants</span>
-													</>
-												)}
-											</button>
-										</div>
-									</div>
-
-									{variantNotes.length > 0 && (
-										<div className="space-y-2">
-											<p className="text-xs font-semibold text-zinc-700">
-												Model notes
-											</p>
-											<div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-3 space-y-2 max-h-40 overflow-y-auto">
-												{variantNotes.map((note, index) => (
-													<p
-														key={`note-${index}`}
-														className="text-xs text-zinc-600"
-													>
-														{note}
-													</p>
-												))}
-											</div>
-										</div>
-									)}
-
-									<div className="space-y-2">
-										<p className="text-xs font-semibold text-zinc-700">
-											Generated variants
-										</p>
-										{generatedImages.length > 0 ? (
-											<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-												{generatedImages.map((image, index) => (
+												return (
 													<div
-														key={`variant-${index}`}
-														className="space-y-2 rounded-2xl border border-zinc-100 p-2 bg-white shadow-sm"
+														key={shape.id}
+														className="absolute"
+														style={{
+															left: `${shape.x}%`,
+															top: `${shape.y}%`,
+															width: `${shape.width * scaleX}px`,
+															height: `${shape.height * scaleY}px`,
+															transform: "translate(-50%, -50%)",
+															zIndex: shape.styles?.zIndex || 1,
+														}}
 													>
-														<div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-zinc-100">
-															<img
-																src={image}
-																alt={`Mystic variant ${index + 1}`}
-																className="w-full h-full object-cover"
-															/>
-														</div>
-														<button
-															type="button"
-															onClick={() => handleAddVariantToCanvas(image)}
-															className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-xl border border-zinc-200 hover:border-zinc-400 transition-colors"
+														<svg
+															width="100%"
+															height="100%"
+															viewBox="0 0 100 100"
+															preserveAspectRatio={
+																shape.type === "circle"
+																	? "xMidYMid meet"
+																	: "none"
+															}
+															style={{
+																opacity: shape.styles?.opacity || 1,
+																filter: formatDropShadowCSS(
+																	shape.styles?.shadow
+																),
+															}}
 														>
-															<Plus className="w-3 h-3" />
-															Add to canvas
-														</button>
+															{shape.type === "rectangle" && (
+																<rect
+																	x="0"
+																	y="0"
+																	width="100"
+																	height="100"
+																	fill={shape.styles?.fillColor || "#3b82f6"}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																	rx={shape.styles?.borderRadius || 0}
+																	ry={shape.styles?.borderRadius || 0}
+																/>
+															)}
+															{shape.type === "square" && (
+																<rect
+																	x="0"
+																	y="0"
+																	width="100"
+																	height="100"
+																	fill={shape.styles?.fillColor || "#3b82f6"}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																	rx={shape.styles?.borderRadius || 0}
+																	ry={shape.styles?.borderRadius || 0}
+																/>
+															)}
+															{shape.type === "line" && (
+																<line
+																	x1="0"
+																	y1="50"
+																	x2="100"
+																	y2="50"
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+															{shape.type === "triangle" && (
+																<polygon
+																	points="50,0 0,100 100,100"
+																	fill={shape.styles?.fillColor || "#3b82f6"}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+															{shape.type === "circle" && (
+																<circle
+																	cx="50"
+																	cy="50"
+																	r="50"
+																	fill={shape.styles?.fillColor || "#3b82f6"}
+																	stroke={
+																		shape.styles?.strokeColor || "#1e40af"
+																	}
+																	strokeWidth={shape.styles?.strokeWidth || 2}
+																/>
+															)}
+														</svg>
 													</div>
-												))}
-											</div>
-										) : (
-											<div className="rounded-2xl border border-dashed border-zinc-200 p-6 text-center text-xs text-zinc-500">
-												Variants will appear here after you run Mystic AI.
-											</div>
-										)}
-									</div>
+												);
+											})}
+										</div>
+									</motion.div>
 								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence> */}
+							)}
+						</AnimatePresence>
 
-					<AnimatePresence>
-						{showSubscriptionModal && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								className="fixed inset-0 bg-black bg-opacity-20 z-50 flex items-center justify-center p-4"
-							>
-								<motion.div
-									initial={{ scale: 0.9, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									exit={{ scale: 0.9, opacity: 0 }}
-									onClick={(e) => e.stopPropagation()}
-									className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
+						{/* Scaling Mode Indicator */}
+						{isScalingMode && (
+							<div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-yellow-500 text-white px-4 py-2 rounded-xl shadow-lg flex items-center gap-2">
+								<Zap className="w-4 h-4" />
+								<span className="text-sm font-semibold">
+									Scaling Mode Active - Hover over V key area to scale down
+								</span>
+								<button
+									onClick={() => setIsScalingMode(false)}
+									className="ml-2 hover:bg-yellow-600 rounded px-2 py-1"
 								>
-									<div className="p-2 my-2 absolute right-4 top-4 z-50 hover:bg-zinc-50 cursor-pointer rounded-full">
-										<Cancel01Icon
-											className="w-3 h-3 text-zinc-900 "
-											onClick={() => setShowSubscriptionModal(false)}
-										/>
-									</div>
-									<SubscriptionModal
-										onClose={() => setShowSubscriptionModal(false)}
-										isOpen={showSubscriptionModal}
-									/>
+									<X className="w-4 h-4" />
+								</button>
+							</div>
+						)}
+						<TopCenterToolbar
+							addText={addText}
+							projects={projects}
+							backgroundImageDropdownRef={backgroundImageDropdownRef}
+							backgroundImageInputRef={backgroundImageInputRef}
+							handleBackgroundImageUpload={handleBackgroundImageUpload}
+							isBackgroundImageDropdownOpen={isBackgroundImageDropdownOpen}
+							setIsBackgroundImageDropdownOpen={
+								setIsBackgroundImageDropdownOpen
+							}
+							backgroundImage={backgroundImage}
+							setBackgroundImage={setBackgroundImage}
+							fileInputRef={fileInputRef}
+							macAssetImages={macAssetImages}
+							images={images}
+							setImages={setImages}
+							setSelectedImage={setSelectedImage}
+							setSelectedImages={setSelectedImages}
+							videoInputRef={videoInputRef}
+							iconSelectorDropdownRef={iconSelectorDropdownRef}
+							isIconSelectorOpen={isIconSelectorOpen}
+							setIsIconSelectorOpen={setIsIconSelectorOpen}
+							setIconSearchQuery={setIconSearchQuery}
+							addIcon={addIcon}
+							shapeDropdownRef={shapeDropdownRef}
+							isShapeDropdownOpen={isShapeDropdownOpen}
+							setIsShapeDropdownOpen={setIsShapeDropdownOpen}
+							addShape={addShape}
+							urlScreenshotDropdownRef={urlScreenshotDropdownRef}
+							isUrlScreenshotOpen={isUrlScreenshotOpen}
+							setIsUrlScreenshotOpen={setIsUrlScreenshotOpen}
+							urlInputRef={urlInputRef}
+							urlInput={urlInput}
+							setUrlInput={setUrlInput}
+							handleUrlScreenshot={handleUrlScreenshot}
+							isScreenshotLoading={isScreenshotLoading}
+							screenshotImage={screenshotImage}
+							setScreenshotImage={setScreenshotImage}
+							handleAddScreenshotToCanvas={handleAddScreenshotToCanvas}
+							framesList={framesList}
+							activeFrameId={activeFrameId}
+							handleFrameSelect={handleFrameSelect}
+							isLoadingFrames={isLoadingFrames}
+							handleAddFrame={handleAddFrame}
+							handleDeleteFrame={handleDeleteFrame}
+							isFrameActionLoading={isFrameActionLoading}
+							isAuthenticated={isAuthenticated}
+							setPreviewZoom={setPreviewZoom}
+							undo={undo}
+							historyIndex={historyIndex}
+							historyLength={history.length}
+							redo={redo}
+							handleCopyHTML={handleCopyHTML}
+							copied={copied}
+						/>
+
+						{/* MP4 Generation Loading Modal */}
+						<AnimatePresence>
+							{isGeneratingMP4 && (
+								<motion.div
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50"
+								>
+									<motion.div
+										initial={{ scale: 0.8, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.8, opacity: 0 }}
+										className="bg-white rounded-xl p-8 max-w-md w-full mx-4"
+									>
+										<div className="text-center">
+											<div className="mb-4">
+												<div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-zinc-600"></div>
+											</div>
+											<h3 className="text-xl font-semibold mb-2">
+												Generating MP4 Video
+											</h3>
+											<p className="text-zinc-600 mb-4">
+												{mp4Progress < 20
+													? "Initializing..."
+													: mp4Progress < 70
+														? "Recording frames..."
+														: mp4Progress < 90
+															? "Converting to MP4..."
+															: "Finalizing..."}
+											</p>
+											<div className="w-full bg-zinc-200 rounded-full h-2.5 mb-2">
+												<div
+													className="bg-zinc-600 h-2.5 rounded-full transition-all duration-300"
+													style={{ width: `${mp4Progress}%` }}
+												></div>
+											</div>
+											<p className="text-sm text-zinc-500">
+												{Math.round(mp4Progress)}%
+											</p>
+										</div>
+									</motion.div>
 								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence>
+							)}
+						</AnimatePresence>
 
-					<AnimatePresence>
-						{isKeyboardShortcutsOpen && (
-							<motion.div
-								initial={{ opacity: 0, y: 10 }}
-								animate={{ opacity: 1, y: 0 }}
-								exit={{ opacity: 0, y: 10 }}
-								transition={{ duration: 0.2 }}
-								className="fixed inset-0 bg-black bg-opacity-20 z-50 flex items-center justify-center p-4"
-								onMouseEnter={() => setIsKeyboardShortcutsOpen(true)}
-								onMouseLeave={() => setIsKeyboardShortcutsOpen(false)}
-							>
+						<AnimatePresence>
+							{showSubscriptionModal && (
 								<motion.div
-									initial={{ scale: 0.9, opacity: 0 }}
-									animate={{ scale: 1, opacity: 1 }}
-									exit={{ scale: 0.9, opacity: 0 }}
-									className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									className="fixed inset-0 bg-black bg-opacity-20 z-50 flex items-center justify-center p-4"
 								>
-									<div className="p-2 my-2 absolute right-4 top-4 z-50 hover:bg-zinc-50 cursor-pointer rounded-full">
-										<Cancel01Icon
-											className="w-3 h-3 text-zinc-900 "
-											onClick={() => setIsKeyboardShortcutsOpen(false)}
+									<motion.div
+										initial={{ scale: 0.9, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.9, opacity: 0 }}
+										onClick={(e) => e.stopPropagation()}
+										className="relative bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
+									>
+										<div className="p-2 my-2 absolute right-4 top-4 z-50 hover:bg-zinc-50 cursor-pointer rounded-full">
+											<Cancel01Icon
+												className="w-3 h-3 text-zinc-900 "
+												onClick={() => setShowSubscriptionModal(false)}
+											/>
+										</div>
+										<SubscriptionModal
+											onClose={() => setShowSubscriptionModal(false)}
+											isOpen={showSubscriptionModal}
 										/>
-									</div>
-									<div className="p-4">
-										<h3 className="text-lg font-semibold mb-3 text-zinc-900">
-											Keyboard Shortcuts
-										</h3>
-										<div className="space-y-2 text-sm">
-											<div className="flex items-center justify-between py-1">
-												<span className="text-zinc-600">Add Elements:</span>
-											</div>
-											<div className="grid grid-cols-2 gap-2 mt-2">
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Square</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														S
-													</kbd>
+									</motion.div>
+								</motion.div>
+							)}
+						</AnimatePresence>
+
+						<AnimatePresence>
+							{isKeyboardShortcutsOpen && (
+								<motion.div
+									initial={{ opacity: 0, y: 10 }}
+									animate={{ opacity: 1, y: 0 }}
+									exit={{ opacity: 0, y: 10 }}
+									transition={{ duration: 0.2 }}
+									className="fixed inset-0 bg-black bg-opacity-20 z-50 flex items-center justify-center p-4"
+									onMouseEnter={() => setIsKeyboardShortcutsOpen(true)}
+									onMouseLeave={() => setIsKeyboardShortcutsOpen(false)}
+								>
+									<motion.div
+										initial={{ scale: 0.9, opacity: 0 }}
+										animate={{ scale: 1, opacity: 1 }}
+										exit={{ scale: 0.9, opacity: 0 }}
+										className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] hidescrollbar overflow-auto flex flex-col"
+									>
+										<div className="p-2 my-2 absolute right-4 top-4 z-50 hover:bg-zinc-50 cursor-pointer rounded-full">
+											<Cancel01Icon
+												className="w-3 h-3 text-zinc-900 "
+												onClick={() => setIsKeyboardShortcutsOpen(false)}
+											/>
+										</div>
+										<div className="p-4">
+											<h3 className="text-lg font-semibold mb-3 text-zinc-900">
+												Keyboard Shortcuts
+											</h3>
+											<div className="space-y-2 text-sm">
+												<div className="flex items-center justify-between py-1">
+													<span className="text-zinc-600">Add Elements:</span>
 												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Video</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														V
-													</kbd>
-												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Line</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														L
-													</kbd>
-												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Text</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														T
-													</kbd>
-												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Triangle</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														⇧T
-													</kbd>
-												</div>
-											</div>
-											<div className="mt-3 pt-3 border-t border-zinc-200">
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
-													<span className="text-zinc-700">Delete Selected</span>
-													<div className="flex gap-1">
+												<div className="grid grid-cols-2 gap-2 mt-2">
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">Square</span>
 														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-															Delete
+															S
 														</kbd>
-														<span className="text-zinc-500">/</span>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">Video</span>
 														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-															Backspace
+															V
+														</kbd>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">Line</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															L
+														</kbd>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">Text</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															T
+														</kbd>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">Triangle</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															⇧T
 														</kbd>
 													</div>
 												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
-													<span className="text-zinc-700">Multiple Select</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														⌘+Click
-													</kbd>
-												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
-													<span className="text-zinc-700">Scaling Mode</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														K
-													</kbd>
-												</div>
-												<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
-													<span className="text-zinc-700">
-														Scale Down (in scaling mode)
-													</span>
-													<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
-														Hover V
-													</kbd>
+												<div className="mt-3 pt-3 border-t border-zinc-200">
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded">
+														<span className="text-zinc-700">
+															Delete Selected
+														</span>
+														<div className="flex gap-1">
+															<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+																Delete
+															</kbd>
+															<span className="text-zinc-500">/</span>
+															<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+																Backspace
+															</kbd>
+														</div>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
+														<span className="text-zinc-700">
+															Multiple Select
+														</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															⌘+Click
+														</kbd>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
+														<span className="text-zinc-700">Scaling Mode</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															K
+														</kbd>
+													</div>
+													<div className="flex items-center justify-between p-2 bg-zinc-50 rounded mt-2">
+														<span className="text-zinc-700">
+															Scale Down (in scaling mode)
+														</span>
+														<kbd className="px-2 py-1 bg-zinc-200 text-zinc-800 rounded text-xs font-mono">
+															Hover V
+														</kbd>
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
+									</motion.div>
 								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence>
+							)}
+						</AnimatePresence>
+					</div>
 				</div>
-			</div>
-			<AnimatePresence>
-				<FeaturesSectionModal
-					isOpen={isOpenAboutModal}
-					onClose={() => setIsOpenAboutModal(false)}
+				<AnimatePresence>
+					<FeaturesSectionModal
+						isOpen={isOpenAboutModal}
+						onClose={() => setIsOpenAboutModal(false)}
+					/>
+				</AnimatePresence>
+				<ProjectsModal
+					isOpen={isProjectModalOpen}
+					onClose={() => setIsProjectModalOpen(false)}
+					projects={projects}
+					onSelectProject={(project) => {
+						loadProject(project.id);
+						router.push(`/app?projectId=${project.id}`, undefined, {
+							shallow: true,
+						});
+					}}
+					currentProjectId={currentProjectId}
+					user={user}
+					onProjectsChange={() =>
+						queryClient.invalidateQueries(["projects", user?.uid])
+					}
 				/>
-			</AnimatePresence>
-		</div>
+				<VariantSelectionModal
+					isOpen={isVariantsModalOpen}
+					onClose={() => setIsVariantsModalOpen(false)}
+					variants={generatedVariants}
+					onGenerateMore={handleGenerateVariants}
+					isGeneratingMore={generateVariantsMutation.isPending}
+				/>
+				<ReleaseBox
+					isOpen={isReleasesModalOpen}
+					onClose={() => setIsReleasesModalOpen(false)}
+				/>
+			</div>
+		</EditorProvider>
 	);
 };
 

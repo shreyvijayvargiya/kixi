@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://kixi.app
+
+# Sitemaps
+Sitemap: https://kixi.app/sitemap.xml

@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	Zap,
-	Code,
 	Download,
-	ShieldCheck,
 	Sparkles,
 	Rocket,
 	ChevronLeft,
@@ -60,9 +58,8 @@ const FeaturesSectionModal = ({ isOpen, onClose }) => {
 		},
 		{
 			icon: <Rocket className="w-6 h-6 text-zinc-800" />,
-			title: "Unlimited Projects",
-			description:
-				"Create and save unlimited gradient projects. Access them anytime, anywhere.",
+			title: "Multi frames",
+			description: "Create and save multiple pages/frames per project",
 			bgColor: "bg-pink-50",
 		},
 	];
